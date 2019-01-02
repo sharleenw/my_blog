@@ -6,10 +6,10 @@
 
 # The URL of your website.
 # End your URL with a `/` trailing slash, e.g. `https://example.com/`.
-baseurl = "https://sharleenw.netlify.com//"
+baseurl = "https://sharleenw.rbind.io/"
 
 # Title of your site
-title = "Sharleen"
+title = "Home"
 
 # Your copyright notice - appears in site footer.
 # To display a copyright symbol, type `&copy;`.

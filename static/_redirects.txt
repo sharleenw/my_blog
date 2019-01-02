@@ -1,0 +1,3 @@
+https://sharleenw.netlify.com/*  https://sharleenw.rbind.io/:splat  301!
+http://sharleenw.netlify.com/*   https://sharleenw.rbind.io/:splat  301!
+http://sharleenw.rbind.io/* https://sharleenw.rbind.io/:splat 301!
