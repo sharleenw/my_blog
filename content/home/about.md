@@ -30,7 +30,7 @@ weight = 4
 
 # Biography
 
-I am a Statistician at the College of Nurses of Ontario in Toronto, Ontario.
+I am a Statistician in Toronto, Ontario.
 
 This blog is for publishing some of the data analysis projects that I do in my spare time.
 

@@ -1,0 +1,289 @@
+---
+title: 'Hamilton Christmas Bird Count: Part 1'
+subtitle: 'Data importing and cleaning of all of the Hamilton CBC data'
+author: Sharleen
+date: '2019-01-07'
+slug: hamilton-christmas-bird-count-part-1
+categories: []
+tags:
+  - data analysis
+  - R
+  - natural history
+  - ornithology
+  - ecology
+  - birding
+  - regex
+  - tidyverse
+draft: false
+image:
+  caption: 'Image credit: [**Public Domain Pictures**](https://www.publicdomainpictures.net/en/view-image.php?image=243075&picture=black-capped-chickadee-on-branch-3)'
+  preview_only: false
+editor_options:
+  chunk_output_type: console
+---
+
+# Note
+
+This is the first part of three for this data set. Part 1 contains only data cleaning, Part 2 contains visualization and analysis, and Part 3 contains a Shiny app.
+
+# Introduction
+
+About two years ago, I was taking my dog for a walked through the park and I began to realize that birds are fascinating! I began regularly going out birding (or "bird-watching") and reading up on these cool little flying dinosaurs.
+
+It turns out there's a lot of data in the birding world as well. Birding attracts the sort of detail-oriented person who likes to count and record stuff.
+
+So there are lots of opportunities to get involved in citizen science projects, including a long-running project called the "Christmas Bird Count". It started in 1900, when Frank Chapman, an ornithologist, came up with the idea as an alternative to hunting birds at Christams (which used to be the tradition)[1].
+
+Birders have been going out every year around Christmas, to spnd their day walking, biking, or driving around a census area to count all the birds they see or hear.
+
+For the past two years, I have gone out with Hamilton's Christmas Bird Count. I learn a lot while I'm out there and it feels like we are contributing to a larger purpose because we are collecting data.
+
+So I thought I would look at the data and see what it could tell me!
+
+More specifically, I've been curious about bird counts in general, because birders will say things like "the House Sparrows are getting worse every year" or "the number of Bald Eagles have increased", and I wondered if looking at the Christmas Bird Count data could answer some of those questions.
+
+I went on the [Bird Studies Canada](https://www.birdscanada.org/index.jsp) website, clicked on Citizen Science, then Christmas Bird Count, then CBC Audubon Database, and then Historical Results by Count. I downloaded all years of data that existed for the Hamilton count.
+
+[1]: https://news.nationalgeographic.com/news/2014/12/141227-christmas-bird-count-anniversary-audubon-animals-science/
+
+# Data cleaning
+
+I started by loading all of the packages I will be using:
+
+```{r setup, message = FALSE}
+library(dplyr)
+library(janitor)
+library(readr)
+library(tidyr)
+library(naniar)
+library(lubridate)
+library(measurements)
+library(stringr)
+library(ggplot2)
+library(purrr)
+
+```
+
+I read in all of the data using the [`readr`](https://readr.tidyverse.org/) package.
+
+```{r reading_the_data, message = FALSE, warning = FALSE}
+
+hamilton_cbc <- read_csv("hamilton-cbc-all-years-csv.csv")
+```
+
+It turns out that the first two lines just give information about which count it is and latitude/longitude, so I extracted those two pieces of information as `current_circle_name` and `lat_long` and then [`slice`d](https://dplyr.tidyverse.org/reference/slice.html) the file so that the first two lines are excluded from the dataset. I then used `clean_names` from the very cool [`janitor`](https://www.rdocumentation.org/packages/janitor/versions/1.1.1/topics/clean_names) package.
+
+```{r initial_look}
+
+head(hamilton_cbc, n = 14)
+
+current_circle_name <- hamilton_cbc[1, 1]
+lat_long <- hamilton_cbc[1, 3]
+
+hamilton_cbc <- hamilton_cbc %>%
+  slice(3 : n())
+
+hamilton_cbc <- hamilton_cbc %>%
+  clean_names()
+
+```
+
+Since I played around with this dataset before writing this, it turns out that there are actually five tables in this dataset: The first three tables contain weather data of the count day. I determined that a lot of the weather data is missing or mis-labelled and I'm not sure what the units are for the temperature column (sometimes it's hard-coded in as Celsius or Fahrenheit and sometimes there's no units). Since I will be doing another blog post about historical weather trends, I will remove these first three tables from the dataset.
+
+Here is the end of the first table and the start of the second table. There is a line of `NA`s between the two tables:
+
+```{r between_1_2_tables}
+
+hamilton_cbc %>% slice(47:57)
+
+```
+
+Here is the end of the second table and the start of the third table. There is a line of `NA`s between the two tables:
+
+```{r between_2_3_tables}
+
+hamilton_cbc %>% slice(142:152)
+
+```
+
+Here is the end of the third table and the start of the fourth table. There is a line of `NA`s between the two tables. The fourth table is where the bird count data actually starts!
+
+```{r between_3_4_tables}
+
+hamilton_cbc %>% slice(240:250)
+
+```
+
+I decided to programmatically separate the first three tables out from the dataset, in order to be able to easily replicate this analysis when more years' data gets added, or if I want to repeat this analysis for another count area.
+
+```{r removing_three_tables}
+
+# Declare two lists, one for each table and one for the header of each table
+meta_data_table <- list()
+meta_data_table_headers <- list()
+
+
+for (i in 1:3) {
+  
+  # For each of the three tables, put the first row of data into this variable (i.e., the header data)
+  meta_data_table_headers[[i]] <- hamilton_cbc[1, ] %>%
+    replace(is.na(.), "NA")  # If a column name is NA, replace that with the letters "NA", in case there is data in the column
+  
+  
+  j <- 2  # Start j at 2, because we want to exclude the header row
+  meta_data_row <- list()
+  
+  # Add each row of data to meta_data_row
+  while (!is.na(hamilton_cbc[["circle_name"]][j])) {  # "circle_name" being the name of the first column and we know there is a row of NAs between each table
+    meta_data_row[[j]] <- hamilton_cbc[j, ]
+    j <- j + 1
+  }
+  
+  meta_data_table[[i]] <- meta_data_row %>%
+    bind_rows()
+
+  
+  meta_data_table[[i]] <- meta_data_table[[i]] %>%
+    rename_all(funs(meta_data_table_headers[[i]])) %>%
+    remove_empty(which = "cols") %>% 
+    rename(count_year = 1) %>%  # rename knows we are referring to the first column!
+    clean_names()
+
+  
+  # Remove the meta-data table from the rest of the data set
+  hamilton_cbc <- hamilton_cbc %>%
+    slice((j + 1) : n())
+}
+```
+
+Whew! So now we have a list `meta_data_table` that contains the three meta-data tables.
+
+In the below code chunk, I converted the three tables in the `meta_data_table` list into one `overall_meta_data` table using [`purrr`](https://purrr.tidyverse.org/).
+
+Then, using the `replace_with_na_all` function from the [`naniar`](https://purrr.tidyverse.org/) package, anywhere the data said "Unknown", I converted it to a proper `NA`.
+
+I then `mutate`d the variables: I used the `mdy` and `year` functions from the [`lubridate`](https://cran.r-project.org/web/packages/lubridate/vignettes/lubridate.html) to convert the character variables `low_temp3` (actually a date variable) and `date` into a `Date` and `dbl` variable, respectively.
+
+I also used the `word` function from the [`stringr`](https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html) package. It extracts out only the first word from a character string.
+
+```{r combining_meta_data}
+# Reduce documentation: reduce(list(x1, x2, x3), f) is equivalent to f(f(x1, x2), x3)
+
+overall_meta_data <- meta_data_table %>%
+  reduce(full_join, by = "count_year")
+
+overall_meta_data <- overall_meta_data %>%
+  replace_with_na_all(condition = ~.x == "Unknown")
+
+overall_meta_data <- overall_meta_data %>%
+  mutate(date = mdy(low_temp3),
+         low_temp = word(low_temp), # Extracts the first word from a string!
+         high_temp = word(high_temp),
+         year = year(date)) %>%
+  select(year, date, count_year, low_temp:pm_snow)
+# I removed some confusing variables high_temp2:pm_clouds2
+
+```
+
+I've decided not to use this meta-data table though, as there is a lot of missing data, and I will do a proper analysis of the weather of Hamilton during the CBC in another post.
+
+We are almost able to clean the bird count data, but first, we need to deal with the fact that there is another meta-data table below the bird count data!
+
+```{r secret_meta_table}
+
+hamilton_cbc %>% slice(23215:23211)
+
+```
+
+I won't show the data here because it's people's names, but it shows the full names of the counters. It looks like the data has gotten much better in more recent years. I considered adding this data to the `overall_meta_table` but I don't need it and I don't know how consistent it is.
+
+But first, we'll clean up the basic data set a bit in the below chunk.
+
+I used the `rename_all` function along with `slice(-1)` to remove the column names from the first row and make them the real column names.
+
+```{r basic_cleaning}
+
+hamilton_cbc <- hamilton_cbc %>%
+  remove_empty(which = "cols")
+
+hamilton_cbc <- hamilton_cbc %>%  # Do this line after removing empty columns!
+  rename_all(funs(hamilton_cbc[1, ])) %>%
+  slice(-1) %>%
+  clean_names()
+
+hamilton_cbc <- hamilton_cbc %>%
+  rename(species = com_name)
+
+```
+
+Now we can remove with the fifth data table. I noticed that every row of the bird count data included a `[` character in the species variable, so I filtered out every row in the data set that didn't have a `[` character. Notice that I put two `\`'s in front of the `[`, that is because the `[` is a special character and `str_detect` needs to know I mean the actual character `[`, and putting two `\`'s in front of the `[` is the way to do it.
+
+```{r removing_secret_table}
+
+hamilton_cbc <- hamilton_cbc %>%
+  filter(str_detect(species, "\\["))
+
+```
+
+
+Now, we do some regex!
+
+
+# I like @kohske's regex, which looks behind for an open parenthesis ?<=\\(, looks ahead for a closing parenthesis ?=\\), and grabs everything in the middle (lazily) .+?, in other words (?<=\\().+?(?=\\))
+# https://stackoverflow.com/questions/8613237/extract-info-inside-all-parenthesis-in-r
+hamilton_cbc <- hamilton_cbc %>%
+  mutate(species_latin = str_extract(species, "(?<=\\[).+?(?=\\])"),
+         species = word(species, 1, sep = fixed('\n[')))
+
+
+# From the below three pipes of code, it looks like the count_year variable is actually several variables in one:
+# year
+# [count_year]
+# count date
+# number of participants
+# number of the participants
+# number of species reported
+# total hours spent
+# This is all metadata and we can take it out of here and put it in our metadata file
+# But first, we should parse out the year, so we can join it with the metadata later if we would like
+hamilton_cbc %>%
+  filter(row_number() == 1) %>%
+  pull(count_year)
+
+hamilton_cbc %>%
+  filter(row_number() == n()) %>%
+  pull(count_year)
+
+hamilton_cbc %>%
+  filter(row_number() == n() - 1) %>%
+  pull(count_year)
+
+# Yes, it is metadata, with only one value per year!
+hamilton_cbc %>% count(count_year) #%>% View()
+
+# Take it out of the hamilton_cbc dataset
+count_participant_metadata <- hamilton_cbc %>%
+  distinct(participant_info = count_year) %>%
+  mutate(year = word(participant_info)) %>%
+  mutate(number_of_participants = str_extract(participant_info, "(?<=Participants:\\s).+?(?=\\s#)")) %>% # Getting everything between the "Participants: " and " #"
+  mutate(species_reported = str_extract(participant_info, "(?<=Reported:\\s).+?(?=\\nTotal)")) %>%
+  mutate(total_hours = str_extract(participant_info, "(?<=Hrs\\.:\\s).*$")) # Different regex because it is at the end of the string: https://forum.sublimetext.com/t/regex-match-everything-after-this-word/20764
+  
+count_participant_metadata <- count_participant_metadata %>%
+  select(year, total_hours)
+
+
+overall_meta_data <- count_participant_metadata %>% 
+  mutate(year = as.integer(year),
+         total_hours = as.double(total_hours)) %>%
+  full_join(overall_meta_data, by = "year")
+
+hamilton_cbc <- hamilton_cbc %>%
+  rename(participant_info = count_year,
+         how_many_counted = how_many_cw) %>%
+  mutate(year = as.integer(word(participant_info)))
+
+```
+
+
+CBC Data was provided by [National Audubon Society](www.christmasbirdcount.org) and through the generous efforts of [Bird Studies Canada](www.bsc-eoc.org) and countless volunteers across the western hemisphere.
