@@ -1,0 +1,61 @@
+---
+title: 'Hamilton Christmas Bird Count: Part 2'
+subtitle: 'Visualising the Hamilton CBC data'
+author: Sharleen
+date: '2019-01-20'
+slug: hamilton-christmas-bird-count-part-2
+categories: []
+tags:
+  - data analysis
+  - R
+  - natural history
+  - ornithology
+  - ecology
+  - birding
+  - ggplot2
+  - tidyverse
+draft: true
+image:
+  caption: 'Northern Cardinal image credit: [**Public Domain Files**](http://www.publicdomainfiles.com/show_file.php?id=13962429013391)'
+  preview_only: false
+
+---
+
+
+
+<div id="note" class="section level1">
+<h1>Note</h1>
+<p>This is the first part of three for this data set. Part 1 contains only data cleaning, Part 2 contains visualisation and Part 3 contains my Shiny app!</p>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>About two years ago, I was taking my dog for a walked through the park and I began to realize that birds are fascinating! :bird: I began regularly going out birding (or “bird-watching”) and reading up on these cool little flying dinosaurs.</p>
+<p>It turns out there’s a lot of data in the birding world as well. Birding attracts the sort of detail-oriented person who likes to count and record stuff.</p>
+<p>So there are lots of opportunities to get involved in citizen science projects, including a long-running project called the “Christmas Bird Count”. It started in 1900, when Frank Chapman, an ornithologist, came up with the idea as an alternative to hunting birds at Christams (which used to be the tradition)<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
+<p>Birders have been going out every year around Christmas, to spnd their day walking, biking, or driving around a census area to count all the birds they see or hear.</p>
+<p>For the past two years, I have gone out with Hamilton’s Christmas Bird Count. I learn a lot while I’m out there and it feels like we are contributing to a larger purpose because we are collecting data.</p>
+<p>So I thought I would look at the data and see what it could tell me!</p>
+<p>More specifically, I’ve been curious about bird counts in general, because birders will say things like “the House Sparrows are getting worse every year” or “the number of Bald Eagles have increased”, and I wondered if looking at the Christmas Bird Count data could answer some of those questions.</p>
+<p>I went on the <a href="https://www.birdscanada.org/index.jsp">Bird Studies Canada</a> website, clicked on Citizen Science, then Christmas Bird Count, then CBC Audubon Database, and then Historical Results by Count. I downloaded all years of data that existed for the Hamilton count.</p>
+</div>
+<div id="data-cleaning" class="section level1">
+<h1>Data cleaning</h1>
+<p>I started by loading all of the packages I will be using:</p>
+<pre class="r"><code>library(dplyr)
+library(janitor)
+library(readr)
+library(naniar)
+library(lubridate)
+library(stringr)
+library(purrr)
+library(tidyr)</code></pre>
+<p>I read in all of the data using the <a href="https://readr.tidyverse.org/"><code>readr</code></a> package.</p>
+<pre class="r"><code>#hamilton_cbc &lt;- read_csv(&quot;hamilton-cbc-all-years-csv.csv&quot;)</code></pre>
+<p>And thank you to the CBC! The CBC Data was provided by <a href="www.christmasbirdcount.org">National Audubon Society</a> and through the generous efforts of <a href="www.bsc-eoc.org">Bird Studies Canada</a> and countless volunteers across the western hemisphere.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p><a href="https://news.nationalgeographic.com/news/2014/12/141227-christmas-bird-count-anniversary-audubon-animals-science/" class="uri">https://news.nationalgeographic.com/news/2014/12/141227-christmas-bird-count-anniversary-audubon-animals-science/</a><a href="#fnref1">↩</a></p></li>
+</ol>
+</div>

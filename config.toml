@@ -57,14 +57,14 @@ enableGitInfo = false
 
   # Organizations/Affiliations.
   #   Separate multiple entries with a comma, using the form: `[ {name="Org1", url=""}, {name="Org2", url=""} ]`.
-  organizations = [ { name = "College of Nurses of Ontario", url = "https://cno.org/" } ]
+  # organizations = [ { name = "", url = "" } ]
 
   gravatar = false  # Get your avatar from Gravatar.com? (true/false)
   avatar = "portrait.jpg"  # Specify an avatar image (in `static/img/` folder) or delete value to disable avatar.
 
   # Details for the Contact Widget
   email = "sharleen@fastmail.com"
-  #address = "Building 1 Room 1, Stanford University, California, 90210, USA"
+  #address = ""
   #office_hours = """
   #Monday 10:00 to 13:00<br>
   #Wednesday 09:00 to 10:00<br>
@@ -99,8 +99,8 @@ enableGitInfo = false
   #   3: OpenStreetMap (Mapbox)
   map = 0
   map_api_key = ""
-  latitude = "43.673944"
-  longitude = "-79.391972"
+  latitude = ""
+  longitude = ""
   zoom = 15
 
   # SITE SETUP

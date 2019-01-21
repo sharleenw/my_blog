@@ -13,8 +13,8 @@ weight = 2
 #   Deactivate an option by commenting out the line, prefixing it with `#`.
 [header]
   overlay_color = "#666"  # An HTML color value.
-  overlay_img = "headers/bubbles-wide.jpg"  # Image path relative to your `static/img/` folder.
-  overlay_filter = 0.5  # Darken the image. Value in range 0-1.
+  overlay_img = "headers/allan_gardens.jpg"  # Image path relative to your `static/img/` folder.
+  overlay_filter = 0.3  # Darken the image. Value in range 0-1.
 
 
 # Call to action button (optional).
@@ -25,4 +25,4 @@ weight = 2
 #  label = '<i class="fas fa-download"></i> Install Now'
 +++
 
-Welcome! This is where I will post my data analysis projects that are helping me to learn the <a href = "https://www.r-project.org/" target = "_blank">R programming language</a>. :owl:
+Welcome! This is where I post my data analysis projects that are helping me to learn the <a href = "https://www.r-project.org/" target = "_blank">R programming language</a>. :owl:

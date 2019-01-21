@@ -16,23 +16,22 @@ tags:
   - tidyverse
 draft: false
 image:
-  caption: 'Image credit: [**Public Domain Pictures**](https://www.publicdomainpictures.net/en/view-image.php?image=243075&picture=black-capped-chickadee-on-branch-3)'
+  caption: 'Black-Capped Chickadee image credit: [**Public Domain Pictures**](https://www.publicdomainpictures.net/en/view-image.php?image=243075&picture=black-capped-chickadee-on-branch-3)'
   preview_only: false
-editor_options:
-  chunk_output_type: console
+
 ---
 
 # Note
 
-This is the first part of three for this data set. Part 1 contains only data cleaning, Part 2 contains visualization and analysis, and Part 3 contains a Shiny app.
+This is the first part of three for this data set. Part 1 contains only data cleaning, Part 2 contains visualisation and Part 3 contains my Shiny app!
 
 # Introduction
 
-About two years ago, I was taking my dog for a walked through the park and I began to realize that birds are fascinating! I began regularly going out birding (or "bird-watching") and reading up on these cool little flying dinosaurs.
+About two years ago, I was taking my dog for a walked through the park and I began to realize that birds are fascinating! :bird: I began regularly going out birding (or "bird-watching") and reading up on these cool little flying dinosaurs.
 
 It turns out there's a lot of data in the birding world as well. Birding attracts the sort of detail-oriented person who likes to count and record stuff.
 
-So there are lots of opportunities to get involved in citizen science projects, including a long-running project called the "Christmas Bird Count". It started in 1900, when Frank Chapman, an ornithologist, came up with the idea as an alternative to hunting birds at Christams (which used to be the tradition)[1].
+So there are lots of opportunities to get involved in citizen science projects, including a long-running project called the "Christmas Bird Count". It started in 1900, when Frank Chapman, an ornithologist, came up with the idea as an alternative to hunting birds at Christams (which used to be the tradition)[^1].
 
 Birders have been going out every year around Christmas, to spnd their day walking, biking, or driving around a census area to count all the birds they see or hear.
 
@@ -44,7 +43,7 @@ More specifically, I've been curious about bird counts in general, because birde
 
 I went on the [Bird Studies Canada](https://www.birdscanada.org/index.jsp) website, clicked on Citizen Science, then Christmas Bird Count, then CBC Audubon Database, and then Historical Results by Count. I downloaded all years of data that existed for the Hamilton count.
 
-[1]: https://news.nationalgeographic.com/news/2014/12/141227-christmas-bird-count-anniversary-audubon-animals-science/
+[^1]: https://news.nationalgeographic.com/news/2014/12/141227-christmas-bird-count-anniversary-audubon-animals-science/
 
 # Data cleaning
 
@@ -54,13 +53,11 @@ I started by loading all of the packages I will be using:
 library(dplyr)
 library(janitor)
 library(readr)
-library(tidyr)
 library(naniar)
 library(lubridate)
-library(measurements)
 library(stringr)
-library(ggplot2)
 library(purrr)
+library(tidyr)
 
 ```
 
@@ -75,7 +72,7 @@ It turns out that the first two lines just give information about which count it
 
 ```{r initial_look}
 
-head(hamilton_cbc, n = 14)
+hamilton_cbc %>% head(n = 11)
 
 current_circle_name <- hamilton_cbc[1, 1]
 lat_long <- hamilton_cbc[1, 3]
@@ -88,7 +85,7 @@ hamilton_cbc <- hamilton_cbc %>%
 
 ```
 
-Since I played around with this dataset before writing this, it turns out that there are actually five tables in this dataset: The first three tables contain weather data of the count day. I determined that a lot of the weather data is missing or mis-labelled and I'm not sure what the units are for the temperature column (sometimes it's hard-coded in as Celsius or Fahrenheit and sometimes there's no units). Since I will be doing another blog post about historical weather trends, I will remove these first three tables from the dataset.
+Since I played around with this dataset before writing this, it turns out that there are actually five tables in this dataset: The first three tables contain weather data of the count day. I determined that a lot of the weather data is missing and I'm not sure what the units are for the temperature column (sometimes it's hard-coded in as Celsius or Fahrenheit and sometimes there's no units). Since I will be doing another blog post about historical weather trends, I will remove these first three tables from the dataset.
 
 Here is the end of the first table and the start of the second table. There is a line of `NA`s between the two tables:
 
@@ -191,7 +188,7 @@ We are almost able to clean the bird count data, but first, we need to deal with
 
 ```{r secret_meta_table}
 
-hamilton_cbc %>% slice(23215:23211)
+hamilton_cbc %>% slice(23215:23221)
 
 ```
 
@@ -225,65 +222,198 @@ hamilton_cbc <- hamilton_cbc %>%
 
 ```
 
+So where are we at, at the moment? We have only one data set left, and it looks like this:
+
+```{r checking_in}
+
+hamilton_cbc %>% head(n = 11)
+
+```
+
+- `species` gives the species name in English and the scientific name
+- `count_year` data gives a lot of information that we will parse out in a moment
+- `how_many_cw` provides the actual bird count
+- `number_by_party_hours` is (as per the CBC [documentation](https://www.audubon.org/sites/default/files/documents/compilers_manual_0.pdf)) how many birds were counted divided by the number of person-hours that year
 
 Now, we do some regex!
 
+First, I want to split up the `species` variable into the common `species` name and the scientific `species_latin` name.
 
-# I like @kohske's regex, which looks behind for an open parenthesis ?<=\\(, looks ahead for a closing parenthesis ?=\\), and grabs everything in the middle (lazily) .+?, in other words (?<=\\().+?(?=\\))
-# https://stackoverflow.com/questions/8613237/extract-info-inside-all-parenthesis-in-r
+For the first mutate:
+I use the regex I found on [StackOverflow](https://stackoverflow.com/questions/8613237/extract-info-inside-all-parenthesis-in-r), which as Nettle says:
+
+> I like @kohske's regex, which looks behind for an open parenthesis ?<=\\(, looks ahead for a closing parenthesis ?=\\), and grabs everything in the middle (lazily) .+?, in other words (?<=\\().+?(?=\\))
+
+
+For the second mutate:
+As you can see in the code directly below, there is a line break (`\n`) between every English name and every scientific name in `species`. We will use that to parse out the scientific name:
+
+```{r checking_out_species}
+
+hamilton_cbc %>% 
+  filter(row_number() == 1) %>% 
+  pull(species)
+
+```
+
+Here we are putting the two `mutate`s together:
+
+```{r species_latin}
+
+# Putting it together: Mutating the two variables
 hamilton_cbc <- hamilton_cbc %>%
   mutate(species_latin = str_extract(species, "(?<=\\[).+?(?=\\])"),
-         species = word(species, 1, sep = fixed('\n[')))
+         species = word(species, start = 1, sep = fixed('\n[')))
 
+```
 
-# From the below three pipes of code, it looks like the count_year variable is actually several variables in one:
-# year
-# [count_year]
-# count date
-# number of participants
-# number of the participants
-# number of species reported
-# total hours spent
-# This is all metadata and we can take it out of here and put it in our metadata file
-# But first, we should parse out the year, so we can join it with the metadata later if we would like
-hamilton_cbc %>%
-  filter(row_number() == 1) %>%
+Now we will look at the `count_year` variable. Let's get a sense of what the variable looks like, using the White-Breasted Nuthatch count of 2016:
+
+```{r checking_out_count_year}
+
+hamilton_cbc %>% 
+  filter(row_number() == 15133) %>% 
   pull(count_year)
 
-hamilton_cbc %>%
-  filter(row_number() == n()) %>%
-  pull(count_year)
+```
 
-hamilton_cbc %>%
-  filter(row_number() == n() - 1) %>%
-  pull(count_year)
+The `count_year` variable is actually several variables in one:
 
-# Yes, it is metadata, with only one value per year!
-hamilton_cbc %>% count(count_year) #%>% View()
+- calendar year
+- [CBC count number]
+- calendar count date
+- number of participants
+- number of species reported
+- total hours spent that year on the count
 
-# Take it out of the hamilton_cbc dataset
-count_participant_metadata <- hamilton_cbc %>%
+This is all metadata and we can take it out of this data set and put it in our `overall_meta_data` file. The only variable we will keep in the `hamilton_cbc` data set is the calendar year, so that we can plot by year and so we can join to the metadata later if we want.
+
+To join the `count_participant_meta_data` to the `overall_meta_data` First we will parse the different variables out:
+
+```{r participant_meta_data}
+
+count_participant_meta_data <- hamilton_cbc %>%
   distinct(participant_info = count_year) %>%
   mutate(year = word(participant_info)) %>%
-  mutate(number_of_participants = str_extract(participant_info, "(?<=Participants:\\s).+?(?=\\s#)")) %>% # Getting everything between the "Participants: " and " #"
-  mutate(species_reported = str_extract(participant_info, "(?<=Reported:\\s).+?(?=\\nTotal)")) %>%
-  mutate(total_hours = str_extract(participant_info, "(?<=Hrs\\.:\\s).*$")) # Different regex because it is at the end of the string: https://forum.sublimetext.com/t/regex-match-everything-after-this-word/20764
-  
-count_participant_metadata <- count_participant_metadata %>%
+  mutate(number_of_participants = str_extract(
+    participant_info, "(?<=Participants:\\s).+?(?=\\s#)")) %>%  # Getting everything between "Participants: " and " #"
+  mutate(species_reported = str_extract(
+    participant_info, "(?<=Reported:\\s).+?(?=\\nTotal)")) %>%  # Getting everything between "Reported: " and "Total"
+  mutate(total_hours = str_extract(
+    participant_info, "(?<=Hrs\\.:\\s).*$"))  # Getting everything after "Hrs.: "
+# This regex is different because we are going until the end of the string:
+# https://forum.sublimetext.com/t/regex-match-everything-after-this-word/20764
+
+count_participant_meta_data %>% head()
+
+```
+
+Since `number_of_participants` and `species_reported` ended up having lots of missing data, I decided not to include them in the `overall_meta_data` data set.
+
+```{r joining_participant_meta_data_to_overall}
+
+count_participant_meta_data <- count_participant_meta_data %>%
   select(year, total_hours)
 
-
-overall_meta_data <- count_participant_metadata %>% 
+overall_meta_data <- count_participant_meta_data %>% 
   mutate(year = as.integer(year),
          total_hours = as.double(total_hours)) %>%
   full_join(overall_meta_data, by = "year")
 
+```
+
+So, how's our `overall_meta_data` looking?
+
+```{r where_are_we_meta_data}
+
+overall_meta_data %>% glimpse()
+
+```
+
+Let's take another quick peek at where we're at with the `hamilton_cbc` data set:
+
+```{r where_are_we}
+
+hamilton_cbc %>% glimpse()
+
+```
+
+Let's just clean up the variables:
+
+```{r final_clean_up}
+
 hamilton_cbc <- hamilton_cbc %>%
   rename(participant_info = count_year,
          how_many_counted = how_many_cw) %>%
-  mutate(year = as.integer(word(participant_info)))
+  mutate(year = as.integer(word(participant_info)),  # We will keep year and total_hours
+         total_hours = as.double(
+           str_extract(
+             participant_info, "(?<=Hrs\\.:\\s).*$")))
+
+```
+
+We almost have a clean data set! :soon: :sparkles::sparkles::sparkles: :tada:
+
+I am going to remove the `flags` variable (`flags` refers to things like "`US`" for "unusual" bird, which we don't need for our analysis). I am also going to remove `number_by_party_hours` and derive it myself instead.
+
+```{r select_out_variables}
+
+hamilton_cbc <- hamilton_cbc %>%
+  select(year, species, species_latin, how_many_counted, total_hours)
+
+```
+
+It turns out that `how_many_counted` also has a "`cw`" value, which means the bird was not seen on count day itself, but was seen during the days leading up to the count, or right after. I am going to set these bird counts as `NA`, as they don't have a specified value that I can be sure of (it's probably a "1", but I can't be sure).
+
+```{r removing_cw_birds}
+
+hamilton_cbc <- hamilton_cbc %>%
+  mutate(how_many_counted = ifelse(how_many_counted == "cw", NA, how_many_counted),
+         how_many_counted = as.integer(how_many_counted))
+
+```
+
+In the `species` variable, there are some rows that are identified only to the species level. I think I will exclude them. I believe [EBird](https://ebird.org/home) excludes them too.
+
+```{r species_only}
+
+hamilton_cbc %>%
+filter(str_detect(species, "sp\\.")) %>%
+distinct(species)
+
+hamilton_cbc <- hamilton_cbc %>%
+  filter(!(str_detect(species, "sp\\.")))
+
+```
+
+Two final mutates:
+
+- Using `tidyr`'s [`replace_na`](https://rdrr.io/cran/tidyr/man/replace_na.html) function, let's make all of the `NA`s equal to 0 for `how_many_counted`. So we are assuming that all birds in the area were seen by counters on count day.
+- Let's calculate the number of birds (within a species) seen divided by the total number of count hours that happened that year.
+
+```{r count_per_hour}
+
+hamilton_cbc <- hamilton_cbc %>%
+  mutate(how_many_counted = replace_na(how_many_counted, 0),
+         how_many_counted_by_hour = as.double(how_many_counted)/total_hours)
+
+```
+
+And that's it! :smile: :tada: We have cleaned the data set and are ready to do some visualising :eyes: in Part 2!
+
+Here is a glimpse of our final data set:
+
+```{r final_look}
+
+hamilton_cbc %>% glimpse()
+
+```
+
+```{r write_the_data, include = FALSE}
+
+hamilton_cbc %>% write_rds("hamilton_cbc_output.rds")
 
 ```
 
 
-CBC Data was provided by [National Audubon Society](www.christmasbirdcount.org) and through the generous efforts of [Bird Studies Canada](www.bsc-eoc.org) and countless volunteers across the western hemisphere.
+And thank you to the CBC! The CBC Data was provided by [National Audubon Society](www.christmasbirdcount.org) and through the generous efforts of [Bird Studies Canada](www.bsc-eoc.org) and countless volunteers across the western hemisphere.
