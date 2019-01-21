@@ -31,7 +31,7 @@ About two years ago, I was taking my dog for a walked through the park and I beg
 
 It turns out there's a lot of data in the birding world as well. Birding attracts the sort of detail-oriented person who likes to count and record stuff.
 
-So there are lots of opportunities to get involved in citizen science projects, including a long-running project called the "Christmas Bird Count". It started in 1900, when Frank Chapman, an ornithologist, came up with the idea as an alternative to hunting birds at Christams (which used to be the tradition)[^1].
+So there are lots of opportunities to get involved in citizen science projects, including a long-running project called the "Christmas Bird Count". It started in 1900, when Frank Chapman, an ornithologist, came up with the idea as an alternative to hunting birds at Christmas (which used to be the tradition)[^1].
 
 Birders have been going out every year around Christmas, to spnd their day walking, biking, or driving around a census area to count all the birds they see or hear.
 
