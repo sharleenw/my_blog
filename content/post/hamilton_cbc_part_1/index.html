@@ -232,11 +232,11 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
 </ul>
 <p>Now, we do some regex!</p>
 <p>First, I want to split up the <code>species</code> variable into the common <code>species</code> name and the scientific <code>species_latin</code> name.</p>
-<p>For the first mutate: I will use <code>@kohske</code>’s regex I found on <a href="https://stackoverflow.com/questions/8613237/extract-info-inside-all-parenthesis-in-r">StackOverflow</a>, which as Nettle writes:</p>
+<p>For the first mutate: I will use <code>@kohske</code>’s regex I found on <a href="https://stackoverflow.com/questions/8613237/extract-info-inside-all-parenthesis-in-r">StackOverflow</a>, which, as Nettle writes:</p>
 <blockquote>
 <p>I like <span class="citation">@kohske</span>’s regex, which looks behind for an open parenthesis ?&lt;=\(, looks ahead for a closing parenthesis ?=\), and grabs everything in the middle (lazily) .+?, in other words (?&lt;=\().+?(?=\))</p>
 </blockquote>
-<p>For the second mutate: As you can see in the code directly below, there is a line break (<code>\n</code>) between every English name and every scientific name in <code>species</code>. We will use that to parse out the scientific name:</p>
+<p>For the second mutate: As you can see in the code below, there is a line break (<code>\n</code>) between every English name and every scientific name in <code>species</code>. We will use that to parse out the scientific name:</p>
 <pre class="r"><code>hamilton_cbc %&gt;% 
   filter(row_number() == 1) %&gt;% 
   pull(species)</code></pre>

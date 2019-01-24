@@ -238,13 +238,13 @@ Now, we do some regex!
 First, I want to split up the `species` variable into the common `species` name and the scientific `species_latin` name.
 
 For the first mutate:
-I will use `@kohske`'s regex I found on [StackOverflow](https://stackoverflow.com/questions/8613237/extract-info-inside-all-parenthesis-in-r), which as Nettle writes:
+I will use `@kohske`'s regex I found on [StackOverflow](https://stackoverflow.com/questions/8613237/extract-info-inside-all-parenthesis-in-r), which, as Nettle writes:
 
 > I like @kohske's regex, which looks behind for an open parenthesis ?<=\\(, looks ahead for a closing parenthesis ?=\\), and grabs everything in the middle (lazily) .+?, in other words (?<=\\().+?(?=\\))
 
 
 For the second mutate:
-As you can see in the code directly below, there is a line break (`\n`) between every English name and every scientific name in `species`. We will use that to parse out the scientific name:
+As you can see in the code below, there is a line break (`\n`) between every English name and every scientific name in `species`. We will use that to parse out the scientific name:
 
 ```{r checking_out_species}
 
