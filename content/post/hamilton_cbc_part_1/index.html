@@ -23,23 +23,19 @@ image:
 
 
 
-<div id="note" class="section level1">
-<h1>Note</h1>
-<p>This is the first part of three for this data set. Part 1 contains only data cleaning, Part 2 contains visualisation and Part 3 contains my Shiny app!</p>
-</div>
 <div id="introduction" class="section level1">
-<h1>Introduction</h1>
-<p>About two years ago, I was taking my dog for a walked through the park and I began to realize that birds are fascinating! :bird: I began regularly going out birding (or “bird-watching”) and reading up on these cool little flying dinosaurs.</p>
+<h1>Introduction:</h1>
+<p>About two years ago, I was taking my dog for a walk through a park and I began to notice the birds and how fascinating they are! :bird: I began regularly going out birding (or “bird-watching”) and reading up on these cool little flying dinosaurs.</p>
 <p>It turns out there’s a lot of data in the birding world as well. Birding attracts the sort of detail-oriented person who likes to count and record stuff.</p>
-<p>So there are lots of opportunities to get involved in citizen science projects, including a long-running project called the “Christmas Bird Count”. It started in 1900, when Frank Chapman, an ornithologist, came up with the idea as an alternative to hunting birds at Christmas (which used to be the tradition)<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
-<p>Birders have been going out every year around Christmas, to spnd their day walking, biking, or driving around a census area to count all the birds they see or hear.</p>
-<p>For the past two years, I have gone out with Hamilton’s Christmas Bird Count. I learn a lot while I’m out there and it feels like we are contributing to a larger purpose because we are collecting data.</p>
+<p>So there are opportunities to get involved in citizen science projects, including a long-running project called the “Christmas Bird Count”. It started in 1900, when Frank Chapman, an ornithologist, came up with the idea of counting birds as an alternative to hunting them at Christmas (hunting them being the previous tradition).<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+<p>Birders have been going out every year around Christmas, to spend the day walking, biking, or driving through a census area to count all the birds they see or hear.</p>
+<p>For the past two years, I have gone out with Hamilton’s Christmas Bird Count. I learn a lot while I’m out there and it feels like we are contributing to a larger purpose because of the data we are collecting.</p>
 <p>So I thought I would look at the data and see what it could tell me!</p>
-<p>More specifically, I’ve been curious about bird counts in general, because birders will say things like “the House Sparrows are getting worse every year” or “the number of Bald Eagles have increased”, and I wondered if looking at the Christmas Bird Count data could answer some of those questions.</p>
-<p>I went on the <a href="https://www.birdscanada.org/index.jsp">Bird Studies Canada</a> website, clicked on Citizen Science, then Christmas Bird Count, then CBC Audubon Database, and then Historical Results by Count. I downloaded all years of data that existed for the Hamilton count.</p>
+<p>I’ve noticed birders will say things like, “the House Sparrows are getting worse every year” or, “the number of Bald Eagles has increased”, and I was wondering if the Christmas Bird Count data would agree or disagree with those statements.</p>
+<p>To access the data, I went on the <a href="https://www.birdscanada.org/index.jsp">Bird Studies Canada</a> website, clicked on Citizen Science, then Christmas Bird Count, then CBC Audubon Database, and then Historical Results by Count. I downloaded all years of data that existed for the Hamilton count.</p>
 </div>
 <div id="data-cleaning" class="section level1">
-<h1>Data cleaning</h1>
+<h1>Data cleaning:</h1>
 <p>I started by loading all of the packages I will be using:</p>
 <pre class="r"><code>library(dplyr)
 library(janitor)
@@ -49,9 +45,9 @@ library(lubridate)
 library(stringr)
 library(purrr)
 library(tidyr)</code></pre>
-<p>I read in all of the data using the <a href="https://readr.tidyverse.org/"><code>readr</code></a> package.</p>
+<p>I read in the data using the <a href="https://readr.tidyverse.org/"><code>readr</code></a> package.</p>
 <pre class="r"><code>hamilton_cbc &lt;- read_csv(&quot;hamilton-cbc-all-years-csv.csv&quot;)</code></pre>
-<p>It turns out that the first two lines just give information about which count it is and latitude/longitude, so I extracted those two pieces of information as <code>current_circle_name</code> and <code>lat_long</code> and then <a href="https://dplyr.tidyverse.org/reference/slice.html"><code>slice</code>d</a> the file so that the first two lines are excluded from the dataset. I then used <code>clean_names</code> from the very cool <a href="https://www.rdocumentation.org/packages/janitor/versions/1.1.1/topics/clean_names"><code>janitor</code></a> package.</p>
+<p>As shown below, it turns out that the first two rows of data just give information about the count name and latitude/longitude, so I extracted those two pieces of information as <code>current_circle_name</code> and <code>lat_long</code> and then <a href="https://dplyr.tidyverse.org/reference/slice.html"><code>slice</code>d</a> the file so that the first two lines were excluded from the dataset. I then used <code>clean_names</code> from the <a href="https://www.rdocumentation.org/packages/janitor/versions/1.1.1/topics/clean_names"><code>janitor</code></a> package.</p>
 <pre class="r"><code>hamilton_cbc %&gt;% head(n = 11)</code></pre>
 <pre><code>## # A tibble: 11 x 9
 ##    CircleName Abbrev   LatLong      X4      X5     X6    X7     X8    X9   
@@ -75,8 +71,10 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
 
 hamilton_cbc &lt;- hamilton_cbc %&gt;%
   clean_names()</code></pre>
-<p>Since I played around with this dataset before writing this, it turns out that there are actually five tables in this dataset: The first three tables contain weather data of the count day. I determined that a lot of the weather data is missing and I’m not sure what the units are for the temperature column (sometimes it’s hard-coded in as Celsius or Fahrenheit and sometimes there’s no units). Since I will be doing another blog post about historical weather trends, I will remove these first three tables from the dataset.</p>
-<p>Here is the end of the first table and the start of the second table. There is a line of <code>NA</code>s between the two tables:</p>
+<p>Since I played around with the data before writing this, I knew that there were actually five tables in this dataset.</p>
+<p>The first three tables contain count day weather data. A lot of the weather data is missing and possibly inconsistent. I will remove these three tables from the bird count data table.</p>
+<p>In order to get an idea of what I mean, here are glimpses of the data between the tables.</p>
+<p>Here is the end of the first table and the start of the second table. Notice that there is a line of <code>NA</code>s between the two tables:</p>
 <pre class="r"><code>hamilton_cbc %&gt;% slice(47:57)</code></pre>
 <pre><code>## # A tibble: 11 x 9
 ##    circle_name abbrev   lat_long  x4      x5      x6     x7     x8    x9   
@@ -92,7 +90,7 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
 ##  9 116         12/26/2~ 107       221     94      &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt; 
 ## 10 115         12/26/2~ 80        179.25  99      &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt; 
 ## 11 114         12/26/2~ 93        182.2   98      &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;</code></pre>
-<p>Here is the end of the second table and the start of the third table. There is a line of <code>NA</code>s between the two tables:</p>
+<p>Here is the end of the second table and the start of the third table. Notice that there is a line of <code>NA</code>s between the two tables:</p>
 <pre class="r"><code>hamilton_cbc %&gt;% slice(142:152)</code></pre>
 <pre><code>## # A tibble: 11 x 9
 ##    circle_name abbrev          lat_long x4    x5    x6    x7    x8    x9   
@@ -108,7 +106,7 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
 ##  9 117         Hamilton Natur~ &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
 ## 10 116         Hamilton Natur~ &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
 ## 11 115         &lt;NA&gt;            &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;</code></pre>
-<p>Here is the end of the third table and the start of the fourth table. There is a line of <code>NA</code>s between the two tables. The fourth table is where the bird count data actually starts!</p>
+<p>Here is the end of the third table and the start of the fourth table. Notice that there is a line of <code>NA</code>s between the two tables. The fourth table is where the bird count data actually starts!</p>
 <pre class="r"><code>hamilton_cbc %&gt;% slice(240:250)</code></pre>
 <pre><code>## # A tibble: 11 x 9
 ##    circle_name   abbrev       lat_long x4     x5    x6    x7    x8    x9   
@@ -157,15 +155,15 @@ for (i in 1:3) {
     clean_names()
 
   
-  # Remove the meta-data table from the rest of the data set
+  # Remove the meta-data table from the rest of the dataset
   hamilton_cbc &lt;- hamilton_cbc %&gt;%
     slice((j + 1) : n())
 }</code></pre>
 <p>Whew! So now we have a list <code>meta_data_table</code> that contains the three meta-data tables.</p>
-<p>In the below code chunk, I converted the three tables in the <code>meta_data_table</code> list into one <code>overall_meta_data</code> table using <a href="https://purrr.tidyverse.org/"><code>purrr</code></a>.</p>
-<p>Then, using the <code>replace_with_na_all</code> function from the <a href="https://purrr.tidyverse.org/"><code>naniar</code></a> package, anywhere the data said “Unknown”, I converted it to a proper <code>NA</code>.</p>
-<p>I then <code>mutate</code>d the variables: I used the <code>mdy</code> and <code>year</code> functions from the <a href="https://cran.r-project.org/web/packages/lubridate/vignettes/lubridate.html"><code>lubridate</code></a> to convert the character variables <code>low_temp3</code> (actually a date variable) and <code>date</code> into a <code>Date</code> and <code>dbl</code> variable, respectively.</p>
-<p>I also used the <code>word</code> function from the <a href="https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html"><code>stringr</code></a> package. It extracts out only the first word from a character string.</p>
+<p>In the below code chunk, I converted the three tables in the <code>meta_data_table</code> list into one <code>overall_meta_data</code> table using the <code>reduce</code> function from the <a href="https://purrr.tidyverse.org/"><code>purrr</code></a> package.</p>
+<p>Then, using the <code>replace_with_na_all</code> function from the <a href="https://purrr.tidyverse.org/"><code>naniar</code></a> package, anywhere the data was recorded as “Unknown”, I converted it to a proper <code>NA</code>.</p>
+<p>I then <code>mutate</code>d two of the variables: I used the <code>mdy</code> and <code>year</code> functions from the <a href="https://cran.r-project.org/web/packages/lubridate/vignettes/lubridate.html"><code>lubridate</code></a> to convert the character variables <code>low_temp3</code> (actually a date variable) and <code>date</code> into a <code>Date</code> and <code>dbl</code> variable, respectively.</p>
+<p>I also used the <code>word</code> function from the <a href="https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html"><code>stringr</code></a> package. The <code>word</code> function extracts out only the first word from a character string.</p>
 <pre class="r"><code># Reduce documentation: reduce(list(x1, x2, x3), f) is equivalent to f(f(x1, x2), x3)
 
 overall_meta_data &lt;- meta_data_table %&gt;%
@@ -181,36 +179,35 @@ overall_meta_data &lt;- overall_meta_data %&gt;%
          year = year(date)) %&gt;%
   select(year, date, count_year, low_temp:pm_snow)
 # I removed some confusing variables high_temp2:pm_clouds2</code></pre>
-<p>I’ve decided not to use this meta-data table though, as there is a lot of missing data, and I will do a proper analysis of the weather of Hamilton during the CBC in another post.</p>
-<p>We are almost able to clean the bird count data, but first, we need to deal with the fact that there is another meta-data table below the bird count data!</p>
-<pre class="r"><code>hamilton_cbc %&gt;% slice(23215:23221)</code></pre>
-<pre><code>## # A tibble: 7 x 9
-##   circle_name    abbrev        lat_long x4    x5    x6    x7    x8    x9   
-##   &lt;chr&gt;          &lt;chr&gt;         &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
-## 1 &quot;House Sparro~ &quot;2013 [114]\~ 1802     9.89~ &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-## 2 &quot;House Sparro~ &quot;2014 [115]\~ 1318     7.35~ &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-## 3 &quot;House Sparro~ &quot;2015 [116]\~ 2326     10.5~ &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-## 4 &quot;House Sparro~ &quot;2016 [117]\~ 2565     11.8~ &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-## 5 &quot;House Sparro~ &quot;2017 [118]\~ 2731     13.7~ &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-## 6 &lt;NA&gt;           &lt;NA&gt;          &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-## 7 CountYear1     FirstName     LastName Email IsPr~ &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;</code></pre>
-<p>I won’t show the data here because it’s people’s names, but it shows the full names of the counters. It looks like the data has gotten much better in more recent years. I considered adding this data to the <code>overall_meta_table</code> but I don’t need it and I don’t know how consistent it is.</p>
-<p>But first, we’ll clean up the basic data set a bit in the below chunk.</p>
+<p>We can finally clean up the bird count dataset a bit.</p>
 <p>I used the <code>rename_all</code> function along with <code>slice(-1)</code> to remove the column names from the first row and make them the real column names.</p>
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   remove_empty(which = &quot;cols&quot;)
 
-hamilton_cbc &lt;- hamilton_cbc %&gt;%  # Do this line after removing empty columns!
+hamilton_cbc &lt;- hamilton_cbc %&gt;%  # Do this line after removing the empty columns!
   rename_all(funs(hamilton_cbc[1, ])) %&gt;%
   slice(-1) %&gt;%
   clean_names()
 
 hamilton_cbc &lt;- hamilton_cbc %&gt;%
   rename(species = com_name)</code></pre>
-<p>Now we can remove with the fifth data table. I noticed that every row of the bird count data included a <code>[</code> character in the species variable, so I filtered out every row in the data set that didn’t have a <code>[</code> character. Notice that I put two <code>\</code>’s in front of the <code>[</code>, that is because the <code>[</code> is a special character and <code>str_detect</code> needs to know I mean the actual character <code>[</code>, and putting two <code>\</code>’s in front of the <code>[</code> is the way to do it.</p>
+<p>But we still need to deal with the fact that there is a fifth table below the bird count data table. Here is the end of the fourth table and the start of the fifth table. Notice that there is a line of <code>NA</code>s between the two tables:</p>
+<pre class="r"><code>hamilton_cbc %&gt;% slice(23215:23221)</code></pre>
+<pre><code>## # A tibble: 7 x 5
+##   species       count_year              how_many_cw number_by_party_~ flags
+##   &lt;chr&gt;         &lt;chr&gt;                   &lt;chr&gt;       &lt;chr&gt;             &lt;chr&gt;
+## 1 &quot;House Sparr~ &quot;2014 [115]\nCount Dat~ 1318        7.3529            &lt;NA&gt; 
+## 2 &quot;House Sparr~ &quot;2015 [116]\nCount Dat~ 2326        10.5249           &lt;NA&gt; 
+## 3 &quot;House Sparr~ &quot;2016 [117]\nCount Dat~ 2565        11.8394           &lt;NA&gt; 
+## 4 &quot;House Sparr~ &quot;2017 [118]\nCount Dat~ 2731        13.7409           &lt;NA&gt; 
+## 5 &lt;NA&gt;          &lt;NA&gt;                    &lt;NA&gt;        &lt;NA&gt;              &lt;NA&gt; 
+## 6 CountYear1    FirstName               LastName    Email             IsPr~
+## 7 118           Robert                  Porter      rob@inpictures.ca Yes</code></pre>
+<p>I won’t show the data of the fifth table here, but it shows the full names of the counters. I won’t add this data to <code>overall_meta_table</code>, so I will just remove the table from the dataset.</p>
+<p>In order to remove the fifth table, I noticed that every row of the bird count data included a <code>[</code> character in the species variable (for example: “Snow Goose [Chen caerulescens]”), so I filtered out every row in the dataset that didn’t have the <code>[</code> character. Notice that, in the <code>str_detect</code> filter, I put two <code>\</code>’s in front of the <code>[</code>. That is because the <code>[</code> is a special regex character and <code>str_detect</code> needs to know I mean the actual character <code>[</code>, and putting two <code>\</code>’s in front of the <code>[</code> is how to do that.</p>
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   filter(str_detect(species, &quot;\\[&quot;))</code></pre>
-<p>So where are we at, at the moment? We have only one data set left, and it looks like this:</p>
+<p>So, where are we at the moment? We have only one dataset left, and it looks like this:</p>
 <pre class="r"><code>hamilton_cbc %&gt;% head(n = 11)</code></pre>
 <pre><code>## # A tibble: 11 x 5
 ##    species       count_year             how_many_cw number_by_party_~ flags
@@ -228,13 +225,14 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
 ## 11 &quot;Snow Goose\~ &quot;1934 [35]\nCount Dat~ &lt;NA&gt;        &lt;NA&gt;              &lt;NA&gt;</code></pre>
 <ul>
 <li><code>species</code> gives the species name in English and the scientific name</li>
-<li><code>count_year</code> data gives a lot of information that we will parse out in a moment</li>
+<li><code>count_year</code> data has a lot of information that we will parse out in a moment</li>
 <li><code>how_many_cw</code> provides the actual bird count</li>
-<li><code>number_by_party_hours</code> is (as per the CBC <a href="https://www.audubon.org/sites/default/files/documents/compilers_manual_0.pdf">documentation</a>) how many birds were counted divided by the number of person-hours that year</li>
+<li><code>number_by_party_hours</code> is how many birds were counted divided by the number of person-hours that year (as per the Christmas Bird Count <a href="https://www.audubon.org/sites/default/files/documents/compilers_manual_0.pdf">documentation</a>)</li>
+<li><code>flags</code> contains values like “<code>US</code>” for “unusual” bird</li>
 </ul>
 <p>Now, we do some regex!</p>
 <p>First, I want to split up the <code>species</code> variable into the common <code>species</code> name and the scientific <code>species_latin</code> name.</p>
-<p>For the first mutate: I use the regex I found on <a href="https://stackoverflow.com/questions/8613237/extract-info-inside-all-parenthesis-in-r">StackOverflow</a>, which as Nettle says:</p>
+<p>For the first mutate: I will use <code>@kohske</code>’s regex I found on <a href="https://stackoverflow.com/questions/8613237/extract-info-inside-all-parenthesis-in-r">StackOverflow</a>, which as Nettle writes:</p>
 <blockquote>
 <p>I like <span class="citation">@kohske</span>’s regex, which looks behind for an open parenthesis ?&lt;=\(, looks ahead for a closing parenthesis ?=\), and grabs everything in the middle (lazily) .+?, in other words (?&lt;=\().+?(?=\))</p>
 </blockquote>
@@ -243,12 +241,12 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
   filter(row_number() == 1) %&gt;% 
   pull(species)</code></pre>
 <pre><code>## [1] &quot;Snow Goose\n[Chen caerulescens]&quot;</code></pre>
-<p>Here we are putting the two <code>mutate</code>s together:</p>
+<p>Here are the two <code>mutate</code>s together:</p>
 <pre class="r"><code># Putting it together: Mutating the two variables
 hamilton_cbc &lt;- hamilton_cbc %&gt;%
   mutate(species_latin = str_extract(species, &quot;(?&lt;=\\[).+?(?=\\])&quot;),
          species = word(species, start = 1, sep = fixed(&#39;\n[&#39;)))</code></pre>
-<p>Now we will look at the <code>count_year</code> variable. Let’s get a sense of what the variable looks like, using the White-Breasted Nuthatch count of 2016:</p>
+<p>Now we will look at the <code>count_year</code> variable. Let’s get a sense of what the variable looks like, using the White-Breasted Nuthatch count in 2016:</p>
 <pre class="r"><code>hamilton_cbc %&gt;% 
   filter(row_number() == 15133) %&gt;% 
   pull(count_year)</code></pre>
@@ -262,18 +260,18 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
 <li>number of species reported</li>
 <li>total hours spent that year on the count</li>
 </ul>
-<p>This is all metadata and we can take it out of this data set and put it in our <code>overall_meta_data</code> file. The only variable we will keep in the <code>hamilton_cbc</code> data set is the calendar year, so that we can plot by year and so we can join to the metadata later if we want.</p>
-<p>To join the <code>count_participant_meta_data</code> to the <code>overall_meta_data</code> First we will parse the different variables out:</p>
+<p>This is all metadata and we can take it out of this dataset and put it in our <code>overall_meta_data</code> file. The only variable we will keep in the <code>hamilton_cbc</code> dataset is the calendar year, so that we can plot by year and so we can join to the metadata later if we want.</p>
+<p>To join the <code>count_participant_meta_data</code> to the <code>overall_meta_data</code>, first we will parse the different variables out:</p>
 <pre class="r"><code>count_participant_meta_data &lt;- hamilton_cbc %&gt;%
   distinct(participant_info = count_year) %&gt;%
   mutate(year = word(participant_info)) %&gt;%
   mutate(number_of_participants = str_extract(
-    participant_info, &quot;(?&lt;=Participants:\\s).+?(?=\\s#)&quot;)) %&gt;%  # Getting everything between &quot;Participants: &quot; and &quot; #&quot;
+    participant_info, &quot;(?&lt;=Participants:\\s).+?(?=\\s#)&quot;)) %&gt;%  # Gets everything between &quot;Participants: &quot; and &quot; #&quot;
   mutate(species_reported = str_extract(
-    participant_info, &quot;(?&lt;=Reported:\\s).+?(?=\\nTotal)&quot;)) %&gt;%  # Getting everything between &quot;Reported: &quot; and &quot;Total&quot;
+    participant_info, &quot;(?&lt;=Reported:\\s).+?(?=\\nTotal)&quot;)) %&gt;%  # Gets everything between &quot;Reported: &quot; and &quot;Total&quot;
   mutate(total_hours = str_extract(
-    participant_info, &quot;(?&lt;=Hrs\\.:\\s).*$&quot;))  # Getting everything after &quot;Hrs.: &quot;
-# This regex is different because we are going until the end of the string:
+    participant_info, &quot;(?&lt;=Hrs\\.:\\s).*$&quot;))  # Gets everything after &quot;Hrs.: &quot;
+# This regex is different because it goes until the end of the string:
 # https://forum.sublimetext.com/t/regex-match-everything-after-this-word/20764
 
 count_participant_meta_data %&gt;% head()</code></pre>
@@ -286,7 +284,7 @@ count_participant_meta_data %&gt;% head()</code></pre>
 ## 4 &quot;1925 [26]\nCount Da~ 1925  &lt;NA&gt;             &lt;NA&gt;             &lt;NA&gt;       
 ## 5 &quot;1926 [27]\nCount Da~ 1926  &lt;NA&gt;             &lt;NA&gt;             &lt;NA&gt;       
 ## 6 &quot;1928 [29]\nCount Da~ 1928  &lt;NA&gt;             &lt;NA&gt;             &lt;NA&gt;</code></pre>
-<p>Since <code>number_of_participants</code> and <code>species_reported</code> ended up having lots of missing data, I decided not to include them in the <code>overall_meta_data</code> data set.</p>
+<p>Since <code>number_of_participants</code> and <code>species_reported</code> ended up having lots of missing data, I decided not to include them in the <code>overall_meta_data</code> dataset.</p>
 <pre class="r"><code>count_participant_meta_data &lt;- count_participant_meta_data %&gt;%
   select(year, total_hours)
 
@@ -310,7 +308,7 @@ overall_meta_data &lt;- count_participant_meta_data %&gt;%
 ## $ pm_rain     &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
 ## $ am_snow     &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
 ## $ pm_snow     &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...</code></pre>
-<p>Let’s take another quick peek at where we’re at with the <code>hamilton_cbc</code> data set:</p>
+<p>And let’s take another look at where we’re at with the <code>hamilton_cbc</code> dataset:</p>
 <pre class="r"><code>hamilton_cbc %&gt;% glimpse()</code></pre>
 <pre><code>## Observations: 23,218
 ## Variables: 6
@@ -320,7 +318,7 @@ overall_meta_data &lt;- count_participant_meta_data %&gt;%
 ## $ number_by_party_hours &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
 ## $ flags                 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
 ## $ species_latin         &lt;chr&gt; &quot;Chen caerulescens&quot;, &quot;Chen caerulescens&quot;...</code></pre>
-<p>Let’s just clean up the variables:</p>
+<p>Let’s clean up the variables a bit more:</p>
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   rename(participant_info = count_year,
          how_many_counted = how_many_cw) %&gt;%
@@ -328,15 +326,15 @@ overall_meta_data &lt;- count_participant_meta_data %&gt;%
          total_hours = as.double(
            str_extract(
              participant_info, &quot;(?&lt;=Hrs\\.:\\s).*$&quot;)))</code></pre>
-<p>We almost have a clean data set! :soon: :sparkles::sparkles::sparkles: :tada:</p>
-<p>I am going to remove the <code>flags</code> variable (<code>flags</code> refers to things like “<code>US</code>” for “unusual” bird, which we don’t need for our analysis). I am also going to remove <code>number_by_party_hours</code> and derive it myself instead.</p>
+<p>We almost have a clean dataset! :soon: :sparkles::sparkles::sparkles: :tada:</p>
+<p>I am going to remove the <code>flags</code> variable. I am also going to remove <code>number_by_party_hours</code> and derive it myself instead.</p>
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   select(year, species, species_latin, how_many_counted, total_hours)</code></pre>
-<p>It turns out that <code>how_many_counted</code> also has a “<code>cw</code>” value, which means the bird was not seen on count day itself, but was seen during the days leading up to the count, or right after. I am going to set these bird counts as <code>NA</code>, as they don’t have a specified value that I can be sure of (it’s probably a “1”, but I can’t be sure).</p>
+<p>It turns out that <code>how_many_counted</code> also has a “<code>cw</code>” value, which means the bird was not seen on count day itself, but was seen on a day close to the count. I am going to set these bird counts to be <code>NA</code>, as they don’t have a specified value.</p>
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   mutate(how_many_counted = ifelse(how_many_counted == &quot;cw&quot;, NA, how_many_counted),
          how_many_counted = as.integer(how_many_counted))</code></pre>
-<p>In the <code>species</code> variable, there are some rows that are identified only to the species level. I think I will exclude them. I believe <a href="https://ebird.org/home">EBird</a> excludes them too.</p>
+<p>In the <code>species</code> variable, there are some rows that are identified only to the genus level (and not to the species level). I will exclude these records, as I believe <a href="https://ebird.org/home">EBird</a> excludes them too.</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
 filter(str_detect(species, &quot;sp\\.&quot;)) %&gt;%
 distinct(species)</code></pre>
@@ -358,14 +356,14 @@ distinct(species)</code></pre>
   filter(!(str_detect(species, &quot;sp\\.&quot;)))</code></pre>
 <p>Two final mutates:</p>
 <ul>
-<li>Using <code>tidyr</code>’s <a href="https://rdrr.io/cran/tidyr/man/replace_na.html"><code>replace_na</code></a> function, let’s make all of the <code>NA</code>s equal to 0 for <code>how_many_counted</code>. So we are assuming that all birds in the area were seen by counters on count day.</li>
-<li>Let’s calculate the number of birds (within a species) seen divided by the total number of count hours that happened that year.</li>
+<li>Using <code>tidyr</code>’s <a href="https://rdrr.io/cran/tidyr/man/replace_na.html"><code>replace_na</code></a> function, let’s make all of the <code>NA</code>s equal to 0 for <code>how_many_counted</code>. That means we are assuming that all birds in the area were successfully counted on count day.</li>
+<li>Let’s also calculate the number of birds counted (within each species) divided by the total number of count hours that happened that year.</li>
 </ul>
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   mutate(how_many_counted = replace_na(how_many_counted, 0),
-         how_many_counted_by_hour = as.double(how_many_counted)/total_hours)</code></pre>
-<p>And that’s it! :smile: :tada: We have cleaned the data set and are ready to do some visualising :eyes: in Part 2!</p>
-<p>Here is a glimpse of our final data set:</p>
+         how_many_counted_by_hour = as.double(how_many_counted) / total_hours)</code></pre>
+<p>And that’s it! :smile: :tada: We have cleaned the dataset and are ready to do some visualising :eyes: in Part 2!</p>
+<p>Here is a glimpse of our final dataset:</p>
 <pre class="r"><code>hamilton_cbc %&gt;% glimpse()</code></pre>
 <pre><code>## Observations: 20,868
 ## Variables: 6

@@ -21,7 +21,7 @@ image:
 
 ---
 
-# Introduction
+# Introduction:
 
 About two years ago, I was taking my dog for a walk through a park and I began to notice the birds and how fascinating they are! :bird: I began regularly going out birding (or "bird-watching") and reading up on these cool little flying dinosaurs.
 
@@ -35,12 +35,12 @@ For the past two years, I have gone out with Hamilton's Christmas Bird Count. I 
 
 So I thought I would look at the data and see what it could tell me!
 
-More specifically, I've been curious about bird counts in general, because birders will say things like "the House Sparrows are getting worse every year" or "the number of Bald Eagles has increased", and I was wondering if the Christmas Bird Count data could confirm or deny some of these statements.
+I've noticed birders will say things like, "the House Sparrows are getting worse every year" or, "the number of Bald Eagles has increased", and I was wondering if the Christmas Bird Count data would agree or disagree with those statements.
 
 To access the data, I went on the [Bird Studies Canada](https://www.birdscanada.org/index.jsp) website, clicked on Citizen Science, then Christmas Bird Count, then CBC Audubon Database, and then Historical Results by Count. I downloaded all years of data that existed for the Hamilton count.
 
 
-# Data cleaning
+# Data cleaning:
 
 I started by loading all of the packages I will be using:
 
@@ -82,9 +82,9 @@ hamilton_cbc <- hamilton_cbc %>%
 
 Since I played around with the data before writing this, I knew that there were actually five tables in this dataset.
 
-The first three tables contain count day weather data. A lot of the weather data is missing and I'm not sure what the units are for the temperature column (sometimes it's hard-coded in as Celsius or Fahrenheit but sometimes there's no units). I will remove these three tables from the bird count data table.
+The first three tables contain count day weather data. A lot of the weather data is missing and possibly inconsistent. I will remove these three tables from the bird count data table.
 
-In order to get an idea of what I mean, here are snapshots between each table:
+In order to get an idea of what I mean, here are glimpses of the data between the tables.
 
 Here is the end of the first table and the start of the second table. Notice that there is a line of `NA`s between the two tables:
 
@@ -154,11 +154,11 @@ for (i in 1:3) {
 
 Whew! So now we have a list `meta_data_table` that contains the three meta-data tables.
 
-In the below code chunk, I converted the three tables in the `meta_data_table` list into one `overall_meta_data` table using [`purrr`](https://purrr.tidyverse.org/).
+In the below code chunk, I converted the three tables in the `meta_data_table` list into one `overall_meta_data` table using the `reduce` function from the [`purrr`](https://purrr.tidyverse.org/) package.
 
 Then, using the `replace_with_na_all` function from the [`naniar`](https://purrr.tidyverse.org/) package, anywhere the data was recorded as "Unknown", I converted it to a proper `NA`.
 
-I then `mutate`d the variables: I used the `mdy` and `year` functions from the [`lubridate`](https://cran.r-project.org/web/packages/lubridate/vignettes/lubridate.html) to convert the character variables `low_temp3` (actually a date variable) and `date` into a `Date` and `dbl` variable, respectively.
+I then `mutate`d two of the variables: I used the `mdy` and `year` functions from the [`lubridate`](https://cran.r-project.org/web/packages/lubridate/vignettes/lubridate.html) to convert the character variables `low_temp3` (actually a date variable) and `date` into a `Date` and `dbl` variable, respectively.
 
 I also used the `word` function from the [`stringr`](https://cran.r-project.org/web/packages/stringr/vignettes/stringr.html) package. The `word` function extracts out only the first word from a character string.
 
@@ -181,19 +181,7 @@ overall_meta_data <- overall_meta_data %>%
 
 ```
 
-We are almost able to clean the bird count data!
-
-But first, we need to deal with the fact that there is a fifth table below the bird count data table (the fourth table). Here is the end of the fourth table and the start of the fifth table. Notice that there is a line of `NA`s between the two tables:
-
-```{r secret_meta_table}
-
-hamilton_cbc %>% slice(23215:23221)
-
-```
-
-I won't show the data of the fifth table here, but it shows the full names of the counters. I won't add this data to the `overall_meta_table`, so I will just remove the table from the dataset.
-
-Before removing the fifth table, we'll clean up the bird count dataset a bit.
+We can finally clean up the bird count dataset a bit.
 
 I used the `rename_all` function along with `slice(-1)` to remove the column names from the first row and make them the real column names.
 
@@ -212,7 +200,17 @@ hamilton_cbc <- hamilton_cbc %>%
 
 ```
 
-Now we can remove the fifth data table. I noticed that every row of the bird count data included a `[` character in the species variable, so I filtered out every row in the dataset that didn't have the `[` character. Notice that, in the `str_detect` filter, I put two `\`'s in front of the `[`. That is because the `[` is a special regex character and `str_detect` needs to know I mean the actual character `[`, and putting two `\`'s in front of the `[` is how to do that.
+But we still need to deal with the fact that there is a fifth table below the bird count data table. Here is the end of the fourth table and the start of the fifth table. Notice that there is a line of `NA`s between the two tables:
+
+```{r secret_meta_table}
+
+hamilton_cbc %>% slice(23215:23221)
+
+```
+
+I won't show the data of the fifth table here, but it shows the full names of the counters. I won't add this data to `overall_meta_table`, so I will just remove the table from the dataset.
+
+In order to remove the fifth table, I noticed that every row of the bird count data included a `[` character in the species variable (for example: "`r hamilton_cbc %>% slice(2) %>% pull(species)`"), so I filtered out every row in the dataset that didn't have the `[` character. Notice that, in the `str_detect` filter, I put two `\`'s in front of the `[`. That is because the `[` is a special regex character and `str_detect` needs to know I mean the actual character `[`, and putting two `\`'s in front of the `[` is how to do that.
 
 ```{r removing_secret_table}
 
@@ -221,7 +219,7 @@ hamilton_cbc <- hamilton_cbc %>%
 
 ```
 
-So where are we at, at the moment? We have only one dataset left, and it looks like this:
+So, where are we at the moment? We have only one dataset left, and it looks like this:
 
 ```{r checking_in}
 
