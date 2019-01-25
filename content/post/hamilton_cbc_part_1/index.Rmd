@@ -47,7 +47,7 @@ To access the data, I went on the [Bird Studies Canada](https://www.birdscanada.
 
 I started by loading all of the packages I will be using:
 
-```{r setup, message = FALSE}
+```{r setup, message = FALSE, warning = FALSE}
 library(dplyr)
 library(janitor)
 library(readr)
@@ -58,14 +58,16 @@ library(purrr)
 library(tidyr)
 library(knitr)
 library(kableExtra)
+library(here)
 
 ```
 
-I read in the data using the [`readr`](https://readr.tidyverse.org/) package.
+I read in the data using the [`readr`](https://readr.tidyverse.org/) and [`here`](https://malco.io/2018/11/05/why-should-i-use-the-here-package/) packages.
 
 ```{r reading_the_data, message = FALSE, warning = FALSE}
 
-hamilton_cbc <- read_csv("hamilton-cbc-all-years-csv.csv")
+hamilton_cbc <- read_csv(here("content", "post", "hamilton_cbc_part_1", "hamilton-cbc-all-years-csv.csv"))
+
 ```
 
 # Data cleaning
@@ -445,7 +447,7 @@ hamilton_cbc %>%
 ```{r write_the_data, include = FALSE}
 
 hamilton_cbc %>%
-  write_rds("hamilton_cbc_output.rds")
+  write_rds(here("content", "post", "hamilton_cbc_part_1", "hamilton_cbc_output.rds"))
 
 ```
 

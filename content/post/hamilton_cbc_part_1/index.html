@@ -51,9 +51,10 @@ library(stringr)
 library(purrr)
 library(tidyr)
 library(knitr)
-library(kableExtra)</code></pre>
-<p>I read in the data using the <a href="https://readr.tidyverse.org/"><code>readr</code></a> package.</p>
-<pre class="r"><code>hamilton_cbc &lt;- read_csv(&quot;hamilton-cbc-all-years-csv.csv&quot;)</code></pre>
+library(kableExtra)
+library(here)</code></pre>
+<p>I read in the data using the <a href="https://readr.tidyverse.org/"><code>readr</code></a> and <a href="https://malco.io/2018/11/05/why-should-i-use-the-here-package/"><code>here</code></a> packages.</p>
+<pre class="r"><code>hamilton_cbc &lt;- read_csv(here(&quot;content&quot;, &quot;post&quot;, &quot;hamilton_cbc_part_1&quot;, &quot;hamilton-cbc-all-years-csv.csv&quot;))</code></pre>
 </div>
 <div id="data-cleaning" class="section level1">
 <h1>Data cleaning</h1>
