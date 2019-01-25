@@ -25,7 +25,7 @@ image:
 
 # Note
 
-This is the second part of three for this dataset. Part 1 contains data downloading and cleaning, Part 2 contains visualisations and Part 3 contains my Shiny app!
+This is the third part of three for this dataset. Part 1 contains data downloading and cleaning, Part 2 contains visualisations and Part 3 contains my Shiny app!
 
 # Introduction
 
@@ -35,7 +35,9 @@ I was able to make this whole app very easily thanks to the wonderful tutorial f
 
 # Data visualising using a Shiny app
 
-Here is the link to my Shiny app, and below, I posted the code I used to make the app.
+Here is the link to my Shiny app: https://sharleenw.shinyapps.io/shiny_app/
+
+And here is the code I used to make the app:
 
 ```{r setup, message = FALSE, include = FALSE}
 
@@ -43,7 +45,7 @@ library(here)
 
 ```
 
-```{r shiny, code = readLines(here("content", "post", "hamilton_cbc_part_3", "shiny_app", "app.R")), message = FALSE, warning = FALSE, eval = FALSE}
+```{r shiny, code = readLines(here("content", "post", "hamilton_cbc_part_3", "hamilton_cbc_shiny", "app.R")), message = FALSE, warning = FALSE, eval = FALSE}
 
 ```
 

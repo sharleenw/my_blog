@@ -27,7 +27,7 @@ image:
 
 <div id="note" class="section level1">
 <h1>Note</h1>
-<p>This is the second part of three for this dataset. Part 1 contains data downloading and cleaning, Part 2 contains visualisations and Part 3 contains my Shiny app!</p>
+<p>This is the third part of three for this dataset. Part 1 contains data downloading and cleaning, Part 2 contains visualisations and Part 3 contains my Shiny app!</p>
 </div>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
@@ -36,8 +36,9 @@ image:
 </div>
 <div id="data-visualising-using-a-shiny-app" class="section level1">
 <h1>Data visualising using a Shiny app</h1>
-<p>Here is the link to my Shiny app, and below, I posted the code I used to make the app.</p>
-<pre class="r"><code># runApp(here(&quot;content&quot;, &quot;post&quot;, &quot;hamilton_cbc_part_3&quot;, &quot;shiny_app&quot;))
+<p>Here is the link to my Shiny app: <a href="https://sharleenw.shinyapps.io/shiny_app/" class="uri">https://sharleenw.shinyapps.io/shiny_app/</a></p>
+<p>And here is the code I used to make the app:</p>
+<pre class="r"><code># runApp(here(&quot;content&quot;, &quot;post&quot;, &quot;hamilton_cbc_part_3&quot;, &quot;hamilton_cbc_shiny&quot;))
 
 library(shiny)
 library(dplyr)
@@ -47,7 +48,6 @@ library(readr)
 library(janitor)
 library(scales)
 library(plotly)
-library(here)
 
 # Change font sizes
 # Offer to divide by count hours
@@ -58,7 +58,7 @@ min_max &lt;- function(vector){
 }
 
 
-hamilton_cbc &lt;- read_rds(here(&quot;content&quot;, &quot;post&quot;, &quot;hamilton_cbc_part_1&quot;, &quot;hamilton_cbc_output.rds&quot;))
+hamilton_cbc &lt;- read_rds(&quot;hamilton_cbc_output.rds&quot;) # I can&#39;t use here because shinyapps.io can&#39;t find the file
 
 
 species_list &lt;- hamilton_cbc %&gt;%
