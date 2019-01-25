@@ -7,5 +7,6 @@ Thumbs.db
 public/
 *.csv
 *.rds
+*.dcf
 static/icon.png
 static/transparent_icon.png
