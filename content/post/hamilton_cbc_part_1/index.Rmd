@@ -447,7 +447,7 @@ hamilton_cbc %>%
 ```{r write_the_data, include = FALSE}
 
 hamilton_cbc %>%
-  write_rds(here("content", "post", "hamilton_cbc_part_1", "hamilton_cbc_output.rds"))
+  write_rds(here("content", "post", "hamilton_cbc_part_3", "shiny_app", "hamilton_cbc_output.rds"))
 
 ```
 
