@@ -5,7 +5,7 @@
 blogdown
 Thumbs.db
 public/
-content/post/hamilton_cbc_part_1/hamilton-cbc-all-years-csv.csv
-content/post/hamilton_cbc_part_1/hamilton_cbc_output.rds
+*.csv
+*.rds
 static/icon.png
 static/transparent_icon.png
