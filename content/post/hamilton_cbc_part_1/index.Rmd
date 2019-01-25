@@ -1,10 +1,10 @@
 ---
 title: 'Hamilton Christmas Bird Count: Part 1'
-subtitle: 'Importing and cleaning of all of the Hamilton CBC data'
+subtitle: 'Importing and cleaning of the Hamilton CBC data'
 author: Sharleen
 date: '2019-01-07'
 slug: hamilton-christmas-bird-count-part-1
-summary: Importing and cleaning of all of the Hamilton CBC data.
+summary: Importing and cleaning of the Hamilton CBC data.
 categories: []
 tags:
   - data analysis
@@ -19,11 +19,11 @@ draft: false
 image:
   caption: 'Black-Capped Chickadee image credit: [**Public Domain Pictures**](https://www.publicdomainpictures.net/en/view-image.php?image=243075&picture=black-capped-chickadee-on-branch-3)'
   preview_only: false
-output:
-  blogdown::html_page:
-    toc: true
-    number_sections: true
 ---
+
+# Note
+
+This is the first part of three for this dataset. Part 1 contains data downloading and cleaning, Part 2 contains visualisations and Part 3 contains my Shiny app!
 
 # Introduction
 
@@ -43,8 +43,7 @@ I've noticed birders will say things like, "the House Sparrows are getting worse
 
 To access the data, I went on the [Bird Studies Canada](https://www.birdscanada.org/index.jsp) website, clicked on Citizen Science, then Christmas Bird Count, then CBC Audubon Database, and then Historical Results by Count. I downloaded all years of data that existed for the Hamilton count.
 
-
-# Data cleaning
+# Data import
 
 I started by loading all of the packages I will be using:
 
@@ -68,6 +67,8 @@ I read in the data using the [`readr`](https://readr.tidyverse.org/) package.
 
 hamilton_cbc <- read_csv("hamilton-cbc-all-years-csv.csv")
 ```
+
+# Data cleaning
 
 As shown below, it turns out that the first two rows of data just give information about the count name and latitude/longitude, so I extracted those two pieces of information as `current_circle_name` and `lat_long` and then [`slice`d](https://dplyr.tidyverse.org/reference/slice.html) the file so that the first two lines were excluded from the dataset. I then used `clean_names` from the [`janitor`](https://www.rdocumentation.org/packages/janitor/versions/1.1.1/topics/clean_names) package.
 
@@ -222,17 +223,17 @@ But we still need to deal with the fact that there is a fifth table below the bi
 
 ```{r secret_meta_table}
 
-# hamilton_cbc %>%
-#   slice(23215:(hamilton_cbc %>% 
-#           mutate(row_number = row_number()) %>%
-#           filter(species == "CountYear1") %>%
-#             pull(row_number))) %>%
-#   kable() %>%
-#   kable_styling(full_width = FALSE, position = "left")
+hamilton_cbc %>%
+  slice(23215:(hamilton_cbc %>%
+          mutate(row_number = row_number()) %>%
+          filter(species == "CountYear1") %>%
+            pull(row_number))) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
 
 ```
 
-I won't show the data of the fifth table here, but it shows the full names of the counters. I won't add this data to `overall_meta_table`, so I will just remove the table from the dataset.
+I won't show the data of the fifth table here, but it shows the full names of the counters. I don't want to add this data to `overall_meta_table`, so I will just remove the table from the dataset.
 
 In order to remove the fifth table, I noticed that every row of the bird count data included a `[` character in the species variable (for example: "`r hamilton_cbc %>% slice(2) %>% pull(species)`"), so I filtered out every row in the dataset that didn't have the `[` character. Notice that, in the `str_detect` filter, I put two `\`'s in front of the `[`. That is because the `[` is a special regex character and `str_detect` needs to know I mean the actual character `[`, and putting two `\`'s in front of the `[` is how to do that.
 
@@ -248,14 +249,17 @@ So, where are we at the moment? We have only one dataset left, and it looks like
 ```{r checking_in}
 
 hamilton_cbc %>%
-  head(n = 11) 
+  head(n = 3) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
 ```
 
 - `species` gives the species name in English and the scientific name
 - `count_year` data has a lot of information that we will parse out in a moment
 - `how_many_cw` provides the actual bird count
 - `number_by_party_hours` is how many birds were counted divided by the number of person-hours that year (as per the Christmas Bird Count [documentation](https://www.audubon.org/sites/default/files/documents/compilers_manual_0.pdf))
-- `flags` contains values like "`US`" for "unusual" bird
+- `flags` contains values like `US` for "unusual" bird
 
 Now, we do some regex!
 
@@ -327,7 +331,9 @@ count_participant_meta_data <- hamilton_cbc %>%
 # https://forum.sublimetext.com/t/regex-match-everything-after-this-word/20764
 
 count_participant_meta_data %>%
-  head()
+  head() %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
 
 ```
 
@@ -360,6 +366,7 @@ And let's take another look at where we're at with the `hamilton_cbc` dataset:
 
 hamilton_cbc %>%
   glimpse()
+
 ```
 
 Let's clean up the variables a bit more:
@@ -387,7 +394,7 @@ hamilton_cbc <- hamilton_cbc %>%
 
 ```
 
-It turns out that `how_many_counted` also has a "`cw`" value, which means the bird was not seen on count day itself, but was seen on a day close to the count. I am going to set these bird counts to be `NA`, as they don't have a specified value.
+It turns out that `how_many_counted` also has a `cw` value, which means the bird was not seen on count day itself, but was seen on a day close to the count. I am going to set these bird counts to be `NA`, as they don't have a specified value.
 
 ```{r removing_cw_birds}
 
@@ -425,17 +432,22 @@ hamilton_cbc <- hamilton_cbc %>%
 
 And that's it! :smile: :tada: We have cleaned the dataset and are ready to do some visualising :eyes: in Part 2!
 
+# Final dataset
+
 Here is a glimpse of our final dataset:
 
 ```{r final_look}
 
 hamilton_cbc %>%
-  head(n = 11)
+  head(n = 11) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
 ```
 
 ```{r write_the_data, include = FALSE}
 
-hamilton_cbc %>% write_rds("hamilton_cbc_output.rds")
+hamilton_cbc %>%
+  write_rds("hamilton_cbc_output.rds")
 
 ```
 
