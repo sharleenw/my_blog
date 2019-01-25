@@ -58,6 +58,7 @@ library(stringr)
 library(purrr)
 library(tidyr)
 library(knitr)
+library(kableExtra)
 
 ```
 
@@ -73,7 +74,9 @@ As shown below, it turns out that the first two rows of data just give informati
 ```{r initial_look}
 
 hamilton_cbc %>%
-  head(n = 11)
+  head(n = 11) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
 
 current_circle_name <- hamilton_cbc[1, 1]
 lat_long <- hamilton_cbc[1, 3]
@@ -92,21 +95,25 @@ The first three tables contain count day weather data. A lot of the weather data
 
 In order to get an idea of what I mean, here are glimpses of the data between the tables.
 
-Here is the end of the first table and the start of the second table. Notice that there is a line of `NA`s between the two tables:
+Here is the end of the first table and the start of the second table. Notice the line of `NA`s between the two tables:
 
 ```{r between_1_2_tables}
 
 hamilton_cbc %>%
   slice(47:57) %>%
-  kable()
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
 
 ```
 
-Here is the end of the second table and the start of the third table. Notice that there is a line of `NA`s between the two tables:
+Here is the end of the second table and the start of the third table. Notice the line of `NA`s between the two tables:
 
 ```{r between_2_3_tables}
 
-hamilton_cbc %>% slice(142:152)
+hamilton_cbc %>% 
+  slice(143:153) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
 
 ```
 
@@ -114,7 +121,10 @@ Here is the end of the third table and the start of the fourth table. Notice tha
 
 ```{r between_3_4_tables}
 
-hamilton_cbc %>% slice(240:250)
+hamilton_cbc %>%
+  slice(239:249) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
 
 ```
 
@@ -212,7 +222,13 @@ But we still need to deal with the fact that there is a fifth table below the bi
 
 ```{r secret_meta_table}
 
-hamilton_cbc %>% slice(23215:23221)
+# hamilton_cbc %>%
+#   slice(23215:(hamilton_cbc %>% 
+#           mutate(row_number = row_number()) %>%
+#           filter(species == "CountYear1") %>%
+#             pull(row_number))) %>%
+#   kable() %>%
+#   kable_styling(full_width = FALSE, position = "left")
 
 ```
 
@@ -231,8 +247,8 @@ So, where are we at the moment? We have only one dataset left, and it looks like
 
 ```{r checking_in}
 
-hamilton_cbc %>% head(n = 11)
-
+hamilton_cbc %>%
+  head(n = 11) 
 ```
 
 - `species` gives the species name in English and the scientific name
@@ -310,7 +326,8 @@ count_participant_meta_data <- hamilton_cbc %>%
 # This regex is different because it goes until the end of the string:
 # https://forum.sublimetext.com/t/regex-match-everything-after-this-word/20764
 
-count_participant_meta_data %>% head()
+count_participant_meta_data %>%
+  head()
 
 ```
 
@@ -332,7 +349,8 @@ So, how's our `overall_meta_data` looking?
 
 ```{r where_are_we_meta_data}
 
-overall_meta_data %>% glimpse()
+overall_meta_data %>%
+  glimpse()
 
 ```
 
@@ -340,8 +358,8 @@ And let's take another look at where we're at with the `hamilton_cbc` dataset:
 
 ```{r where_are_we}
 
-hamilton_cbc %>% glimpse()
-
+hamilton_cbc %>%
+  glimpse()
 ```
 
 Let's clean up the variables a bit more:
@@ -411,8 +429,8 @@ Here is a glimpse of our final dataset:
 
 ```{r final_look}
 
-hamilton_cbc %>% glimpse()
-
+hamilton_cbc %>%
+  head(n = 11)
 ```
 
 ```{r write_the_data, include = FALSE}

@@ -25,6 +25,7 @@ output:
     number_sections: true
 ---
 
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
 
 <div id="TOC">
 <ul>
@@ -55,26 +56,369 @@ library(lubridate)
 library(stringr)
 library(purrr)
 library(tidyr)
-library(knitr)</code></pre>
+library(knitr)
+library(kableExtra)</code></pre>
 <p>I read in the data using the <a href="https://readr.tidyverse.org/"><code>readr</code></a> package.</p>
 <pre class="r"><code>hamilton_cbc &lt;- read_csv(&quot;hamilton-cbc-all-years-csv.csv&quot;)</code></pre>
 <p>As shown below, it turns out that the first two rows of data just give information about the count name and latitude/longitude, so I extracted those two pieces of information as <code>current_circle_name</code> and <code>lat_long</code> and then <a href="https://dplyr.tidyverse.org/reference/slice.html"><code>slice</code>d</a> the file so that the first two lines were excluded from the dataset. I then used <code>clean_names</code> from the <a href="https://www.rdocumentation.org/packages/janitor/versions/1.1.1/topics/clean_names"><code>janitor</code></a> package.</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
-  head(n = 11)</code></pre>
-<pre><code>## # A tibble: 11 x 9
-##    CircleName Abbrev   LatLong      X4      X5     X6    X7     X8    X9   
-##    &lt;chr&gt;      &lt;chr&gt;    &lt;chr&gt;        &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;
-##  1 Hamilton   ONHA     43.26787900~ &lt;NA&gt;    &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt; 
-##  2 &lt;NA&gt;       &lt;NA&gt;     &lt;NA&gt;         &lt;NA&gt;    &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt; 
-##  3 CountYear3 LowTemp  HighTemp     AMCloud PMClo~ AMRa~ PMRain AMSn~ PMSn~
-##  4 118        -18.0 C~ -13.0 Celsi~ Clear   Clear  None  None   None  None 
-##  5 117        -2.0 Ce~ 11.0 Celsius Cloudy  Cloudy Light &quot;Heav~ None  None 
-##  6 116        -2.0 Ce~ 5.0 Celsius  Partly~ Partl~ None  Light  None  None 
-##  7 115        0.6 Cel~ 8.3 Celsius  Cloudy  Cloudy None  None   None  None 
-##  8 114        -4.0 Ce~ -1.0 Celsius Cloudy  Cloudy &lt;NA&gt;  &lt;NA&gt;   Light None 
-##  9 113        -2.0 Ce~ -2.0 Celsius Cloudy  Cloudy None  None   Light Light
-## 10 112        1.0 Cel~ 6.0 Celsius  Cloudy  Cloudy None  None   None  None 
-## 11 111        19.0 Ce~ 23.0 Celsius Cloudy  Cloudy None  None   None  None</code></pre>
+  head(n = 11) %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+CircleName
+</th>
+<th style="text-align:left;">
+Abbrev
+</th>
+<th style="text-align:left;">
+LatLong
+</th>
+<th style="text-align:left;">
+X4
+</th>
+<th style="text-align:left;">
+X5
+</th>
+<th style="text-align:left;">
+X6
+</th>
+<th style="text-align:left;">
+X7
+</th>
+<th style="text-align:left;">
+X8
+</th>
+<th style="text-align:left;">
+X9
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Hamilton
+</td>
+<td style="text-align:left;">
+ONHA
+</td>
+<td style="text-align:left;">
+43.2678790000/-79.8852320000
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CountYear3
+</td>
+<td style="text-align:left;">
+LowTemp
+</td>
+<td style="text-align:left;">
+HighTemp
+</td>
+<td style="text-align:left;">
+AMCloud
+</td>
+<td style="text-align:left;">
+PMClouds
+</td>
+<td style="text-align:left;">
+AMRain
+</td>
+<td style="text-align:left;">
+PMRain
+</td>
+<td style="text-align:left;">
+AMSnow
+</td>
+<td style="text-align:left;">
+PMSnow
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+118
+</td>
+<td style="text-align:left;">
+-18.0 Celsius
+</td>
+<td style="text-align:left;">
+-13.0 Celsius
+</td>
+<td style="text-align:left;">
+Clear
+</td>
+<td style="text-align:left;">
+Clear
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+117
+</td>
+<td style="text-align:left;">
+-2.0 Celsius
+</td>
+<td style="text-align:left;">
+11.0 Celsius
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Light
+</td>
+<td style="text-align:left;">
+Heavy Light
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+116
+</td>
+<td style="text-align:left;">
+-2.0 Celsius
+</td>
+<td style="text-align:left;">
+5.0 Celsius
+</td>
+<td style="text-align:left;">
+Partly Cloudy
+</td>
+<td style="text-align:left;">
+Partly Cloudy
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+Light
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+115
+</td>
+<td style="text-align:left;">
+0.6 Celsius
+</td>
+<td style="text-align:left;">
+8.3 Celsius
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+114
+</td>
+<td style="text-align:left;">
+-4.0 Celsius
+</td>
+<td style="text-align:left;">
+-1.0 Celsius
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+Light
+</td>
+<td style="text-align:left;">
+None
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+113
+</td>
+<td style="text-align:left;">
+-2.0 Celsius
+</td>
+<td style="text-align:left;">
+-2.0 Celsius
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+Light
+</td>
+<td style="text-align:left;">
+Light
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+112
+</td>
+<td style="text-align:left;">
+1.0 Celsius
+</td>
+<td style="text-align:left;">
+6.0 Celsius
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+111
+</td>
+<td style="text-align:left;">
+19.0 Celsius
+</td>
+<td style="text-align:left;">
+23.0 Celsius
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+<td style="text-align:left;">
+None
+</td>
+</tr>
+</tbody>
+</table>
 <pre class="r"><code>current_circle_name &lt;- hamilton_cbc[1, 1]
 lat_long &lt;- hamilton_cbc[1, 3]
 
@@ -86,180 +430,1083 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
 <p>Since I played around with the data before writing this, I knew that there were actually five tables in this dataset.</p>
 <p>The first three tables contain count day weather data. A lot of the weather data is missing and possibly inconsistent. I will remove these three tables from the bird count data table.</p>
 <p>In order to get an idea of what I mean, here are glimpses of the data between the tables.</p>
-<p>Here is the end of the first table and the start of the second table. Notice that there is a line of <code>NA</code>s between the two tables:</p>
+<p>Here is the end of the first table and the start of the second table. Notice the line of <code>NA</code>s between the two tables:</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
   slice(47:57) %&gt;%
-  kable()</code></pre>
-<table>
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
 <thead>
-<tr class="header">
-<th align="left">circle_name</th>
-<th align="left">abbrev</th>
-<th align="left">lat_long</th>
-<th align="left">x4</th>
-<th align="left">x5</th>
-<th align="left">x6</th>
-<th align="left">x7</th>
-<th align="left">x8</th>
-<th align="left">x9</th>
+<tr>
+<th style="text-align:left;">
+circle_name
+</th>
+<th style="text-align:left;">
+abbrev
+</th>
+<th style="text-align:left;">
+lat_long
+</th>
+<th style="text-align:left;">
+x4
+</th>
+<th style="text-align:left;">
+x5
+</th>
+<th style="text-align:left;">
+x6
+</th>
+<th style="text-align:left;">
+x7
+</th>
+<th style="text-align:left;">
+x8
+</th>
+<th style="text-align:left;">
+x9
+</th>
 </tr>
 </thead>
 <tbody>
-<tr class="odd">
-<td align="left">66</td>
-<td align="left">10</td>
-<td align="left">25</td>
-<td align="left">Clear</td>
-<td align="left">Clear</td>
-<td align="left">Unknown</td>
-<td align="left">Unknown</td>
-<td align="left">Unknown</td>
-<td align="left">Unknown</td>
+<tr>
+<td style="text-align:left;">
+66
+</td>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:left;">
+25
+</td>
+<td style="text-align:left;">
+Clear
+</td>
+<td style="text-align:left;">
+Clear
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
 </tr>
-<tr class="even">
-<td align="left">65</td>
-<td align="left">18</td>
-<td align="left">31</td>
-<td align="left">Cloudy</td>
-<td align="left">Cloudy</td>
-<td align="left">Unknown</td>
-<td align="left">Unknown</td>
-<td align="left">Unknown</td>
-<td align="left">Unknown</td>
+<tr>
+<td style="text-align:left;">
+65
+</td>
+<td style="text-align:left;">
+18
+</td>
+<td style="text-align:left;">
+31
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
 </tr>
-<tr class="odd">
-<td align="left">64</td>
-<td align="left">26</td>
-<td align="left">34</td>
-<td align="left">Cloudy</td>
-<td align="left">Cloudy</td>
-<td align="left">Unknown</td>
-<td align="left">Unknown</td>
-<td align="left">Unknown</td>
-<td align="left">Unknown</td>
+<tr>
+<td style="text-align:left;">
+64
+</td>
+<td style="text-align:left;">
+26
+</td>
+<td style="text-align:left;">
+34
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
 </tr>
-<tr class="even">
-<td align="left">63</td>
-<td align="left">21</td>
-<td align="left">36</td>
-<td align="left">Cloudy</td>
-<td align="left">Cloudy</td>
-<td align="left">Unknown</td>
-<td align="left">Unknown</td>
-<td align="left">Unknown</td>
-<td align="left">Unknown</td>
+<tr>
+<td style="text-align:left;">
+63
+</td>
+<td style="text-align:left;">
+21
+</td>
+<td style="text-align:left;">
+36
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Cloudy
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
+<td style="text-align:left;">
+Unknown
+</td>
 </tr>
-<tr class="odd">
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
+<tr>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
-<tr class="even">
-<td align="left">CountYear5</td>
-<td align="left">LowTemp3</td>
-<td align="left">HighTemp2</td>
-<td align="left">AMCloud2</td>
-<td align="left">PMClouds2</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
+<tr>
+<td style="text-align:left;">
+CountYear5
+</td>
+<td style="text-align:left;">
+LowTemp3
+</td>
+<td style="text-align:left;">
+HighTemp2
+</td>
+<td style="text-align:left;">
+AMCloud2
+</td>
+<td style="text-align:left;">
+PMClouds2
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
-<tr class="odd">
-<td align="left">118</td>
-<td align="left">12/26/2017</td>
-<td align="left">85</td>
-<td align="left">198.75</td>
-<td align="left">100</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
+<tr>
+<td style="text-align:left;">
+118
+</td>
+<td style="text-align:left;">
+12/26/2017
+</td>
+<td style="text-align:left;">
+85
+</td>
+<td style="text-align:left;">
+198.75
+</td>
+<td style="text-align:left;">
+100
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
-<tr class="even">
-<td align="left">117</td>
-<td align="left">12/26/2016</td>
-<td align="left">95</td>
-<td align="left">216.65</td>
-<td align="left">97</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
+<tr>
+<td style="text-align:left;">
+117
+</td>
+<td style="text-align:left;">
+12/26/2016
+</td>
+<td style="text-align:left;">
+95
+</td>
+<td style="text-align:left;">
+216.65
+</td>
+<td style="text-align:left;">
+97
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
-<tr class="odd">
-<td align="left">116</td>
-<td align="left">12/26/2015</td>
-<td align="left">107</td>
-<td align="left">221</td>
-<td align="left">94</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
+<tr>
+<td style="text-align:left;">
+116
+</td>
+<td style="text-align:left;">
+12/26/2015
+</td>
+<td style="text-align:left;">
+107
+</td>
+<td style="text-align:left;">
+221
+</td>
+<td style="text-align:left;">
+94
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
-<tr class="even">
-<td align="left">115</td>
-<td align="left">12/26/2014</td>
-<td align="left">80</td>
-<td align="left">179.25</td>
-<td align="left">99</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
+<tr>
+<td style="text-align:left;">
+115
+</td>
+<td style="text-align:left;">
+12/26/2014
+</td>
+<td style="text-align:left;">
+80
+</td>
+<td style="text-align:left;">
+179.25
+</td>
+<td style="text-align:left;">
+99
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
-<tr class="odd">
-<td align="left">114</td>
-<td align="left">12/26/2013</td>
-<td align="left">93</td>
-<td align="left">182.2</td>
-<td align="left">98</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
-<td align="left">NA</td>
+<tr>
+<td style="text-align:left;">
+114
+</td>
+<td style="text-align:left;">
+12/26/2013
+</td>
+<td style="text-align:left;">
+93
+</td>
+<td style="text-align:left;">
+182.2
+</td>
+<td style="text-align:left;">
+98
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
 </tr>
 </tbody>
 </table>
-<p>Here is the end of the second table and the start of the third table. Notice that there is a line of <code>NA</code>s between the two tables:</p>
-<pre class="r"><code>hamilton_cbc %&gt;% slice(142:152)</code></pre>
-<pre><code>## # A tibble: 11 x 9
-##    circle_name abbrev          lat_long x4    x5    x6    x7    x8    x9   
-##    &lt;chr&gt;       &lt;chr&gt;           &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
-##  1 27          12/26/1926      13       &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  2 26          12/26/1925      10       &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  3 25          12/27/1924      8        &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  4 23          12/26/1922      9        &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  5 22          12/23/1921      2        8     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  6 &lt;NA&gt;        &lt;NA&gt;            &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  7 CountYear4  LowTemp2        &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  8 118         Hamilton Natur~ &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  9 117         Hamilton Natur~ &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-## 10 116         Hamilton Natur~ &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-## 11 115         &lt;NA&gt;            &lt;NA&gt;     &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;</code></pre>
+<p>Here is the end of the second table and the start of the third table. Notice the line of <code>NA</code>s between the two tables:</p>
+<pre class="r"><code>hamilton_cbc %&gt;% 
+  slice(143:153) %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+circle_name
+</th>
+<th style="text-align:left;">
+abbrev
+</th>
+<th style="text-align:left;">
+lat_long
+</th>
+<th style="text-align:left;">
+x4
+</th>
+<th style="text-align:left;">
+x5
+</th>
+<th style="text-align:left;">
+x6
+</th>
+<th style="text-align:left;">
+x7
+</th>
+<th style="text-align:left;">
+x8
+</th>
+<th style="text-align:left;">
+x9
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+26
+</td>
+<td style="text-align:left;">
+12/26/1925
+</td>
+<td style="text-align:left;">
+10
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+25
+</td>
+<td style="text-align:left;">
+12/27/1924
+</td>
+<td style="text-align:left;">
+8
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+23
+</td>
+<td style="text-align:left;">
+12/26/1922
+</td>
+<td style="text-align:left;">
+9
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+22
+</td>
+<td style="text-align:left;">
+12/23/1921
+</td>
+<td style="text-align:left;">
+2
+</td>
+<td style="text-align:left;">
+8
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+CountYear4
+</td>
+<td style="text-align:left;">
+LowTemp2
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+118
+</td>
+<td style="text-align:left;">
+Hamilton Naturalists’ Club
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+117
+</td>
+<td style="text-align:left;">
+Hamilton Naturalists’ Club
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+116
+</td>
+<td style="text-align:left;">
+Hamilton Naturalists’ Club
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+115
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+114
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
 <p>Here is the end of the third table and the start of the fourth table. Notice that there is a line of <code>NA</code>s between the two tables. The fourth table is where the bird count data actually starts!</p>
-<pre class="r"><code>hamilton_cbc %&gt;% slice(240:250)</code></pre>
-<pre><code>## # A tibble: 11 x 9
-##    circle_name   abbrev       lat_long x4     x5    x6    x7    x8    x9   
-##    &lt;chr&gt;         &lt;chr&gt;        &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;
-##  1 25            &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  2 23            &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  3 22            &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  4 &lt;NA&gt;          &lt;NA&gt;         &lt;NA&gt;     &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  5 COM_NAME      CountYear    how_man~ Numbe~ Flags &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  6 &quot;Snow Goose\~ &quot;1921 [22]\~ &lt;NA&gt;     &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  7 &quot;Snow Goose\~ &quot;1922 [23]\~ &lt;NA&gt;     &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  8 &quot;Snow Goose\~ &quot;1924 [25]\~ &lt;NA&gt;     &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-##  9 &quot;Snow Goose\~ &quot;1925 [26]\~ &lt;NA&gt;     &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-## 10 &quot;Snow Goose\~ &quot;1926 [27]\~ &lt;NA&gt;     &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt; 
-## 11 &quot;Snow Goose\~ &quot;1928 [29]\~ &lt;NA&gt;     &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;  &lt;NA&gt;</code></pre>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  slice(239:249) %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+circle_name
+</th>
+<th style="text-align:left;">
+abbrev
+</th>
+<th style="text-align:left;">
+lat_long
+</th>
+<th style="text-align:left;">
+x4
+</th>
+<th style="text-align:left;">
+x5
+</th>
+<th style="text-align:left;">
+x6
+</th>
+<th style="text-align:left;">
+x7
+</th>
+<th style="text-align:left;">
+x8
+</th>
+<th style="text-align:left;">
+x9
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+26
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+25
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+23
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+22
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+COM_NAME
+</td>
+<td style="text-align:left;">
+CountYear
+</td>
+<td style="text-align:left;">
+how_manyCW
+</td>
+<td style="text-align:left;">
+NumberByPartyHours
+</td>
+<td style="text-align:left;">
+Flags
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Snow Goose [Chen caerulescens]
+</td>
+<td style="text-align:left;">
+1921 [22] Count Date: 12/23/1921 # Participants: # Species Reported: Total Hrs.: 8.00
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Snow Goose [Chen caerulescens]
+</td>
+<td style="text-align:left;">
+1922 [23] Count Date: 12/26/1922 # Participants: # Species Reported: Total Hrs.:
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Snow Goose [Chen caerulescens]
+</td>
+<td style="text-align:left;">
+1924 [25] Count Date: 12/27/1924 # Participants: # Species Reported: Total Hrs.:
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Snow Goose [Chen caerulescens]
+</td>
+<td style="text-align:left;">
+1925 [26] Count Date: 12/26/1925 # Participants: # Species Reported: Total Hrs.:
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Snow Goose [Chen caerulescens]
+</td>
+<td style="text-align:left;">
+1926 [27] Count Date: 12/26/1926 # Participants: # Species Reported: Total Hrs.:
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+<td style="text-align:left;">
+NA
+</td>
+</tr>
+</tbody>
+</table>
 <p>I decided to programmatically separate the first three tables out from the dataset, in order to be able to easily replicate this analysis when more years’ data gets added, or if I want to repeat this analysis for another count area.</p>
 <pre class="r"><code># Declare two lists, one for each table and one for the header of each table
 meta_data_table &lt;- list()
@@ -330,23 +1577,20 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%  # Do this line after removing the empty 
 hamilton_cbc &lt;- hamilton_cbc %&gt;%
   rename(species = com_name)</code></pre>
 <p>But we still need to deal with the fact that there is a fifth table below the bird count data table. Here is the end of the fourth table and the start of the fifth table. Notice that there is a line of <code>NA</code>s between the two tables:</p>
-<pre class="r"><code>hamilton_cbc %&gt;% slice(23215:23221)</code></pre>
-<pre><code>## # A tibble: 7 x 5
-##   species       count_year              how_many_cw number_by_party_~ flags
-##   &lt;chr&gt;         &lt;chr&gt;                   &lt;chr&gt;       &lt;chr&gt;             &lt;chr&gt;
-## 1 &quot;House Sparr~ &quot;2014 [115]\nCount Dat~ 1318        7.3529            &lt;NA&gt; 
-## 2 &quot;House Sparr~ &quot;2015 [116]\nCount Dat~ 2326        10.5249           &lt;NA&gt; 
-## 3 &quot;House Sparr~ &quot;2016 [117]\nCount Dat~ 2565        11.8394           &lt;NA&gt; 
-## 4 &quot;House Sparr~ &quot;2017 [118]\nCount Dat~ 2731        13.7409           &lt;NA&gt; 
-## 5 &lt;NA&gt;          &lt;NA&gt;                    &lt;NA&gt;        &lt;NA&gt;              &lt;NA&gt; 
-## 6 CountYear1    FirstName               LastName    Email             IsPr~
-## 7 118           Robert                  Porter      rob@inpictures.ca Yes</code></pre>
+<pre class="r"><code># hamilton_cbc %&gt;%
+#   slice(23215:(hamilton_cbc %&gt;% 
+#           mutate(row_number = row_number()) %&gt;%
+#           filter(species == &quot;CountYear1&quot;) %&gt;%
+#             pull(row_number))) %&gt;%
+#   kable() %&gt;%
+#   kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
 <p>I won’t show the data of the fifth table here, but it shows the full names of the counters. I won’t add this data to <code>overall_meta_table</code>, so I will just remove the table from the dataset.</p>
 <p>In order to remove the fifth table, I noticed that every row of the bird count data included a <code>[</code> character in the species variable (for example: “Snow Goose [Chen caerulescens]”), so I filtered out every row in the dataset that didn’t have the <code>[</code> character. Notice that, in the <code>str_detect</code> filter, I put two <code>\</code>’s in front of the <code>[</code>. That is because the <code>[</code> is a special regex character and <code>str_detect</code> needs to know I mean the actual character <code>[</code>, and putting two <code>\</code>’s in front of the <code>[</code> is how to do that.</p>
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   filter(str_detect(species, &quot;\\[&quot;))</code></pre>
 <p>So, where are we at the moment? We have only one dataset left, and it looks like this:</p>
-<pre class="r"><code>hamilton_cbc %&gt;% head(n = 11)</code></pre>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  head(n = 11) </code></pre>
 <pre><code>## # A tibble: 11 x 5
 ##    species       count_year             how_many_cw number_by_party_~ flags
 ##    &lt;chr&gt;         &lt;chr&gt;                  &lt;chr&gt;       &lt;chr&gt;             &lt;chr&gt;
@@ -412,7 +1656,8 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
 # This regex is different because it goes until the end of the string:
 # https://forum.sublimetext.com/t/regex-match-everything-after-this-word/20764
 
-count_participant_meta_data %&gt;% head()</code></pre>
+count_participant_meta_data %&gt;%
+  head()</code></pre>
 <pre><code>## # A tibble: 6 x 5
 ##   participant_info      year  number_of_parti~ species_reported total_hours
 ##   &lt;chr&gt;                 &lt;chr&gt; &lt;chr&gt;            &lt;chr&gt;            &lt;chr&gt;      
@@ -431,7 +1676,8 @@ overall_meta_data &lt;- count_participant_meta_data %&gt;%
          total_hours = as.double(total_hours)) %&gt;%
   full_join(overall_meta_data, by = &quot;year&quot;)</code></pre>
 <p>So, how’s our <code>overall_meta_data</code> looking?</p>
-<pre class="r"><code>overall_meta_data %&gt;% glimpse()</code></pre>
+<pre class="r"><code>overall_meta_data %&gt;%
+  glimpse()</code></pre>
 <pre><code>## Observations: 94
 ## Variables: 12
 ## $ year        &lt;dbl&gt; 1921, 1922, 1924, 1925, 1926, 1928, 1930, 1931, 19...
@@ -447,7 +1693,8 @@ overall_meta_data &lt;- count_participant_meta_data %&gt;%
 ## $ am_snow     &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
 ## $ pm_snow     &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...</code></pre>
 <p>And let’s take another look at where we’re at with the <code>hamilton_cbc</code> dataset:</p>
-<pre class="r"><code>hamilton_cbc %&gt;% glimpse()</code></pre>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  glimpse()</code></pre>
 <pre><code>## Observations: 23,218
 ## Variables: 6
 ## $ species               &lt;chr&gt; &quot;Snow Goose&quot;, &quot;Snow Goose&quot;, &quot;Snow Goose&quot;...
@@ -502,15 +1749,23 @@ distinct(species)</code></pre>
          how_many_counted_by_hour = as.double(how_many_counted) / total_hours)</code></pre>
 <p>And that’s it! :smile: :tada: We have cleaned the dataset and are ready to do some visualising :eyes: in Part 2!</p>
 <p>Here is a glimpse of our final dataset:</p>
-<pre class="r"><code>hamilton_cbc %&gt;% glimpse()</code></pre>
-<pre><code>## Observations: 20,868
-## Variables: 6
-## $ year                     &lt;int&gt; 1921, 1922, 1924, 1925, 1926, 1928, 1...
-## $ species                  &lt;chr&gt; &quot;Snow Goose&quot;, &quot;Snow Goose&quot;, &quot;Snow Goo...
-## $ species_latin            &lt;chr&gt; &quot;Chen caerulescens&quot;, &quot;Chen caerulesce...
-## $ how_many_counted         &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0...
-## $ total_hours              &lt;dbl&gt; 8, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ how_many_counted_by_hour &lt;dbl&gt; 0, NA, NA, NA, NA, NA, NA, NA, NA, NA...</code></pre>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  head(n = 11)</code></pre>
+<pre><code>## # A tibble: 11 x 6
+##     year species species_latin how_many_counted total_hours
+##    &lt;int&gt; &lt;chr&gt;   &lt;chr&gt;                    &lt;dbl&gt;       &lt;dbl&gt;
+##  1  1921 Snow G~ Chen caerule~                0           8
+##  2  1922 Snow G~ Chen caerule~                0          NA
+##  3  1924 Snow G~ Chen caerule~                0          NA
+##  4  1925 Snow G~ Chen caerule~                0          NA
+##  5  1926 Snow G~ Chen caerule~                0          NA
+##  6  1928 Snow G~ Chen caerule~                0          NA
+##  7  1930 Snow G~ Chen caerule~                0          NA
+##  8  1931 Snow G~ Chen caerule~                0          NA
+##  9  1932 Snow G~ Chen caerule~                0          NA
+## 10  1933 Snow G~ Chen caerule~                0          NA
+## 11  1934 Snow G~ Chen caerule~                0          NA
+## # ... with 1 more variable: how_many_counted_by_hour &lt;dbl&gt;</code></pre>
 <p>And thank you to the CBC! The CBC Data was provided by <a href="www.christmasbirdcount.org">National Audubon Society</a> and through the generous efforts of <a href="www.bsc-eoc.org">Bird Studies Canada</a> and countless volunteers across the western hemisphere.</p>
 </div>
 <div class="footnotes">
