@@ -2,8 +2,9 @@
 title: 'Hamilton Christmas Bird Count: Part 3'
 subtitle: 'Creating a Shiny app for the Hamilton CBC data'
 author: Sharleen
-date: '2019-01-22'
+date: '2019-01-26'
 slug: hamilton-christmas-bird-count-part-3
+summary: Creating a Shiny app for the Hamilton CBC data.
 categories: []
 tags:
   - data analysis
@@ -24,51 +25,27 @@ image:
 
 # Note
 
-This is the first part of three for this data set. Part 1 contains only data cleaning, Part 2 contains visualisation and Part 3 contains my Shiny app!
+This is the second part of three for this dataset. Part 1 contains data downloading and cleaning, Part 2 contains visualisations and Part 3 contains my Shiny app!
 
 # Introduction
 
-About two years ago, I was taking my dog for a walked through the park and I began to realize that birds are fascinating! :bird: I began regularly going out birding (or "bird-watching") and reading up on these cool little flying dinosaurs.
+In Part 1 of this data analysis project gave us a cleaned dataset that we then visualised in Part 2. This part of the data analysis project is to demonstrate the Shiny app I made so that people could look through the data themselves!
 
-It turns out there's a lot of data in the birding world as well. Birding attracts the sort of detail-oriented person who likes to count and record stuff.
+I was able to make this whole app very easily thanks to the wonderful tutorial found [here](https://shiny.rstudio.com/tutorial/written-tutorial/lesson1/)!
 
-So there are lots of opportunities to get involved in citizen science projects, including a long-running project called the "Christmas Bird Count". It started in 1900, when Frank Chapman, an ornithologist, came up with the idea as an alternative to hunting birds at Christams (which used to be the tradition)[^1].
+# Data visualising using a Shiny app
 
-Birders have been going out every year around Christmas, to spnd their day walking, biking, or driving around a census area to count all the birds they see or hear.
+Here is the link to my Shiny app, and below, I posted the code I used to make the app.
 
-For the past two years, I have gone out with Hamilton's Christmas Bird Count. I learn a lot while I'm out there and it feels like we are contributing to a larger purpose because we are collecting data.
+```{r setup, message = FALSE, include = FALSE}
 
-So I thought I would look at the data and see what it could tell me!
-
-More specifically, I've been curious about bird counts in general, because birders will say things like "the House Sparrows are getting worse every year" or "the number of Bald Eagles have increased", and I wondered if looking at the Christmas Bird Count data could answer some of those questions.
-
-I went on the [Bird Studies Canada](https://www.birdscanada.org/index.jsp) website, clicked on Citizen Science, then Christmas Bird Count, then CBC Audubon Database, and then Historical Results by Count. I downloaded all years of data that existed for the Hamilton count.
-
-[^1]: https://news.nationalgeographic.com/news/2014/12/141227-christmas-bird-count-anniversary-audubon-animals-science/
-
-# Data cleaning
-
-I started by loading all of the packages I will be using:
-
-```{r setup, message = FALSE}
-library(dplyr)
-library(janitor)
-library(readr)
-library(naniar)
-library(lubridate)
-library(stringr)
-library(purrr)
-library(tidyr)
+library(here)
 
 ```
 
-I read in all of the data using the [`readr`](https://readr.tidyverse.org/) package.
+```{r shiny, code = readLines(here("content", "post", "hamilton_cbc_part_3", "shiny_app", "app.R")), message = FALSE, warning = FALSE, eval = FALSE}
 
-```{r reading_the_data, message = FALSE, warning = FALSE}
-
-#hamilton_cbc <- read_csv("hamilton-cbc-all-years-csv.csv")
 ```
-
 
 
 And thank you to the CBC! The CBC Data was provided by [National Audubon Society](www.christmasbirdcount.org) and through the generous efforts of [Bird Studies Canada](www.bsc-eoc.org) and countless volunteers across the western hemisphere.
