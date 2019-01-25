@@ -1,9 +1,10 @@
 ---
 title: 'Hamilton Christmas Bird Count: Part 1'
-subtitle: 'Data importing and cleaning of all of the Hamilton CBC data'
+subtitle: 'Importing and cleaning of all of the Hamilton CBC data'
 author: Sharleen
 date: '2019-01-07'
 slug: hamilton-christmas-bird-count-part-1
+summary: Importing and cleaning of all of the Hamilton CBC data.
 categories: []
 tags:
   - data analysis
@@ -18,16 +19,25 @@ draft: false
 image:
   caption: 'Black-Capped Chickadee image credit: [**Public Domain Pictures**](https://www.publicdomainpictures.net/en/view-image.php?image=243075&picture=black-capped-chickadee-on-branch-3)'
   preview_only: false
-
+output:
+  blogdown::html_page:
+    toc: true
+    number_sections: true
 ---
 
 
+<div id="TOC">
+<ul>
+<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction</a></li>
+<li><a href="#data-cleaning"><span class="toc-section-number">2</span> Data cleaning</a></li>
+</ul>
+</div>
 
 <div id="introduction" class="section level1">
-<h1>Introduction:</h1>
-<p>About two years ago, I was taking my dog for a walk through a park and I began to notice the birds and how fascinating they are! :bird: I began regularly going out birding (or “bird-watching”) and reading up on these cool little flying dinosaurs.</p>
+<h1><span class="header-section-number">1</span> Introduction</h1>
+<p>About two years ago, I was taking my dog for a walk through a park and I began to notice the birds and how fascinating they are! :bird: I began regularly going out birding (aka “bird-watching”) and reading up on these cool little flying dinosaurs.</p>
 <p>It turns out there’s a lot of data in the birding world as well. Birding attracts the sort of detail-oriented person who likes to count and record stuff.</p>
-<p>So there are opportunities to get involved in citizen science projects, including a long-running project called the “Christmas Bird Count”. It started in 1900, when Frank Chapman, an ornithologist, came up with the idea of counting birds as an alternative to hunting them at Christmas (hunting them being the previous tradition).<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
+<p>So there are opportunities to get involved in citizen science projects, including a long-running project called the Christmas Bird Count (CBC). It started in 1900, when Frank Chapman, an ornithologist, came up with the idea of counting birds as an alternative to hunting them at Christmas (hunting them being the previous tradition).<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
 <p>Birders have been going out every year around Christmas, to spend the day walking, biking, or driving through a census area to count all the birds they see or hear.</p>
 <p>For the past two years, I have gone out with Hamilton’s Christmas Bird Count. I learn a lot while I’m out there and it feels like we are contributing to a larger purpose because of the data we are collecting.</p>
 <p>So I thought I would look at the data and see what it could tell me!</p>
@@ -35,7 +45,7 @@ image:
 <p>To access the data, I went on the <a href="https://www.birdscanada.org/index.jsp">Bird Studies Canada</a> website, clicked on Citizen Science, then Christmas Bird Count, then CBC Audubon Database, and then Historical Results by Count. I downloaded all years of data that existed for the Hamilton count.</p>
 </div>
 <div id="data-cleaning" class="section level1">
-<h1>Data cleaning:</h1>
+<h1><span class="header-section-number">2</span> Data cleaning</h1>
 <p>I started by loading all of the packages I will be using:</p>
 <pre class="r"><code>library(dplyr)
 library(janitor)
@@ -44,11 +54,13 @@ library(naniar)
 library(lubridate)
 library(stringr)
 library(purrr)
-library(tidyr)</code></pre>
+library(tidyr)
+library(knitr)</code></pre>
 <p>I read in the data using the <a href="https://readr.tidyverse.org/"><code>readr</code></a> package.</p>
 <pre class="r"><code>hamilton_cbc &lt;- read_csv(&quot;hamilton-cbc-all-years-csv.csv&quot;)</code></pre>
 <p>As shown below, it turns out that the first two rows of data just give information about the count name and latitude/longitude, so I extracted those two pieces of information as <code>current_circle_name</code> and <code>lat_long</code> and then <a href="https://dplyr.tidyverse.org/reference/slice.html"><code>slice</code>d</a> the file so that the first two lines were excluded from the dataset. I then used <code>clean_names</code> from the <a href="https://www.rdocumentation.org/packages/janitor/versions/1.1.1/topics/clean_names"><code>janitor</code></a> package.</p>
-<pre class="r"><code>hamilton_cbc %&gt;% head(n = 11)</code></pre>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  head(n = 11)</code></pre>
 <pre><code>## # A tibble: 11 x 9
 ##    CircleName Abbrev   LatLong      X4      X5     X6    X7     X8    X9   
 ##    &lt;chr&gt;      &lt;chr&gt;    &lt;chr&gt;        &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;
@@ -75,21 +87,147 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
 <p>The first three tables contain count day weather data. A lot of the weather data is missing and possibly inconsistent. I will remove these three tables from the bird count data table.</p>
 <p>In order to get an idea of what I mean, here are glimpses of the data between the tables.</p>
 <p>Here is the end of the first table and the start of the second table. Notice that there is a line of <code>NA</code>s between the two tables:</p>
-<pre class="r"><code>hamilton_cbc %&gt;% slice(47:57)</code></pre>
-<pre><code>## # A tibble: 11 x 9
-##    circle_name abbrev   lat_long  x4      x5      x6     x7     x8    x9   
-##    &lt;chr&gt;       &lt;chr&gt;    &lt;chr&gt;     &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;
-##  1 66          10       25        Clear   Clear   Unkno~ Unkno~ Unkn~ Unkn~
-##  2 65          18       31        Cloudy  Cloudy  Unkno~ Unkno~ Unkn~ Unkn~
-##  3 64          26       34        Cloudy  Cloudy  Unkno~ Unkno~ Unkn~ Unkn~
-##  4 63          21       36        Cloudy  Cloudy  Unkno~ Unkno~ Unkn~ Unkn~
-##  5 &lt;NA&gt;        &lt;NA&gt;     &lt;NA&gt;      &lt;NA&gt;    &lt;NA&gt;    &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt; 
-##  6 CountYear5  LowTemp3 HighTemp2 AMClou~ PMClou~ &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt; 
-##  7 118         12/26/2~ 85        198.75  100     &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt; 
-##  8 117         12/26/2~ 95        216.65  97      &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt; 
-##  9 116         12/26/2~ 107       221     94      &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt; 
-## 10 115         12/26/2~ 80        179.25  99      &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt; 
-## 11 114         12/26/2~ 93        182.2   98      &lt;NA&gt;   &lt;NA&gt;   &lt;NA&gt;  &lt;NA&gt;</code></pre>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  slice(47:57) %&gt;%
+  kable()</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">circle_name</th>
+<th align="left">abbrev</th>
+<th align="left">lat_long</th>
+<th align="left">x4</th>
+<th align="left">x5</th>
+<th align="left">x6</th>
+<th align="left">x7</th>
+<th align="left">x8</th>
+<th align="left">x9</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">66</td>
+<td align="left">10</td>
+<td align="left">25</td>
+<td align="left">Clear</td>
+<td align="left">Clear</td>
+<td align="left">Unknown</td>
+<td align="left">Unknown</td>
+<td align="left">Unknown</td>
+<td align="left">Unknown</td>
+</tr>
+<tr class="even">
+<td align="left">65</td>
+<td align="left">18</td>
+<td align="left">31</td>
+<td align="left">Cloudy</td>
+<td align="left">Cloudy</td>
+<td align="left">Unknown</td>
+<td align="left">Unknown</td>
+<td align="left">Unknown</td>
+<td align="left">Unknown</td>
+</tr>
+<tr class="odd">
+<td align="left">64</td>
+<td align="left">26</td>
+<td align="left">34</td>
+<td align="left">Cloudy</td>
+<td align="left">Cloudy</td>
+<td align="left">Unknown</td>
+<td align="left">Unknown</td>
+<td align="left">Unknown</td>
+<td align="left">Unknown</td>
+</tr>
+<tr class="even">
+<td align="left">63</td>
+<td align="left">21</td>
+<td align="left">36</td>
+<td align="left">Cloudy</td>
+<td align="left">Cloudy</td>
+<td align="left">Unknown</td>
+<td align="left">Unknown</td>
+<td align="left">Unknown</td>
+<td align="left">Unknown</td>
+</tr>
+<tr class="odd">
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">CountYear5</td>
+<td align="left">LowTemp3</td>
+<td align="left">HighTemp2</td>
+<td align="left">AMCloud2</td>
+<td align="left">PMClouds2</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">118</td>
+<td align="left">12/26/2017</td>
+<td align="left">85</td>
+<td align="left">198.75</td>
+<td align="left">100</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">117</td>
+<td align="left">12/26/2016</td>
+<td align="left">95</td>
+<td align="left">216.65</td>
+<td align="left">97</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">116</td>
+<td align="left">12/26/2015</td>
+<td align="left">107</td>
+<td align="left">221</td>
+<td align="left">94</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="even">
+<td align="left">115</td>
+<td align="left">12/26/2014</td>
+<td align="left">80</td>
+<td align="left">179.25</td>
+<td align="left">99</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+<tr class="odd">
+<td align="left">114</td>
+<td align="left">12/26/2013</td>
+<td align="left">93</td>
+<td align="left">182.2</td>
+<td align="left">98</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+</tr>
+</tbody>
+</table>
 <p>Here is the end of the second table and the start of the third table. Notice that there is a line of <code>NA</code>s between the two tables:</p>
 <pre class="r"><code>hamilton_cbc %&gt;% slice(142:152)</code></pre>
 <pre><code>## # A tibble: 11 x 9
