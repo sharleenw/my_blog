@@ -36,7 +36,7 @@ image:
 <p>Birders have been going out every year around Christmas, to spend the day walking, biking, or driving through a census area to count all the birds they see or hear.</p>
 <p>For the past two years, I have gone out with Hamilton’s Christmas Bird Count. I learn a lot while I’m out there and it feels like we are contributing to a larger purpose because of the data we are collecting.</p>
 <p>So I thought I would look at the data and see what it could tell me!</p>
-<p>I’ve noticed birders will say things like, “the House Sparrows are getting worse every year” or, “the number of Bald Eagles has increased”, and I was wondering if the Christmas Bird Count data would agree or disagree with those statements.</p>
+<p>Specifically, I’ve noticed birders will say things like, “the House Sparrows are getting worse every year” or, “the number of Bald Eagles has increased”, and I was wondering if the Christmas Bird Count data would agree or disagree with those statements.</p>
 <p>To access the data, I went on the <a href="https://www.birdscanada.org/index.jsp">Bird Studies Canada</a> website, clicked on Citizen Science, then Christmas Bird Count, then CBC Audubon Database, and then Historical Results by Count. I downloaded all years of data that existed for the Hamilton count.</p>
 </div>
 <div id="data-import" class="section level1">
@@ -57,9 +57,9 @@ library(kableExtra)</code></pre>
 </div>
 <div id="data-cleaning" class="section level1">
 <h1>Data cleaning</h1>
-<p>As shown below, it turns out that the first two rows of data just give information about the count name and latitude/longitude, so I extracted those two pieces of information as <code>current_circle_name</code> and <code>lat_long</code> and then <a href="https://dplyr.tidyverse.org/reference/slice.html"><code>slice</code>d</a> the file so that the first two lines were excluded from the dataset. I then used <code>clean_names</code> from the <a href="https://www.rdocumentation.org/packages/janitor/versions/1.1.1/topics/clean_names"><code>janitor</code></a> package.</p>
+<p>As shown below, it turns out that the first row just gives information about the count name and latitude/longitude, so I extracted those two pieces of information as <code>current_circle_name</code> and <code>lat_long</code> and then <a href="https://dplyr.tidyverse.org/reference/slice.html"><code>slice</code>d</a> the file so that the first two lines were excluded from the dataset. I then used <code>clean_names</code> from the <a href="https://www.rdocumentation.org/packages/janitor/versions/1.1.1/topics/clean_names"><code>janitor</code></a> package.</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
-  head(n = 11) %&gt;%
+  head() %&gt;%
   kable() %&gt;%
   kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
 <table class="table" style="width: auto !important; ">
@@ -269,151 +269,6 @@ None
 None
 </td>
 </tr>
-<tr>
-<td style="text-align:left;">
-115
-</td>
-<td style="text-align:left;">
-0.6 Celsius
-</td>
-<td style="text-align:left;">
-8.3 Celsius
-</td>
-<td style="text-align:left;">
-Cloudy
-</td>
-<td style="text-align:left;">
-Cloudy
-</td>
-<td style="text-align:left;">
-None
-</td>
-<td style="text-align:left;">
-None
-</td>
-<td style="text-align:left;">
-None
-</td>
-<td style="text-align:left;">
-None
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-114
-</td>
-<td style="text-align:left;">
--4.0 Celsius
-</td>
-<td style="text-align:left;">
--1.0 Celsius
-</td>
-<td style="text-align:left;">
-Cloudy
-</td>
-<td style="text-align:left;">
-Cloudy
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-Light
-</td>
-<td style="text-align:left;">
-None
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-113
-</td>
-<td style="text-align:left;">
--2.0 Celsius
-</td>
-<td style="text-align:left;">
--2.0 Celsius
-</td>
-<td style="text-align:left;">
-Cloudy
-</td>
-<td style="text-align:left;">
-Cloudy
-</td>
-<td style="text-align:left;">
-None
-</td>
-<td style="text-align:left;">
-None
-</td>
-<td style="text-align:left;">
-Light
-</td>
-<td style="text-align:left;">
-Light
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-112
-</td>
-<td style="text-align:left;">
-1.0 Celsius
-</td>
-<td style="text-align:left;">
-6.0 Celsius
-</td>
-<td style="text-align:left;">
-Cloudy
-</td>
-<td style="text-align:left;">
-Cloudy
-</td>
-<td style="text-align:left;">
-None
-</td>
-<td style="text-align:left;">
-None
-</td>
-<td style="text-align:left;">
-None
-</td>
-<td style="text-align:left;">
-None
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-111
-</td>
-<td style="text-align:left;">
-19.0 Celsius
-</td>
-<td style="text-align:left;">
-23.0 Celsius
-</td>
-<td style="text-align:left;">
-Cloudy
-</td>
-<td style="text-align:left;">
-Cloudy
-</td>
-<td style="text-align:left;">
-None
-</td>
-<td style="text-align:left;">
-None
-</td>
-<td style="text-align:left;">
-None
-</td>
-<td style="text-align:left;">
-None
-</td>
-</tr>
 </tbody>
 </table>
 <pre class="r"><code>current_circle_name &lt;- hamilton_cbc[1, 1]
@@ -424,12 +279,11 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
 
 hamilton_cbc &lt;- hamilton_cbc %&gt;%
   clean_names()</code></pre>
-<p>Since I played around with the data before writing this, I knew that there were actually five tables in this dataset.</p>
-<p>The first three tables contain count day weather data. A lot of the weather data is missing and possibly inconsistent. I will remove these three tables from the bird count data table.</p>
-<p>In order to get an idea of what I mean, here are glimpses of the data between the tables.</p>
+<p>Since I played around with the data before writing this, I know that there are actually five tables in this dataset.</p>
+<p>The first three tables contain count day weather data. A lot of the weather data is missing and possibly inconsistent. I will remove these three tables from <code>hamilton_cbc</code>.</p>
 <p>Here is the end of the first table and the start of the second table. Notice the line of <code>NA</code>s between the two tables:</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
-  slice(47:57) %&gt;%
+  slice(47:54) %&gt;%
   kable() %&gt;%
   kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
 <table class="table" style="width: auto !important; ">
@@ -697,98 +551,11 @@ NA
 NA
 </td>
 </tr>
-<tr>
-<td style="text-align:left;">
-116
-</td>
-<td style="text-align:left;">
-12/26/2015
-</td>
-<td style="text-align:left;">
-107
-</td>
-<td style="text-align:left;">
-221
-</td>
-<td style="text-align:left;">
-94
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-115
-</td>
-<td style="text-align:left;">
-12/26/2014
-</td>
-<td style="text-align:left;">
-80
-</td>
-<td style="text-align:left;">
-179.25
-</td>
-<td style="text-align:left;">
-99
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-114
-</td>
-<td style="text-align:left;">
-12/26/2013
-</td>
-<td style="text-align:left;">
-93
-</td>
-<td style="text-align:left;">
-182.2
-</td>
-<td style="text-align:left;">
-98
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
 </tbody>
 </table>
 <p>Here is the end of the second table and the start of the third table. Notice the line of <code>NA</code>s between the two tables:</p>
 <pre class="r"><code>hamilton_cbc %&gt;% 
-  slice(143:153) %&gt;%
+  slice(143:150) %&gt;%
   kable() %&gt;%
   kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
 <table class="table" style="width: auto !important; ">
@@ -1056,98 +823,11 @@ NA
 NA
 </td>
 </tr>
-<tr>
-<td style="text-align:left;">
-116
-</td>
-<td style="text-align:left;">
-Hamilton Naturalists’ Club
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-115
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-114
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
 </tbody>
 </table>
 <p>Here is the end of the third table and the start of the fourth table. Notice that there is a line of <code>NA</code>s between the two tables. The fourth table is where the bird count data actually starts!</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
-  slice(239:249) %&gt;%
+  slice(239:246) %&gt;%
   kable() %&gt;%
   kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
 <table class="table" style="width: auto !important; ">
@@ -1415,93 +1095,6 @@ NA
 NA
 </td>
 </tr>
-<tr>
-<td style="text-align:left;">
-Snow Goose [Chen caerulescens]
-</td>
-<td style="text-align:left;">
-1924 [25] Count Date: 12/27/1924 # Participants: # Species Reported: Total Hrs.:
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Snow Goose [Chen caerulescens]
-</td>
-<td style="text-align:left;">
-1925 [26] Count Date: 12/26/1925 # Participants: # Species Reported: Total Hrs.:
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-Snow Goose [Chen caerulescens]
-</td>
-<td style="text-align:left;">
-1926 [27] Count Date: 12/26/1926 # Participants: # Species Reported: Total Hrs.:
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
 </tbody>
 </table>
 <p>I decided to programmatically separate the first three tables out from the dataset, in order to be able to easily replicate this analysis when more years’ data gets added, or if I want to repeat this analysis for another count area.</p>
@@ -1575,7 +1168,7 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
   rename(species = com_name)</code></pre>
 <p>But we still need to deal with the fact that there is a fifth table below the bird count data table. Here is the end of the fourth table and the start of the fifth table. Notice that there is a line of <code>NA</code>s between the two tables:</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
-  slice(23215:(hamilton_cbc %&gt;%
+  slice(23217:(hamilton_cbc %&gt;%
           mutate(row_number = row_number()) %&gt;%
           filter(species == &quot;CountYear1&quot;) %&gt;%
             pull(row_number))) %&gt;%
@@ -1602,40 +1195,6 @@ flags
 </tr>
 </thead>
 <tbody>
-<tr>
-<td style="text-align:left;">
-House Sparrow [Passer domesticus]
-</td>
-<td style="text-align:left;">
-2014 [115] Count Date: 12/26/2014 # Participants: 86 # Species Reported: 99 Total Hrs.: 179.25
-</td>
-<td style="text-align:left;">
-1318
-</td>
-<td style="text-align:left;">
-7.3529
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-House Sparrow [Passer domesticus]
-</td>
-<td style="text-align:left;">
-2015 [116] Count Date: 12/26/2015 # Participants: 5 # Species Reported: 94 Total Hrs.: 221.00
-</td>
-<td style="text-align:left;">
-2326
-</td>
-<td style="text-align:left;">
-10.5249
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
 <tr>
 <td style="text-align:left;">
 House Sparrow [Passer domesticus]
@@ -1793,8 +1352,8 @@ NA
 <li><code>species</code> gives the species name in English and the scientific name</li>
 <li><code>count_year</code> data has a lot of information that we will parse out in a moment</li>
 <li><code>how_many_cw</code> provides the actual bird count</li>
-<li><code>number_by_party_hours</code> is how many birds were counted divided by the number of person-hours that year (as per the Christmas Bird Count <a href="https://www.audubon.org/sites/default/files/documents/compilers_manual_0.pdf">documentation</a>)</li>
-<li><code>flags</code> contains values like <code>US</code> for “unusual” bird</li>
+<li><code>number_by_party_hours</code> is how many birds were counted divided by the number of person-hours that year</li>
+<li><code>flags</code> contains values like <code>US</code> for “unusual” bird (as per the Christmas Bird Count <a href="https://www.audubon.org/sites/default/files/documents/compilers_manual_0.pdf">documentation</a>)</li>
 </ul>
 <p>Now, we do some regex!</p>
 <p>First, I want to split up the <code>species</code> variable into the common <code>species</code> name and the scientific <code>species_latin</code> name.</p>
@@ -1841,7 +1400,7 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
 # https://forum.sublimetext.com/t/regex-match-everything-after-this-word/20764
 
 count_participant_meta_data %&gt;%
-  head() %&gt;%
+  head(n = 3) %&gt;%
   kable() %&gt;%
   kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
 <table class="table" style="width: auto !important; ">
@@ -1905,57 +1464,6 @@ NA
 </td>
 <td style="text-align:left;">
 1924
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-1925 [26] Count Date: 12/26/1925 # Participants: # Species Reported: Total Hrs.:
-</td>
-<td style="text-align:left;">
-1925
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-1926 [27] Count Date: 12/26/1926 # Participants: # Species Reported: Total Hrs.:
-</td>
-<td style="text-align:left;">
-1926
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-<td style="text-align:left;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-1928 [29] Count Date: 12/22/1928 # Participants: # Species Reported: Total Hrs.:
-</td>
-<td style="text-align:left;">
-1928
 </td>
 <td style="text-align:left;">
 NA
@@ -2055,7 +1563,7 @@ distinct(species)</code></pre>
 <h1>Final dataset</h1>
 <p>Here is a glimpse of our final dataset:</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
-  head(n = 11) %&gt;%
+  head() %&gt;%
   kable() %&gt;%
   kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
 <table class="table" style="width: auto !important; ">
@@ -2185,106 +1693,6 @@ NA
 <tr>
 <td style="text-align:right;">
 1928
-</td>
-<td style="text-align:left;">
-Snow Goose
-</td>
-<td style="text-align:left;">
-Chen caerulescens
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-1930
-</td>
-<td style="text-align:left;">
-Snow Goose
-</td>
-<td style="text-align:left;">
-Chen caerulescens
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-1931
-</td>
-<td style="text-align:left;">
-Snow Goose
-</td>
-<td style="text-align:left;">
-Chen caerulescens
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-1932
-</td>
-<td style="text-align:left;">
-Snow Goose
-</td>
-<td style="text-align:left;">
-Chen caerulescens
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-1933
-</td>
-<td style="text-align:left;">
-Snow Goose
-</td>
-<td style="text-align:left;">
-Chen caerulescens
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-1934
 </td>
 <td style="text-align:left;">
 Snow Goose

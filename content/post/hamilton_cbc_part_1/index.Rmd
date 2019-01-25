@@ -39,7 +39,7 @@ For the past two years, I have gone out with Hamilton's Christmas Bird Count. I 
 
 So I thought I would look at the data and see what it could tell me!
 
-I've noticed birders will say things like, "the House Sparrows are getting worse every year" or, "the number of Bald Eagles has increased", and I was wondering if the Christmas Bird Count data would agree or disagree with those statements.
+Specifically, I've noticed birders will say things like, "the House Sparrows are getting worse every year" or, "the number of Bald Eagles has increased", and I was wondering if the Christmas Bird Count data would agree or disagree with those statements.
 
 To access the data, I went on the [Bird Studies Canada](https://www.birdscanada.org/index.jsp) website, clicked on Citizen Science, then Christmas Bird Count, then CBC Audubon Database, and then Historical Results by Count. I downloaded all years of data that existed for the Hamilton count.
 
@@ -70,12 +70,12 @@ hamilton_cbc <- read_csv("hamilton-cbc-all-years-csv.csv")
 
 # Data cleaning
 
-As shown below, it turns out that the first two rows of data just give information about the count name and latitude/longitude, so I extracted those two pieces of information as `current_circle_name` and `lat_long` and then [`slice`d](https://dplyr.tidyverse.org/reference/slice.html) the file so that the first two lines were excluded from the dataset. I then used `clean_names` from the [`janitor`](https://www.rdocumentation.org/packages/janitor/versions/1.1.1/topics/clean_names) package.
+As shown below, it turns out that the first row just gives information about the count name and latitude/longitude, so I extracted those two pieces of information as `current_circle_name` and `lat_long` and then [`slice`d](https://dplyr.tidyverse.org/reference/slice.html) the file so that the first two lines were excluded from the dataset. I then used `clean_names` from the [`janitor`](https://www.rdocumentation.org/packages/janitor/versions/1.1.1/topics/clean_names) package.
 
 ```{r initial_look}
 
 hamilton_cbc %>%
-  head(n = 11) %>%
+  head() %>%
   kable() %>%
   kable_styling(full_width = FALSE, position = "left")
 
@@ -90,18 +90,16 @@ hamilton_cbc <- hamilton_cbc %>%
 
 ```
 
-Since I played around with the data before writing this, I knew that there were actually five tables in this dataset.
+Since I played around with the data before writing this, I know that there are actually five tables in this dataset.
 
-The first three tables contain count day weather data. A lot of the weather data is missing and possibly inconsistent. I will remove these three tables from the bird count data table.
-
-In order to get an idea of what I mean, here are glimpses of the data between the tables.
+The first three tables contain count day weather data. A lot of the weather data is missing and possibly inconsistent. I will remove these three tables from `hamilton_cbc`.
 
 Here is the end of the first table and the start of the second table. Notice the line of `NA`s between the two tables:
 
 ```{r between_1_2_tables}
 
 hamilton_cbc %>%
-  slice(47:57) %>%
+  slice(47:54) %>%
   kable() %>%
   kable_styling(full_width = FALSE, position = "left")
 
@@ -112,7 +110,7 @@ Here is the end of the second table and the start of the third table. Notice the
 ```{r between_2_3_tables}
 
 hamilton_cbc %>% 
-  slice(143:153) %>%
+  slice(143:150) %>%
   kable() %>%
   kable_styling(full_width = FALSE, position = "left")
 
@@ -123,7 +121,7 @@ Here is the end of the third table and the start of the fourth table. Notice tha
 ```{r between_3_4_tables}
 
 hamilton_cbc %>%
-  slice(239:249) %>%
+  slice(239:246) %>%
   kable() %>%
   kable_styling(full_width = FALSE, position = "left")
 
@@ -224,7 +222,7 @@ But we still need to deal with the fact that there is a fifth table below the bi
 ```{r secret_meta_table}
 
 hamilton_cbc %>%
-  slice(23215:(hamilton_cbc %>%
+  slice(23217:(hamilton_cbc %>%
           mutate(row_number = row_number()) %>%
           filter(species == "CountYear1") %>%
             pull(row_number))) %>%
@@ -258,8 +256,8 @@ hamilton_cbc %>%
 - `species` gives the species name in English and the scientific name
 - `count_year` data has a lot of information that we will parse out in a moment
 - `how_many_cw` provides the actual bird count
-- `number_by_party_hours` is how many birds were counted divided by the number of person-hours that year (as per the Christmas Bird Count [documentation](https://www.audubon.org/sites/default/files/documents/compilers_manual_0.pdf))
-- `flags` contains values like `US` for "unusual" bird
+- `number_by_party_hours` is how many birds were counted divided by the number of person-hours that year
+- `flags` contains values like `US` for "unusual" bird (as per the Christmas Bird Count [documentation](https://www.audubon.org/sites/default/files/documents/compilers_manual_0.pdf))
 
 Now, we do some regex!
 
@@ -331,7 +329,7 @@ count_participant_meta_data <- hamilton_cbc %>%
 # https://forum.sublimetext.com/t/regex-match-everything-after-this-word/20764
 
 count_participant_meta_data %>%
-  head() %>%
+  head(n = 3) %>%
   kable() %>%
   kable_styling(full_width = FALSE, position = "left")
 
@@ -439,7 +437,7 @@ Here is a glimpse of our final dataset:
 ```{r final_look}
 
 hamilton_cbc %>%
-  head(n = 11) %>%
+  head() %>%
   kable() %>%
   kable_styling(full_width = FALSE, position = "left")
 ```
