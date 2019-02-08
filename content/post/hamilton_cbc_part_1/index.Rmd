@@ -175,7 +175,7 @@ Whew! So now we have a list `meta_data_table` that contains the three meta-data 
 
 In the below code chunk, I converted the three tables in the `meta_data_table` list into one `overall_meta_data` table using the `reduce` function from the [`purrr`](https://purrr.tidyverse.org/) package.
 
-Then, using the `replace_with_na_all` function from the [`naniar`](https://purrr.tidyverse.org/) package, anywhere the data was recorded as "Unknown", I converted it to a proper `NA`.
+Then, using the `replace_with_na_all` function from the [`naniar`](https://cran.r-project.org/web/packages/naniar/vignettes/replace-with-na.html) package, anywhere the data was recorded as "Unknown", I converted it to a proper `NA`.
 
 I then `mutate`d two of the variables: I used the `mdy` and `year` functions from the [`lubridate`](https://cran.r-project.org/web/packages/lubridate/vignettes/lubridate.html) to convert the character variables `low_temp3` (actually a date variable) and `date` into a `Date` and `dbl` variable, respectively.
 
