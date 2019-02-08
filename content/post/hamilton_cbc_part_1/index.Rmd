@@ -27,7 +27,7 @@ This is the first part of three for this dataset. Part 1 contains data downloadi
 
 # Introduction
 
-About two years ago, I was taking my dog for a walk through a park and I began to notice the birds and how fascinating they are! :bird: I began regularly going out birding (aka "bird-watching") and reading up on these cool little flying dinosaurs.
+About two years ago, I was taking my dog for a walk through a park and I began to notice the birds and how fascinating they were! :bird: I began regularly going out birding (aka "bird-watching") and reading up on these cool little flying dinosaurs.
 
 It turns out there's a lot of data in the birding world as well. Birding attracts the sort of detail-oriented person who likes to count and record stuff.
 
@@ -356,15 +356,17 @@ So, how's our `overall_meta_data` looking?
 ```{r where_are_we_meta_data}
 
 overall_meta_data %>%
+  tail() %>% # Because the first few years contain a lot of NAs
   glimpse()
 
 ```
 
-And let's take another look at where we're at with the `hamilton_cbc` dataset:
+And where are we at with the `hamilton_cbc` dataset?
 
 ```{r where_are_we}
 
 hamilton_cbc %>%
+  tail() %>% # Because the first few years contain a lot of NAs
   glimpse()
 
 ```
@@ -404,7 +406,7 @@ hamilton_cbc <- hamilton_cbc %>%
 
 ```
 
-In the `species` variable, there are some rows that are identified only to the genus level (and not to the species level). I will exclude these records, as I believe [EBird](https://ebird.org/home) excludes them too.
+In the `species` variable, there are some rows that are identified only to the genus level (and not to the species level). I will exclude these records, as I believe [eBird](https://ebird.org/home) excludes them too.
 
 ```{r species_only}
 
@@ -439,7 +441,7 @@ Here is a glimpse of our final dataset:
 ```{r final_look}
 
 hamilton_cbc %>%
-  head() %>%
+  tail() %>%
   kable() %>%
   kable_styling(full_width = FALSE, position = "left")
 ```
@@ -447,7 +449,7 @@ hamilton_cbc %>%
 ```{r write_the_data, include = FALSE}
 
 hamilton_cbc %>%
-  write_rds(here("content", "post", "hamilton_cbc_part_3", "shiny_app", "hamilton_cbc_output.rds"))
+  write_rds(here("content", "post", "hamilton_cbc_part_3", "hamilton_cbc_shiny", "hamilton_cbc_output.rds"))
 
 ```
 
