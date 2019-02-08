@@ -8,12 +8,12 @@ date = 2019-01-01
 weight = 4
 
 # List your academic interests.
-[interests]
-  interests = [
-    "Data analysis",
-    "Efficient workflows",
-    "Reproducible research"
-  ]
+#[interests]
+#  interests = [
+#    "Data analysis",
+#    "Efficient workflows",
+#    "Reproducible research"
+#  ]
 
 # List your qualifications (such as academic degrees).
 [[education.courses]]
