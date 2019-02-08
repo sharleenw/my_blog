@@ -30,7 +30,7 @@ image:
 </div>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>About two years ago, I was taking my dog for a walk through a park and I began to notice the birds and how fascinating they are! :bird: I began regularly going out birding (aka “bird-watching”) and reading up on these cool little flying dinosaurs.</p>
+<p>About two years ago, I was taking my dog for a walk through a park and I began to notice the birds and how fascinating they were! :bird: I began regularly going out birding (aka “bird-watching”) and reading up on these cool little flying dinosaurs.</p>
 <p>It turns out there’s a lot of data in the birding world as well. Birding attracts the sort of detail-oriented person who likes to count and record stuff.</p>
 <p>So there are opportunities to get involved in citizen science projects, including a long-running project called the Christmas Bird Count (CBC). It started in 1900, when Frank Chapman, an ornithologist, came up with the idea of counting birds as an alternative to hunting them at Christmas (hunting them being the previous tradition).<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a></p>
 <p>Birders have been going out every year around Christmas, to spend the day walking, biking, or driving through a census area to count all the birds they see or hear.</p>
@@ -1488,32 +1488,34 @@ overall_meta_data &lt;- count_participant_meta_data %&gt;%
   full_join(overall_meta_data, by = &quot;year&quot;)</code></pre>
 <p>So, how’s our <code>overall_meta_data</code> looking?</p>
 <pre class="r"><code>overall_meta_data %&gt;%
+  tail() %&gt;% # Because the first few years contain a lot of NAs
   glimpse()</code></pre>
-<pre><code>## Observations: 94
+<pre><code>## Observations: 6
 ## Variables: 12
-## $ year        &lt;dbl&gt; 1921, 1922, 1924, 1925, 1926, 1928, 1930, 1931, 19...
-## $ total_hours &lt;dbl&gt; 8, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,...
-## $ date        &lt;date&gt; 1921-12-23, 1922-12-26, 1924-12-27, 1925-12-26, 1...
-## $ count_year  &lt;chr&gt; &quot;22&quot;, &quot;23&quot;, &quot;25&quot;, &quot;26&quot;, &quot;27&quot;, &quot;29&quot;, &quot;31&quot;, &quot;32&quot;, &quot;3...
-## $ low_temp    &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ high_temp   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ am_cloud    &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ pm_clouds   &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ am_rain     &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ pm_rain     &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ am_snow     &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
-## $ pm_snow     &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...</code></pre>
-<p>And let’s take another look at where we’re at with the <code>hamilton_cbc</code> dataset:</p>
+## $ year        &lt;dbl&gt; 2012, 2013, 2014, 2015, 2016, 2017
+## $ total_hours &lt;dbl&gt; 194.55, 182.20, 179.25, 221.00, 216.65, 198.75
+## $ date        &lt;date&gt; 2012-12-26, 2013-12-26, 2014-12-26, 2015-12-26, 2...
+## $ count_year  &lt;chr&gt; &quot;113&quot;, &quot;114&quot;, &quot;115&quot;, &quot;116&quot;, &quot;117&quot;, &quot;118&quot;
+## $ low_temp    &lt;chr&gt; &quot;-2.0&quot;, &quot;-4.0&quot;, &quot;0.6&quot;, &quot;-2.0&quot;, &quot;-2.0&quot;, &quot;-18.0&quot;
+## $ high_temp   &lt;chr&gt; &quot;-2.0&quot;, &quot;-1.0&quot;, &quot;8.3&quot;, &quot;5.0&quot;, &quot;11.0&quot;, &quot;-13.0&quot;
+## $ am_cloud    &lt;chr&gt; &quot;Cloudy&quot;, &quot;Cloudy&quot;, &quot;Cloudy&quot;, &quot;Partly Cloudy&quot;, &quot;Cl...
+## $ pm_clouds   &lt;chr&gt; &quot;Cloudy&quot;, &quot;Cloudy&quot;, &quot;Cloudy&quot;, &quot;Partly Cloudy&quot;, &quot;Cl...
+## $ am_rain     &lt;chr&gt; &quot;None&quot;, NA, &quot;None&quot;, &quot;None&quot;, &quot;Light&quot;, &quot;None&quot;
+## $ pm_rain     &lt;chr&gt; &quot;None&quot;, NA, &quot;None&quot;, &quot;Light&quot;, &quot;Heavy\nLight&quot;, &quot;None&quot;
+## $ am_snow     &lt;chr&gt; &quot;Light&quot;, &quot;Light&quot;, &quot;None&quot;, &quot;None&quot;, &quot;None&quot;, &quot;None&quot;
+## $ pm_snow     &lt;chr&gt; &quot;Light&quot;, &quot;None&quot;, &quot;None&quot;, &quot;None&quot;, &quot;None&quot;, &quot;None&quot;</code></pre>
+<p>And where are we at with the <code>hamilton_cbc</code> dataset?</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
+  tail() %&gt;% # Because the first few years contain a lot of NAs
   glimpse()</code></pre>
-<pre><code>## Observations: 23,218
+<pre><code>## Observations: 6
 ## Variables: 6
-## $ species               &lt;chr&gt; &quot;Snow Goose&quot;, &quot;Snow Goose&quot;, &quot;Snow Goose&quot;...
-## $ count_year            &lt;chr&gt; &quot;1921 [22]\nCount Date: 12/23/1921\n# Pa...
-## $ how_many_cw           &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
-## $ number_by_party_hours &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
-## $ flags                 &lt;chr&gt; NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, ...
-## $ species_latin         &lt;chr&gt; &quot;Chen caerulescens&quot;, &quot;Chen caerulescens&quot;...</code></pre>
+## $ species               &lt;chr&gt; &quot;House Sparrow&quot;, &quot;House Sparrow&quot;, &quot;House...
+## $ count_year            &lt;chr&gt; &quot;2012 [113]\nCount Date: 12/26/2012\n# P...
+## $ how_many_cw           &lt;chr&gt; &quot;1473&quot;, &quot;1802&quot;, &quot;1318&quot;, &quot;2326&quot;, &quot;2565&quot;, ...
+## $ number_by_party_hours &lt;chr&gt; &quot;7.5713&quot;, &quot;9.8902&quot;, &quot;7.3529&quot;, &quot;10.5249&quot;,...
+## $ flags                 &lt;chr&gt; NA, NA, NA, NA, NA, NA
+## $ species_latin         &lt;chr&gt; &quot;Passer domesticus&quot;, &quot;Passer domesticus&quot;...</code></pre>
 <p>Let’s clean up the variables a bit more:</p>
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   rename(participant_info = count_year,
@@ -1530,7 +1532,7 @@ overall_meta_data &lt;- count_participant_meta_data %&gt;%
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   mutate(how_many_counted = ifelse(how_many_counted == &quot;cw&quot;, NA, how_many_counted),
          how_many_counted = as.integer(how_many_counted))</code></pre>
-<p>In the <code>species</code> variable, there are some rows that are identified only to the genus level (and not to the species level). I will exclude these records, as I believe <a href="https://ebird.org/home">EBird</a> excludes them too.</p>
+<p>In the <code>species</code> variable, there are some rows that are identified only to the genus level (and not to the species level). I will exclude these records, as I believe <a href="https://ebird.org/home">eBird</a> excludes them too.</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
 filter(str_detect(species, &quot;sp\\.&quot;)) %&gt;%
 distinct(species)</code></pre>
@@ -1564,7 +1566,7 @@ distinct(species)</code></pre>
 <h1>Final dataset</h1>
 <p>Here is a glimpse of our final dataset:</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
-  head() %&gt;%
+  tail() %&gt;%
   kable() %&gt;%
   kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
 <table class="table" style="width: auto !important; ">
@@ -1593,122 +1595,122 @@ how_many_counted_by_hour
 <tbody>
 <tr>
 <td style="text-align:right;">
-1921
+2012
 </td>
 <td style="text-align:left;">
-Snow Goose
+House Sparrow
 </td>
 <td style="text-align:left;">
-Chen caerulescens
+Passer domesticus
 </td>
 <td style="text-align:right;">
-0
+1473
 </td>
 <td style="text-align:right;">
-8
+194.55
 </td>
 <td style="text-align:right;">
-0
+7.571318
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-1922
+2013
 </td>
 <td style="text-align:left;">
-Snow Goose
+House Sparrow
 </td>
 <td style="text-align:left;">
-Chen caerulescens
+Passer domesticus
 </td>
 <td style="text-align:right;">
-0
+1802
 </td>
 <td style="text-align:right;">
-NA
+182.20
 </td>
 <td style="text-align:right;">
-NA
+9.890230
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-1924
+2014
 </td>
 <td style="text-align:left;">
-Snow Goose
+House Sparrow
 </td>
 <td style="text-align:left;">
-Chen caerulescens
+Passer domesticus
 </td>
 <td style="text-align:right;">
-0
+1318
 </td>
 <td style="text-align:right;">
-NA
+179.25
 </td>
 <td style="text-align:right;">
-NA
+7.352859
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-1925
+2015
 </td>
 <td style="text-align:left;">
-Snow Goose
+House Sparrow
 </td>
 <td style="text-align:left;">
-Chen caerulescens
+Passer domesticus
 </td>
 <td style="text-align:right;">
-0
+2326
 </td>
 <td style="text-align:right;">
-NA
+221.00
 </td>
 <td style="text-align:right;">
-NA
+10.524887
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-1926
+2016
 </td>
 <td style="text-align:left;">
-Snow Goose
+House Sparrow
 </td>
 <td style="text-align:left;">
-Chen caerulescens
+Passer domesticus
 </td>
 <td style="text-align:right;">
-0
+2565
 </td>
 <td style="text-align:right;">
-NA
+216.65
 </td>
 <td style="text-align:right;">
-NA
+11.839372
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-1928
+2017
 </td>
 <td style="text-align:left;">
-Snow Goose
+House Sparrow
 </td>
 <td style="text-align:left;">
-Chen caerulescens
+Passer domesticus
 </td>
 <td style="text-align:right;">
-0
+2731
 </td>
 <td style="text-align:right;">
-NA
+198.75
 </td>
 <td style="text-align:right;">
-NA
+13.740880
 </td>
 </tr>
 </tbody>
