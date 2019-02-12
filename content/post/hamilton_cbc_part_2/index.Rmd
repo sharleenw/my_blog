@@ -2,7 +2,7 @@
 title: 'Hamilton Christmas Bird Count: Part 2'
 subtitle: 'Visualising the Hamilton CBC data'
 author: Sharleen
-date: '2019-01-24'
+date: '2019-02-10'
 slug: hamilton-christmas-bird-count-part-2
 summary: Visualising the Hamilton CBC data.
 categories: []
@@ -19,6 +19,9 @@ draft: true
 image:
   caption: 'Northern Cardinal image credit: [**Public Domain Files**](http://www.publicdomainfiles.com/show_file.php?id=13962429013391)'
   preview_only: false
+  
+bibliography: part_2.bib
+link-citations: true
 
 ---
 
@@ -28,35 +31,29 @@ This is the second part of three for this dataset. [Part 1](https://sharleenw.rb
 
 # Introduction
 
-Now that we have the data cleaned into a form that we like, we can start visualising it!
+Now that we have the data cleaned into a form that we like, we can start visualising it! 
 
-A wonderful reference I've used while writing this post is the book *Birds of Hamilton and Surrounding Areas*, particularly the chapter called "Hamilton Christmas Bird Count", by Ian Richards.[^1] This book contains a encyclopaedic overview of the history and current state of birds in the Hamilton Study Area. It is 676 pages long and is an absolutely marvelous source of information!
+A wonderful reference I've been using is the book **Birds of Hamilton and Surrounding Areas** by Robert Curry and the Hamilton Naturalists' Club, particularly the chapter called *Hamilton Christmas Bird Count* by Ian Richards. This book contains a encyclopaedic overview of the history and current state of birds in the Hamilton Study Area. It is 676 pages long and is an absolutely marvelous source of information!
 
-Let's walk through what I am interested in learning about from this dataset.
+Let's walk through what I am hoping to learn from this dataset.
 
-1. First I would like to look at what the first year of data shows, to see how it compares to today's count
+1. Compare the first count year to the latest year
 
-2. How many species are seen per year
+2. How many species are seen each year
 
-3. Then, I would like to see any changes over time of:
+3. Highlight certain species to see if there are any changes over time
 
-    - Invasive species
-    - Eastern bluebirds: I volunteer with a group that maintains bluebird nest boxes and I would like to see if the Hamilton CBC numbers will show any changes in Eastern Bluebird numbers since the Ontario Eastern Bluebird Society started in 1988.[^1]
-    - DDT effect on Bald Eagles and Double-Crested Cormorants
-    - Cardinals: A bird that has been increasing over the past hundred years
-    - A sampling of wrens (Carolina, Marsh and winter), ducks (American Black duck, long-tailed, mallard, ring-necked duck), and gulls (ring-billed and herring)
-    - Chickadees and juncos (slate-coloured and regular)
-    - Cooper's, Sharp-shinned and Red-Tailed Hawks
-    - Snow buntings
-    - Canada goose
-    - Red-breasted nuthatch and white-breasted nuthatch
-    - Pileated woodpecker (downy, hairy, red-bellied): This was my group's "Bird of the Day" at the most recent CBC
+This data is only an annual snapshot of the number of birds, and that number depends on several factors, mentioned in @hsa_birds:
 
-This data is only an annual snapshot of birds, and it depends on the number of volunteers and on the weather that day. It also doesn't show the populations of species that migrate out of Hamilton in the winter. However, I think will give us an idea of the answers that I'm interested in.
+  - the number of volunteers
+  - the weather of count day
+  - the date of the count, which has mostly been on Dec 26 since 1974, but has varied anywhere between Dec 16 and Dec 31
 
-# Visualisation
+This dataset also doesn't show the populations of species that migrate out of Hamilton in the winter.
 
-To start the visualising, we'll load all of the packages we'll be using:
+# Visualising
+
+To start, we'll load all of the packages we'll be using and set the plot theme:
 
 ```{r setup, message = FALSE, warning = FALSE}
 
@@ -73,6 +70,8 @@ library(tidyr)
 library(knitr)
 library(kableExtra)
 
+theme_set(theme_minimal())
+
 ```
 
 ```{r read_the_data, include = FALSE, message = FALSE, warning = FALSE}
@@ -81,7 +80,9 @@ hamilton_cbc <- read_rds(here("content", "post", "hamilton_cbc_part_3", "hamilto
 
 ```
 
-Let's start by looking at the first year anyone went out to do the count, in 1921. Ian Richards mentions that 2 observers went out that year, for a combined total time of 8 hours.
+## Comparing the count's first and latest year
+
+Let's start by looking at the first year anyone went out to do the count, in 1921. In @hsa_birds, Ian Richards mentions that 2 observers went out that year, for 8 hours.
 
 ```{r first_year}
 
@@ -107,14 +108,14 @@ hamilton_cbc %>%
 
 ```
 
-Only once! At first I thought it might be a mistake, but *Birds of Hamilton and Surrounding Areas* mentions, in the Gray Jay historical records section, that at least two Gray Jays were seen that winter.
+That was the only time! At first I thought it might have been a mistake, but @hsa_birds mentions, in the Gray Jay historical records section, that at least two Gray Jays were seen that winter.
 
-How does the first year's count compare to 2017's count?
+How does the first year's count compare to the most recent year's count?
 
 ```{r count_2017}
 
 hamilton_cbc %>%
-  filter(year == 2017,
+  filter(year == max(year),
          how_many_counted != 0) %>%
   arrange(-how_many_counted, species) %>%
   head(15) %>%
@@ -123,258 +124,182 @@ hamilton_cbc %>%
 
 ```
 
-That looks more familiar! And almost 200 person-hours were put in, amazing!
+Those species look more familiar! And almost 200 person-hours were put in, amazing!
 
 In 2017, how many species were seen in total?
 
 ```{r species_count_2017}
 
 hamilton_cbc %>%
-  filter(year == 2017,
+  filter(year == max(year),
          how_many_counted != 0) %>%
   count() %>%
   pull()
 
 ```
 
-102, nice! It's not easy to get to 100 species during a CBC. Apparently, only four other Ontario CBCs have done it (by 2004, according to *Birds of Hamilton and Surrounding Areas*).
+102 species, nice! It's not easy to get to 100 species during a CBC. According to @hsa_birds, only four other Ontario CBCs have done it, at least by 2004 (the latest year of CBC data in @hsa_birds).
 
-I am now going to recreate a graph found in Ian Richard's chapter, to update it with the latest years' of information (the last year of data in the book is 2004) and to share it on my blog, because I think it shows interesting information.
+## Number of species counted each year
 
-It's going to compare the number of species and the number of person-hours.
+Here is a re-creation of a plot found in @hsa_birds. It's a plot of the number of species seen and the number of person-hours put in each year. Person-hours are the total number of hours the counters put in during that count. For example, if 3 people went out for four hours, there were 12 person-hours (4 * 3).
+
+Note: In the course of creating this plot, believe there was a error in the total hours of 1982, where the total number of hours was only 64, but there was no drop in the number of species counted that year. I think it should have actually been 164 hours, because, in 1981, there were 167 hours, and in 1983, there were 168 hours. So, in the below chunk, I've mutated 1982 to have 164 total hours.
 
 ```{r species_and_person_hours}
 
-#hamilton_cbc %>%
+# Mutating total_hours and the how_many_counted_by_hour variable that depends on it
 
-# Cumulative # of species.... cumulative number of the years?
+hamilton_cbc <- hamilton_cbc %>%
+  mutate(total_hours = ifelse(year == 1982, 164, total_hours),
+         how_many_counted_by_hour = as.double(how_many_counted) / total_hours)
+
+
+hamilton_cbc %>%
+  group_by(year, total_hours) %>% # Bringing total_hours along for the grouping. Adding it won't affect the grouping because its value is constant within the grouping of each year
+  filter(how_many_counted != 0) %>%
+  summarise(number_of_species_that_year = n()) %>%
+  ggplot() +
+  geom_line(aes(x = year, y = number_of_species_that_year), col = "blue", size = 1) +
+    geom_line(aes(x = year, y = total_hours), col = "orange", size = 1) +
+  labs(x = "Year",
+       y = "Number of species and person-hours")
 
 ```
 
+As @hsa_birds notes, as the number of hours of person-hours increases, so does the number of species counted. But it looks as though this is only true up to a point, after which the number of species levels off. This probably means that, as long as there are at least 150 or so person-hours in a count, the Hamilton CBC counters will be finding all or almost all of the species in the Hamilton area on count day.
 
+Here is a plot of the cumulative number of species seen during the count. I think the main conclusion of this plot is that it is getting harder to see new species every year, which makes sense.
 
-When visualising these species, Ian Richards mentions that the count area and habitats were quite different before 1955, so, for some of these graphs, I will only show information starting after 1955.
+```{r cumulative_total_number_of_birds}
+
+hamilton_cbc %>%
+  filter(how_many_counted != 0) %>%
+  group_by(species) %>%
+  filter(year == min(year)) %>% # What's the first year any species was counted?
+  ungroup() %>%
+  group_by(year) %>%
+  summarise(number_of_new_species_that_year = n()) %>%
+  mutate(cumulative_new_species = cumsum(number_of_new_species_that_year)) %>%
+  ggplot() +
+  geom_point(aes(x = year, y = cumulative_new_species)) +
+  labs(x = "Year",
+       y = "Cumulative number of species counted")
+
+```
+
+## Highlighting specific species
+
+I now want to look at some of the species and how their counts have changed over the course of the count's history.
+
+@hsa_birds mentions that the Hamilton CBC count circle was a different size before 1955, so, for some of these plots, I will only show information starting after 1955. But sometimes I think it's interesting to look at all years of the data, so I might do that too! :smile:
+
+Since the code of these plots will be very similar, only changing the species being displayed and the start year, I am going to make a function for the plotting:
 
 ```{r visualising}
 
+plot_species <- function(cbc_df, start_year, species_to_plot) {
+  
+  cbc_df %>%
+    filter(species %in% species_to_plot,
+           year >= start_year) %>%
+    ggplot() +
+    geom_line(aes(x = year, y = how_many_counted, color = species),
+              size = 1) + # Put the size of the line outside of the aes because we're not varying it
+    labs(x = "Year",
+         y = "Number counted",
+         color = "Species") +
+    scale_y_continuous(label = scales::comma) # Adds commas for thousands, if necessary https://stackoverflow.com/questions/37713351/formatting-ggplot2-axis-labels-with-commas-and-k-mm-if-i-already-have-a-y-sc
+}
+```
+
+There is a lot I want to look at!
+
+    - Invasive species
+    - Eastern bluebirds: I volunteer with a group that maintains bluebird nest boxes and I would like to see if the Hamilton CBC numbers will show any changes in Eastern Bluebird numbers since the Ontario Eastern Bluebird Society started in 1988. (@hsa_birds)
+    - DDT effect on Bald Eagles and Double-Crested Cormorants
+    - Cardinals: A bird that has been increasing over the past hundred years
+    - A sampling of wrens (Carolina, Marsh and winter), ducks (American Black duck, long-tailed, mallard, ring-necked duck), and gulls (ring-billed and herring)
+    - Chickadees and juncos (slate-coloured and regular)
+    - Cooper's, Sharp-shinned and Red-Tailed Hawks
+    - Snow buntings
+    - Canada goose
+    - Crows, west nile? Are ravens returning to their historical area?
+    - Red-breasted nuthatch and white-breasted nuthatch
+    - Pileated woodpecker (downy, hairy, red-bellied): This was my group's "Bird of the Day" at the most recent CBC
+
+### Invasive species
+
+Everyone is interested in invasive species. The four I will be plotting are the European Starling, the House Sparrow, the Rock Pigeon, and the Ring-Necked Pheasant.
+
+According to @hsa_birds, Rock Pigeons only started being counted in 1973 and House Sparrows only started being recorded in 1931.
+
+I am
+
+```{r invasive_species}
 
 invasive <- c("European Starling", "House Sparrow", "Rock Pigeon (Feral Pigeon)", "Ring-necked Pheasant")
 
-hamilton_cbc %>% 
-  filter(species %in% invasive) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  geom_miss_point() +
-  scale_y_log10()
+hamilton_cbc %>%
+plot_species(1955, invasive) +
+  scale_y_log10(label = scales::comma)
+```
 
-hamilton_cbc %>% 
-  filter(year > 1950,
-         species == "Eastern Bluebird") %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  # scale_y_log10() +
-  geom_miss_point()
+```{r bluebird}
+plot_species(hamilton_cbc, 1955, "Eastern Bluebird")
 
-hamilton_cbc %>% 
-  filter(year > 1950,
-         str_detect(species, "Wren")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  # scale_y_log10() +
-  geom_miss_point()
+hamilton_cbc %>%
+  filter(str_detect(species, "Wren")) %>%
+plot_species(1955, .$species)
 
-hamilton_cbc %>% 
-  filter(year > 1950,
-         str_detect(species, "Duck")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  scale_y_log10() +
-  geom_miss_point()
+hamilton_cbc %>%
+  filter(str_detect(species, "Duck")) %>%
+plot_species(1955, .$species) +
+  scale_y_log10(label = scales::comma)
 
-hamilton_cbc %>% 
-  filter(year > 1950,
-         !str_detect(species, "\\("),
-         str_detect(species_latin, "Larus")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  scale_y_log10() +
-  geom_miss_point()
+hamilton_cbc %>%
+  filter(!str_detect(species, "\\("),
+         str_detect(species_latin, "Larus")) %>%
+  plot_species(1955, .$species) +
+  scale_y_log10(label = scales::comma) # This will replace the default scale, so we need to readd the commas
 
+# Add a line for when DDT was banned in Canada, in 1973 @ hsa_birds
+plot_species(hamilton_cbc, 1955, c("Double-crested Cormorant", "Bald Eagle"))
 
-hamilton_cbc %>% 
-  filter(year > 1950,
-         str_detect(species, "Cormorant")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  #scale_y_log10() +
-  geom_miss_point()
+hamilton_cbc %>%
+  filter(species %in% c("Dark-eyed Junco",
+                        "Dark-eyed Junco (Slate-colored)",
+                        "Black-capped Chickadee")) %>%
+  mutate(how_many_counted = ifelse(how_many_counted == 0, NA, how_many_counted)) %>%
+plot_species(1955, .$species) +
+  scale_y_log10(label = scales::comma)
 
+plot_species(hamilton_cbc, 1955, "Long-tailed Duck")
 
-# (DDT was banned in Canada in 1973[^1])
+plot_species(hamilton_cbc, 1921, "Northern Cardinal")
 
-hamilton_cbc %>% 
-  filter(year > 1950,
-         str_detect(species, "Eagle")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  #scale_y_log10() +
-  geom_miss_point()
-
-
-hamilton_cbc %>% 
-  filter(year > 1950,
-         str_detect(species, "Junco")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  #scale_y_log10() +
-  geom_miss_point()
-
-hamilton_cbc %>% 
-  filter(year > 1950,
-         str_detect(species, "Long-tailed Duck")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  #scale_y_log10() +
-  geom_miss_point()
-
-hamilton_cbc %>% 
-  filter(str_detect(species, "Cardinal")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  #scale_y_log10() +
-  geom_miss_point()
-
-hamilton_cbc %>% 
-  filter(str_detect(species, "Chickadee")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  #scale_y_log10() +
-  geom_miss_point()
-
-hamilton_cbc %>% 
-  filter(str_detect(species, "Hawk")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  #scale_y_log10() +
-  geom_miss_point()
+plot_species(hamilton_cbc, 1955, c("Cooper's Hawk", "Sharp-shinned Hawk", "Red-tailed Hawk"))
 
 # Snow buntings had huge peaks in the 1970's
-hamilton_cbc %>% 
-  filter(str_detect(species, "Snow Bunting")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y =
-               how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  #scale_y_log10() +
-  geom_miss_point()
-
-hamilton_cbc %>% 
-  filter(str_detect(species, "Nuthatch")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y =
-               how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  #scale_y_log10() +
-  geom_miss_point()
+plot_species(hamilton_cbc, 1921, "Snow Bunting")
 
 hamilton_cbc %>%
-  filter(str_detect(species, "Woodpecker")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y =
-               how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  #scale_y_log10() +
-  geom_miss_point()
+  filter(str_detect(species, "Nuthatch")) %>%
+plot_species(1921, .$species)
 
+plot_species(hamilton_cbc, 1921, "Canada Goose")
+
+plot_species(hamilton_cbc, 1921, "Ruffed Grouse")
+
+# Remove any species who are always 0
 hamilton_cbc %>%
-  filter(str_detect(species, "Goose")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y =
-               how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() +
-  #scale_y_log10() +
-  geom_miss_point()
-
-
-
-hamilton_cbc %>%
-  filter(str_detect(species, "Grouse")) %>% # https://jennybc.github.io/purrr-tutorial/ls12_different-sized-samples.html
-  ggplot(aes(x = year, y = how_many_counted, color = species)) +
-  geom_line(size = 1) +
-  xlab("Year") +
-  ylab("Number counted") +
-  labs(color = "Species") +
-  theme_minimal() # +
-  #scale_y_log10() +
-  #geom_miss_point()
-
+  filter(str_detect(species, "Woodpecker"),
+         year >= 1955) %>%
+plot_species(1955, .$species)
 
 ```
 
-In the next blog post, I will be making a Shiny app so that anyone can play around with the data!
+In the next blog post, I will be making a Shiny app so that anyone can dig into the data!
 
 And thank you to the CBC! The CBC Data was provided by [National Audubon Society](www.christmasbirdcount.org) and through the generous efforts of [Bird Studies Canada](www.bsc-eoc.org) and countless volunteers across the western hemisphere.
 
-[^1]: Curry, Robert and the Hamilton Naturalists' Club. 2006. *Birds of Hamilton and Surrounding Areas*. http://hamiltonnature.org/publications/birds-of-hamilton/
-
-[^2]: https://en.wikipedia.org/wiki/Grey_jay
