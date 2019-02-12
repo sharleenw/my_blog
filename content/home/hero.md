@@ -25,4 +25,4 @@ weight = 2
 #  label = '<i class="fas fa-download"></i> Install Now'
 +++
 
-Welcome! This is where I post my data analysis projects that are helping me to learn the <a href = "https://www.r-project.org/" target = "_blank">R programming language</a>. :owl:
+Welcome! This is where I post the data analysis projects that are helping me to learn <a href = "https://www.r-project.org/" target = "_blank">R</a>. :owl:
