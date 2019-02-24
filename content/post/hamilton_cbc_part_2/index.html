@@ -15,7 +15,7 @@ tags:
   - birding
   - ggplot2
   - tidyverse
-draft: true
+draft: false
 image:
   caption: 'Northern Cardinal image credit: [**Public Domain Files**](http://www.publicdomainfiles.com/show_file.php?id=13962429013391)'
   preview_only: false
@@ -108,7 +108,7 @@ Herring x Great Black-backed Gull (hybrid)
 </table>
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   filter(!str_detect(species, &quot;hybrid&quot;))</code></pre>
-<p>Now, onto cleaning the trickier stuff. Sometimes, species have sub-species names or groups that have different total counts:</p>
+<p>Now, onto cleaning the trickier stuff. Sometimes, species have sub-species names or groups that have different total counts. For example, the Juncos (where <code>total_counted</code> is the sum of the counts over all years for that species):</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
   filter(str_detect(species, &quot;Junco&quot;)) %&gt;%
   group_by(species, species_latin) %&gt;%
@@ -493,7 +493,7 @@ Cygnus columbianus
 </tr>
 </tbody>
 </table>
-<p>The second step is to sum up the counts for each year across all of the subspecies so the counts are the same, and then filter to only keep the first instance of <code>species</code> (which, when arranged alphabetically, is the shortest species name):</p>
+<p>The second step is to sum up the counts for each year across all of the subspecies so the counts are the same, and then filter to only keep the first instance of each <code>species</code> (which, when arranged alphabetically, is the shortest species name):</p>
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   group_by(year, species_latin) %&gt;%
   mutate(how_many_counted = sum(how_many_counted)) %&gt;%
@@ -536,7 +536,7 @@ Junco hyemalis
 </tr>
 </tbody>
 </table>
-<p>Perfect! No more sub-species. The last group of species to deal with is <code>species</code> where the name has either a <code>(</code> or a <code>/</code>:</p>
+<p>Perfect! No more subspecies. The last group of species to deal with is <code>species</code> where the name has either a <code>(</code> or a <code>/</code>:</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
   group_by(species, species_latin) %&gt;%
   summarise(total_counted = sum(how_many_counted)) %&gt;%
@@ -731,7 +731,7 @@ hamilton_cbc &lt;- hamilton_cbc %&gt;%
 <h1>Visualising</h1>
 <div id="comparing-the-counts-first-and-latest-year" class="section level2">
 <h2>Comparing the count’s first and latest year</h2>
-<p>Let’s start by looking at the first year anyone went out to do the count, in 1921. In <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, Ian Richards mentions that 2 observers went out that year, for 8 hours.</p>
+<p>Let’s start by looking at the first year anyone went out to do the count, in 1921. In <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, Ian Richards mentions that 2 observers went out that year for 8 hours, and they saw 9 species.</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
   filter(year == min(year),
          how_many_counted != 0) %&gt;%
@@ -1307,7 +1307,7 @@ hamilton_cbc %&gt;%
   plot_species(start_year = 1955,
                species_to_plot = introduced)</code></pre>
 <p><img src="/post/hamilton_cbc_part_2/index_files/figure-html/introduced_species-1.png" width="672" /></p>
-<p>Look at the number of European Starlings! It’s so interesting that the numbers peaked in the 60,000’s in the 1980’s and have since seen a sharp decrease. House Sparrow counts have been pretty consistent. Pigeon numbers have slowly increased, and there was one year, in 2005, with over double the expected number. And the Ring-necked Pheasants have declined to be almost non-existant. <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, referencing a 1973 <em>Waterdown Review</em> article, says that a change in urbanization pattern, with areas now going directly from intensive farming to sub-divisions, with no scrubby brush period in between (which is where the pheasants like to live), is the main reason for the decline.</p>
+<p>Look at the number of European Starlings! It’s so interesting that the numbers peaked in the 60,000’s in the 1980’s and have since seen a sharp decrease. House Sparrow counts have been pretty consistent. Pigeon numbers have slowly increased, and there was one year, in 2005, with over double the expected number. And the Ring-necked Pheasants have declined to be almost non-existent. <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, referencing a 1973 <em>Waterdown Review</em> article, says that a change in urbanization pattern, with areas now going directly from intensive farming to sub-divisions, with no scrubby brush period in between (which is where the pheasants like to live), is the main reason for the decline.</p>
 </div>
 <div id="eastern-bluebird" class="section level3">
 <h3>Eastern Bluebird</h3>
@@ -1337,7 +1337,7 @@ hamilton_cbc %&gt;%
                                    &quot;Surf Scoter&quot;,
                                    &quot;Bufflehead&quot;))</code></pre>
 <p><img src="/post/hamilton_cbc_part_2/index_files/figure-html/duck-2.png" width="672" /></p>
-<p>I picked a sampling of ducks that show a trend of increasing since about the mid-1990’s. Ian Richards believes that these increases are due to warmer winters (with an increase in open water), and, for ducks like the Greater and Lesser Scaup, due to the introduced Zebra Mussel in Lake Ontario, which they feed on.</p>
+<p>I picked a sampling of ducks that show a trend of increasing since about the mid-1990’s. Ian Richards in <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> believes that these increases are due to warmer winters (with an increase in open water), and, for ducks like the Greater and Lesser Scaup, due to the introduced Zebra Mussel in Lake Ontario, which they feed on.</p>
 <p>Some of these increases are absolutely incredible! The Long-tailed Duck went from practically non-existent up to 25,000 in the mid-2000’s!</p>
 <p>This is also a good reminder for me that the winter birds I think are “normal” in Hamilton (like Mallards and Long-tailed Ducks) may actually be quite recent phenomena.</p>
 </div>
@@ -1348,14 +1348,14 @@ hamilton_cbc %&gt;%
   plot_species(start_year = 1955,
                species_to_plot = &quot;Canada Goose&quot;)</code></pre>
 <p><img src="/post/hamilton_cbc_part_2/index_files/figure-html/canada_goose-1.png" width="672" /></p>
-<p><span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> talks about the Canada Goose’s history. It originally was considered a “symbol of wild, untamed Canada” and in the late 1800’s, Canada Geese actually avoided the Hamilton area due to “their haunts [being] invaded by trolley cars, electric lights, telegraph wires and other innovations” (Thomas McIlwraith, 1886). :trolleybus::smile:</p>
-<p>However, in the 1960’s, people decided to introduce the largest, heaviest sub-species of the Canada Goose into southern Ontario, because it would supposedly make Ontario “richer”. However, with few natural predators, the Giant Canada Goose has now increased in numbers and degrades habitat and competes with other, migratory sub-species.:expressionless:</p>
+<p><span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> talks about the Canada Goose’s history. The Canada Goose was originally considered a “symbol of wild, untamed Canada” and in the late 1800’s, Canada Geese actually avoided the Hamilton area due to “their haunts [being] invaded by trolley cars, electric lights, telegraph wires and other innovations” (Thomas McIlwraith, 1886). :trolleybus::smile:</p>
+<p>However, in the 1960’s, people decided to introduce the largest, heaviest sub-species of the Canada Goose into southern Ontario, because it would supposedly make Ontario “richer”. However, with few natural predators, the Giant Canada Goose has now increased in numbers and degrades habitat and competes with other, migratory subspecies.:expressionless:</p>
 </div>
 <div id="effects-of-ddt" class="section level3">
 <h3>Effects of DDT</h3>
 <p>Two species I had often heard of having been affected by the pesticide DDT were the Double-crested Cormorant and the Bald Eagle. DDT was first used in 1947 and was finally banned in Canada in 1973. According to <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, by 1980, Bald Eagles were experiencing complete reproductive failure in southern Ontario (due to the thin eggshells).</p>
 <p>So, do the numbers match up with DDT use?</p>
-<p>(Also, if anyone knows a way to put a label on both facets of a graph, please let me know!)</p>
+<p>(Also, if anyone knows a way to put a label in the same spot on both facets of a graph, please let me know!)</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
   plot_species(start_year = 1955,
                species_to_plot = c(&quot;Double-crested Cormorant&quot;,
@@ -1365,10 +1365,10 @@ hamilton_cbc %&gt;%
             y = 90,
             label = &quot;1973: DDT was \nbanned in Canada&quot;)</code></pre>
 <p><img src="/post/hamilton_cbc_part_2/index_files/figure-html/ddt-1.png" width="672" /></p>
-<p>Cool! The numbers do increase after DDT was banned in Canada. Yay for less dangerous :skull:pesticides:skull:!</p>
+<p>Cool! The numbers of Double-crested Cormorants and Bald Eagles did increase after DDT was banned in Canada. Yay for fewer dangerous :skull:pesticides:skull:!</p>
 </div>
-<div id="corvids" class="section level3">
-<h3>Corvids</h3>
+<div id="west-nile-virus" class="section level3">
+<h3>West Nile virus</h3>
 <pre class="r"><code>hamilton_cbc %&gt;%
   plot_species(start_year = 1955,
                species_to_plot = c(&quot;American Crow&quot;,
@@ -1379,19 +1379,19 @@ hamilton_cbc %&gt;%
             y = 4000,
             label = &quot;2003: Height of \nWest Nile virus&quot;)</code></pre>
 <p><img src="/post/hamilton_cbc_part_2/index_files/figure-html/corvids-1.png" width="672" /></p>
-<p>I decided to plot some corvids to see how their numbers have been doing, especially since the West Nile virus happened in the early 2000’s.</p>
-<p>When I was younger, I remember having thousands of crows in my neighbourhood. Our neighbourhood even paid a guy to come with a trained hawk to scare them away. Nothing got them to leave, and then West Nile happened. For years afterwards, there were no crows, and now there are only a few.</p>
-<p>The Blue Jays were also affected by West Nile, but they seem to have bounced back with no problem. They feed at bird feeders though, so that might be helping them.</p>
-<p>While Ravens would have also been affected by West Nile, it doesn’t seem to show in the numbers. Perhaps there were too few birds for the virus to have much of an impact. Historically, <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> says that, before the early 1800’s, Ravens were common in the Hamilton area, but retreated north due to deforestation, shooting by farmers, and eating of poisoned bait set out for wolves. Their recent small increase in numbers seems to show they are perhaps returning to their former area!</p>
+<p>I decided to plot some corvids to see how their numbers have been doing, especially given that the West Nile virus happened in the early 2000’s.</p>
+<p>When I was younger, I remember having thousands of crows in my neighbourhood. Our neighbourhood even paid a guy to come with a trained hawk to scare them away. Nothing got them to leave… And then West Nile happened. For years afterwards, there were no crows, and now there are still only a few. My experience certainly matches with the count numbers.</p>
+<p>The Blue Jays were also affected by West Nile, but they seem to have bounced back with no problem (according to the count numbers and my personal experience). They feed at bird feeders though, so that might be helping them.</p>
+<p>While Ravens would have also been affected by West Nile, it doesn’t seem to show in the numbers. Perhaps there were too few birds for the virus to have had much of an impact on them. <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> says that, before the early 1800’s, Ravens were common in the Hamilton area, but retreated north due to deforestation, shooting by farmers, and eating poisoned bait set out for wolves :angry:. Their recent increase in numbers maybe shows they are returning to their former area!</p>
 </div>
-<div id="snow-buntings" class="section level3">
-<h3>Snow buntings</h3>
+<div id="snow-bunting" class="section level3">
+<h3>Snow Bunting</h3>
 <pre class="r"><code>hamilton_cbc %&gt;%
   plot_species(start_year = 1921,
                species_to_plot = &quot;Snow Bunting&quot;)</code></pre>
 <p><img src="/post/hamilton_cbc_part_2/index_files/figure-html/snow_bunting-1.png" width="672" /></p>
-<p>I personally have never seen a Snow Bunting, but I just think their count numbers are so cool! They are an Arctic bird, so what in the world was happening in the Arctic in the 1970’s to cause such huge spikes!? Ahh, such a great mystery!</p>
-<p>Also, in the 1800’s, they used to be called Snowflakes and there is this adorable quote by Thomas McIlwraith in 1886 in <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, saying “all our Canadian boys and girls are familiar with the Snowflake, which is frequently the only one they see when out for the first sleigh ride of the season.” :smile:</p>
+<p>I personally have not seen a Snow Bunting yet, but I just think their count numbers are so cool! They are an Arctic bird, so what in the world was happening in the Arctic in the 1970’s to cause such huge spikes!? Ahh, such a great mystery!</p>
+<p>Also, in the 1800’s, Snow Buntings used to be called Snowflakes and there is this fantastic quote by Thomas McIlwraith in 1886 in <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, saying, “all our Canadian boys and girls are familiar with the Snowflake, which is frequently the only one they see when out for the first sleigh ride of the season.” :smile:</p>
 </div>
 <div id="ruffed-grouse" class="section level3">
 <h3>Ruffed Grouse</h3>
@@ -1399,7 +1399,7 @@ hamilton_cbc %&gt;%
   plot_species(start_year = 1921, 
                species_to_plot = &quot;Ruffed Grouse&quot;)</code></pre>
 <p><img src="/post/hamilton_cbc_part_2/index_files/figure-html/ruffed_grouse-1.png" width="672" /></p>
-<p>I plotted Ruffed Grouse (aka the partridge) since 1921, and it’s clear that this bird has been pretty much gone from the Hamilton area since the late 1980’s. <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> says the Ruffed Grouse is a bird of mixed forests, and due to intensive agriculture, woodlot harvesting and urban sprawl, the Hamilton area no longer has the right habitat for the Ruffed Grouse. :disappointed:</p>
+<p>I plotted the Ruffed Grouse (aka the partridge) since 1921, and it’s clear that this bird has been pretty much gone from the Hamilton area since the late 1980’s. <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> says the Ruffed Grouse is a bird of mixed forests, and, due to intensive agriculture, woodlot harvesting and urban sprawl, the Hamilton area no longer has the right habitat for the Ruffed Grouse. :disappointed:</p>
 </div>
 <div id="northern-cardinal" class="section level3">
 <h3>Northern Cardinal</h3>
@@ -1407,10 +1407,10 @@ hamilton_cbc %&gt;%
   plot_species(start_year = 1921, 
                species_to_plot = &quot;Northern Cardinal&quot;)</code></pre>
 <p><img src="/post/hamilton_cbc_part_2/index_files/figure-html/cardinal-1.png" width="672" /></p>
-<p>I plotted the Northern Cardinal numbers since 1921. Cardinals used to only be Canada occasionally in Point Pelee (Canada’s most southern point), where the first recorded breeding happened in 1901. According to <span class="citation">O’Neill (<a href="#ref-pp_birds">2006</a>)</span>, the Point Pelee locals used to call these unusually-coloured birds “war birds”! :bird:</p>
+<p>I also plotted the Northern Cardinal numbers since 1921. Cardinals used to only be in Canada occasionally at Point Pelee (Canada’s most southern point), where the first recorded breeding happened in 1901. According to <span class="citation">O’Neill (<a href="#ref-pp_birds">2006</a>)</span>, the Point Pelee locals used to call these unusually-coloured birds “war birds”! :bird:</p>
 <p>Now they are quite common in the Hamilton area through the winter, with <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> giving the reasons of climate warming (causing less snow depth), increasing edge habitats where they like to live (due to deforestation), and more bird-feeders. :sunflower::chestnut::sunflower:</p>
 <p>This is another bird I thought had always been common to the Hamilton area!</p>
-<p>In the next blog post, I will be making a :sparkles:Shiny app:sparkles: so that anyone can dig into the data!</p>
+<p>That is it for now, but in the next blog post, I will be making a :sparkles:Shiny app:sparkles: so that anyone can dig into the data!</p>
 <p>And thank you to the Christmas Bird Count! The Christmas Bird Count Data was provided by <a href="www.christmasbirdcount.org">National Audubon Society</a> and through the generous efforts of <a href="www.bsc-eoc.org">Bird Studies Canada</a> and countless volunteers across the western hemisphere.</p>
 <p>References:</p>
 <div id="refs" class="references">
