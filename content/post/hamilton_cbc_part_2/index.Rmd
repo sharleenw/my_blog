@@ -44,15 +44,10 @@ To start, we'll load all of the packages we'll be using and set the plot theme:
 ```{r setup, echo = TRUE, message = FALSE, warning = FALSE}
 
 library(dplyr)
-library(janitor)
 library(readr)
-library(naniar)
-library(lubridate)
-library(measurements)
 library(stringr)
 library(ggplot2)
 library(here)
-library(tidyr)
 library(knitr)
 library(kableExtra)
 
@@ -60,7 +55,7 @@ theme_set(theme_minimal())
 
 ```
 
-```{r read_the_data, include = FALSE, message = FALSE, warning = FALSE}
+```{r read_the_data, message = FALSE, warning = FALSE}
 
 hamilton_cbc <- read_rds(here("content",
                               "post",
@@ -95,7 +90,7 @@ hamilton_cbc <- hamilton_cbc %>%
 
 ```
 
-Now, onto cleaning the trickier stuff. Sometimes, species have sub-species names or groups, for example, that have different total counts:
+Now, onto cleaning the trickier stuff. Sometimes, species have sub-species names or groups that have different total counts:
 
 ``` {r junco}
 
@@ -408,21 +403,9 @@ hamilton_cbc %>%
 
 ```
 
-Perhaps the nest boxes are helping! Bluebird numbers have certainly increased since the 1980's. And what interesting regular increases and decreases since the late 1990's!
+Perhaps the nest boxes are helping! Bluebird numbers have certainly increased since the 1980's. Although I'm not sure what would cause such interesting cyclical increases and decreases since the late 1990's!
 
-However, in @hsa_birds, there is a chapter by Bill Read called *History of the Eastern Bluebird in the Hamilton Study Area* where he believes that the reason more bluebirds are overwintering now is mainly due to warming winter weather patterns.
-
-### Wrens
-
-```{r wren}
-
-hamilton_cbc %>%
-  plot_species(start_year = 1955,
-               species_to_plot = c("Carolina Wren", "Marsh Wren", "Winter Wren"))
-
-```
-
-In @hsa_birds, he states that climate warming with less snow cover has allowed the Carolina Wren to over-winter here in the more recent years. Possibly the Marsh Wren numbers have decreased due to less marshes in the Hamilton area.
+However, in @hsa_birds, there is a chapter by Bill Read called *History of the Eastern Bluebird in the Hamilton Study Area*, where he writes that the reason more bluebirds are overwintering now is mainly due to warming winter weather patterns. So maybe it's not the nest boxes! :woman_shrugging:
 
 ### Ducks
 
@@ -446,15 +429,15 @@ hamilton_cbc %>%
 
 ```
 
-I picked a sampling of ducks that show a trend of increaseing since about the mid-1990's. Ian Richards believes that these increases are due to warmer winters (with an increase in open water), and for ducks like the Greater and Lesser Scaup, the introduced Zebra Mussel in Lake Ontario.
+I picked a sampling of ducks that show a trend of increasing since about the mid-1990's. Ian Richards believes that these increases are due to warmer winters (with an increase in open water), and, for ducks like the Greater and Lesser Scaup, due to the introduced Zebra Mussel in Lake Ontario, which they feed on.
 
-Some of these increases are absolutely increadible! The Long-tailed Duck went from practically non-existent up to 25,000 in the mid-2000's!
+Some of these increases are absolutely incredible! The Long-tailed Duck went from practically non-existent up to 25,000 in the mid-2000's!
 
-This is also a good reminder for me that the winter birds I think are "normal" to Hamilton (like Mallards and Long-tailed Ducks) may actually be a quite recent phenomenon.
+This is also a good reminder for me that the winter birds I think are "normal" in Hamilton (like Mallards and Long-tailed Ducks) may actually be quite recent phenomena.
 
 ### Canada Goose
 
-In fact, another bird that is very common now is the Canada Goose, which, as I was looking at the data, learned that it was not always so common!
+In fact, another bird that is very common now is the Canada Goose, which I learned, as I looked through the data, was not always so common!
 
 ``` {r canada_goose}
 
@@ -464,29 +447,17 @@ hamilton_cbc %>%
 
 ```
 
-@hsa_birds talks about the Canada Goose's history. It originally was considered a "symbol of wild, untamed Canada" and in the late 1800's, Canada Geese avoided the Hamilton area due to "their haunts [being] invaded by trolley cars, electric lights, telegraph wires and other innovations" (a quote by Thomas McIlwraith in 1886). In the 1960's, people decided to introduce the largest, heaviest sub-species of the Canada Goose into southern Ontario, because it would make Ontario "richer". However, with few natural predators, the Giant Canada Goose has increased in numbers and now degrades habitat for other species and competes with other, migratory sub-species.:expressionless:
+@hsa_birds talks about the Canada Goose's history. It originally was considered a "symbol of wild, untamed Canada" and in the late 1800's, Canada Geese actually avoided the Hamilton area due to "their haunts [being] invaded by trolley cars, electric lights, telegraph wires and other innovations" (Thomas McIlwraith, 1886). :trolleybus::smile:
 
-### Gulls
-
-``` {r gull}
-
-hamilton_cbc %>%
-  filter(str_detect(species_latin, "Larus"),
-         !str_detect(species, "Thayer")) %>% # Removing Thayer's Gull due low counts
-  plot_species(start_year = 1955,
-               species_to_plot = .[["species"]]) # Grabs the species column from the dataset
-
-```
-
-I plotted the gulls partly because I thought it would be neat to filter for species using a genus (in this case, "Larus"). I think the random spike in in Iceland Gull numbers is interesting, and also that the Herring Gull numbers have decreased (@hsa_birds mentions they were actually at an all-time high in the 1960's due to unsanitary landfill practices at the time and have now stabilized). Ring-billed Gull numbers have also increased.
+However, in the 1960's, people decided to introduce the largest, heaviest sub-species of the Canada Goose into southern Ontario, because it would supposedly make Ontario "richer". However, with few natural predators, the Giant Canada Goose has now increased in numbers and degrades habitat and competes with other, migratory sub-species.:expressionless:
 
 ### Effects of DDT
 
-Two species I had often heard having been effecting by the pesticide DDT were the Double-crested Cormorant and the Bald Eagle. DDT was first used in 1947 and was finally banned in 1973. Apparently by 1980, Bald Eagles were experiencing complete reproductive failure in southern Ontario (due to the eggshell thinning).
+Two species I had often heard of having been affected by the pesticide DDT were the Double-crested Cormorant and the Bald Eagle. DDT was first used in 1947 and was finally banned in Canada in 1973. According to @hsa_birds, by 1980, Bald Eagles were experiencing complete reproductive failure in southern Ontario (due to the thin eggshells).
 
-Do the numbers match up with DDT use?
+So, do the numbers match up with DDT use?
 
-(Also, if anyone knows a better way to put a label on both facets of a graph, please let me know!
+(Also, if anyone knows a way to put a label on both facets of a graph, please let me know!)
 
 ``` {r ddt}
 
@@ -501,13 +472,12 @@ hamilton_cbc %>%
 
 ```
 
-Cool! The numbers do increase after DDT was banned in Canada.
+Cool! The numbers do increase after DDT was banned in Canada. Yay for less dangerous :skull:pesticides:skull:!
 
 ### Corvids
 
 ``` {r corvids}
-# American crow declining on pg 306
-# Are ravens returning to their historical area?
+
 hamilton_cbc %>%
   plot_species(start_year = 1955,
                species_to_plot = c("American Crow",
@@ -520,7 +490,13 @@ hamilton_cbc %>%
 
 ```
 
-I decided to plot some corvids to see how their numbers have been doing, especially since the West Nile virus happened in the early 2000's. I remember having thousands of crows in my neighbourhood when I was younger, and our neighbourhood even paid a guy to come with a trained hawk to try to scare them away. Nothing got them to leave until West Nile happened.
+I decided to plot some corvids to see how their numbers have been doing, especially since the West Nile virus happened in the early 2000's.
+
+When I was younger, I remember having thousands of crows in my neighbourhood. Our neighbourhood even paid a guy to come with a trained hawk to scare them away. Nothing got them to leave, and then West Nile happened. For years afterwards, there were no crows, and now there are only a few.
+
+The Blue Jays were also affected by West Nile, but they seem to have bounced back with no problem. They feed at bird feeders though, so that might be helping them.
+
+While Ravens would have also been affected by West Nile, it doesn't seem to show in the numbers. Perhaps there were too few birds for the virus to have much of an impact. Historically, @hsa_birds says that, before the early 1800's, Ravens were common in the Hamilton area, but retreated north due to deforestation, shooting by farmers, and eating of poisoned bait set out for wolves. Their recent small increase in numbers seems to show they are perhaps returning to their former area!
 
 ### Snow buntings
 
@@ -546,23 +522,38 @@ hamilton_cbc %>%
 
 ```
 
-I plotted Ruffed Grouse (aka the partridge) since 1921, and it's clear that this bird has been pretty much gone from the Hamilton area since the late 1980's. @hsa_birds says the Ruffed Grouse is a bird of mixed forests, and due to intensive agriculture, woodlot harvesting and urban sprawl, the Hamilton area no longer has the right habitat for the Ruffed Grouse.
+I plotted Ruffed Grouse (aka the partridge) since 1921, and it's clear that this bird has been pretty much gone from the Hamilton area since the late 1980's. @hsa_birds says the Ruffed Grouse is a bird of mixed forests, and due to intensive agriculture, woodlot harvesting and urban sprawl, the Hamilton area no longer has the right habitat for the Ruffed Grouse. :disappointed:
 
 ### Northern Cardinal
 
 ``` {r cardinal}
-# Increasing over the last 100 years
+
 hamilton_cbc %>%
   plot_species(start_year = 1921, 
                species_to_plot = "Northern Cardinal")
 
 ```
 
-I plotted the Northern Cardinal numbers since 1921. Cardinals used to only be Canada occasionally in Point Pelee (Canada's most southern point), where the first recorded breeding happened in 1901. According to @pp_birds, the Point Pelee locals used to call these unusually-coloured birds "war birds"! :bird: Now they are quite common in the Hamilton area through the winter, with @hsa_birds giving the reasons of climate warming (causing less snow depth), increasing edge habitats where they like to live (due to deforestation) and more bird-feeder stations. :chestnut::sunflower:
+I plotted the Northern Cardinal numbers since 1921. Cardinals used to only be Canada occasionally in Point Pelee (Canada's most southern point), where the first recorded breeding happened in 1901. According to @pp_birds, the Point Pelee locals used to call these unusually-coloured birds "war birds"! :bird:
 
+Now they are quite common in the Hamilton area through the winter, with @hsa_birds giving the reasons of climate warming (causing less snow depth), increasing edge habitats where they like to live (due to deforestation), and more bird-feeders. :sunflower::chestnut::sunflower:
+
+This is another bird I thought had always been common to the Hamilton area!
 
 In the next blog post, I will be making a :sparkles:Shiny app:sparkles: so that anyone can dig into the data!
 
 And thank you to the Christmas Bird Count! The Christmas Bird Count Data was provided by [National Audubon Society](www.christmasbirdcount.org) and through the generous efforts of [Bird Studies Canada](www.bsc-eoc.org) and countless volunteers across the western hemisphere.
+
+```{r write_the_data, include = FALSE}
+
+hamilton_cbc %>%
+  write_rds(here("content",
+                 "post",
+                 "hamilton_cbc_part_3",
+                 "hamilton_cbc_shiny", 
+                 "hamilton_cbc_output_part_2.rds"))
+
+```
+
 
 References:
