@@ -31,8 +31,6 @@ This is the second part of three for this dataset. [Part 1](https://sharleenw.rb
 
 # Introduction
 
-Now that we have the data cleaned into a form that we like, we can start visualising it! 
-
 A wonderful reference I've been using is the book **Birds of Hamilton and Surrounding Areas** by Robert Curry and the Hamilton Naturalists' Club, particularly the chapter called *Hamilton Christmas Bird Count* by Ian Richards. This book contains a encyclopaedic overview of the history and current state of birds in the Hamilton Study Area.
 
 Let's walk through what I am hoping to learn from this dataset.
@@ -77,8 +75,12 @@ hamilton_cbc <- read_rds(here("content",
 # Final cleaning touches
 
 While working through this blog post, I realized there were a few more cleaning steps I wanted to do before visualising: 
+
 1. remove counts of `hybrid` birds
-2. consolidate the names of some species that have changed back and forth since 1921.
+
+2. consolidate the names of some species that have `(` and `/` in them
+
+Let's see how many hybrid species we have and remove them:
 
 ``` {r hybrid_removal}
 
@@ -93,8 +95,7 @@ hamilton_cbc <- hamilton_cbc %>%
 
 ```
 
-
-So now, onto cleaning the trickier stuff. Sometimes, species have sub-species names or groups, for example:
+Now, onto cleaning the trickier stuff. Sometimes, species have sub-species names or groups, for example:
 
 ``` {r junco}
 
@@ -106,9 +107,9 @@ hamilton_cbc %>%
 
 ```
 
-I just want there to be one Dark-eyed Junco species in this dataset, so I am going to consolidate these four "species" into one species. Even though I know people get way more excited about seeing the Oregon sub-species in Hamilton than the Slate-colored :smile:.
+I just want there to be one Dark-eyed Junco species in this dataset, so I am going to consolidate these four sub-species into one species. Even though I know people get way more excited about seeing the Oregon sub-species in Hamilton than the Slate-colored :smile:.
 
-The first step is to only keep the first two words of the `species_latin` variable:
+The first step is to only keep the first two words of the `species_latin` variable (this works for all cases in the dataset):
 
 ``` {r species_latin_keep_two_words}
 
@@ -137,7 +138,7 @@ hamilton_cbc %>%
 
 ```
 
-The second step is to sum up the counts for each year across all of these subspecies, and then only keep the first `species` in each `species_latin` group (which, alphabetically, is the shortest species name):
+The second step is to sum up the counts for each year across all of these subspecies, and then filter to only keep the first `species` name (which, alphabetically, is the shortest species name):
 
 ``` {r subspecies}
 
@@ -156,7 +157,7 @@ hamilton_cbc %>%
 
 ```
 
-The last group of species to deal with is where either `species` has a `(` or a `/` or `species_latin` has a `/`:
+Perfect! No more sub-species. The last group of species to deal with is where either `species` has a `(` or a `/` or `species_latin` has a `/`:
 
 ``` {r name_cleaning}
 
@@ -213,7 +214,13 @@ hamilton_cbc <- hamilton_cbc %>%
   filter(row_number() == 1) %>%
   ungroup()
 
-# Recalculate the "per person-hour" variable that depends on how_many_counted
+```
+
+
+Finally, I am just going to recalculate the "per person-hour" variable that depends on `how_many_counted`.
+
+``` {r recalc_person_hours}
+
 hamilton_cbc <- hamilton_cbc %>%
   mutate(how_many_counted_by_hour = as.double(how_many_counted) / total_hours)
 
@@ -249,7 +256,7 @@ hamilton_cbc %>%
 
 ```
 
-That was the only time! At first I thought it might have been a mistake, but @hsa_birds mentions, in the Gray Jay historical records section, that at least two Gray Jays were seen that winter.
+That was the only time! At first I thought it might have been a mistake, but @hsa_birds mentions, in the Gray Jay historical records section, that at least two Gray Jays were seen that winter. (This book is so thorough!)
 
 How does the first year's count compare to the most recent year's count?
 
@@ -271,7 +278,7 @@ In 2017, how many species were seen in total?
 
 ```{r species_count_2017}
 
-hamilton_cbc %>%
+species_count_2017 <- hamilton_cbc %>%
   filter(year == max(year),
          how_many_counted != 0) %>%
   count() %>%
@@ -279,13 +286,13 @@ hamilton_cbc %>%
 
 ```
 
-102 species, nice! It's not easy to get to 100 species during a CBC. Only four other Ontario CBCs have done it, at least by 2004 (the latest year of CBC data in @hsa_birds).
+`r species_count_2017` species, nice! It's not easy to get to 100 species during a CBC. Only four other Ontario CBCs have done it, at least by 2004 (the latest year of CBC data in @hsa_birds).
 
 ## Number of species counted each year
 
-Here is a re-creation of a plot found in @hsa_birds. It's a plot of the number of species seen and the number of person-hours put in each year. Person-hours are the total number of hours the counters put in during that count. For example, if 3 people went out for four hours, there were 12 person-hours (4 * 3).
+Below is a re-creation of a plot found in @hsa_birds. It's a plot of the number of species seen and the number of person-hours put in each year. Person-hours are the total number of hours the counters put in during that count. For example, if 3 people went out for four hours, there were 12 person-hours (4 * 3).
 
-Note: In the course of creating this plot, I believe there was a error in the total hours of 1982, where the total number of hours was recorded as only 64, but there was no drop in the number of species counted that year. I think it should have actually been 164 hours, because, in 1981, there were 167 hours, and in 1983, there were 168 hours. So, in the below chunk, I've `mutate`d 1982 to have 164 total hours.
+Note: In the course of creating this plot, I believe there was a error in the total hours recorded for 1982, where the total number of hours was only 64, but there was no drop in the number of species counted that year. I think it should have actually been 164 hours, because, in 1981, there were 167 hours, and in 1983, there were 168 hours. So, in the below chunk, I've `mutate`d 1982 to have 164 total hours.
 
 ```{r species_and_person_hours}
 
@@ -312,7 +319,7 @@ hamilton_cbc %>%
 
 ```
 
-As @hsa_birds notes, as the number of hours of person-hours increases, so does the number of species counted. But it looks as though this is only true up to a point, after which the number of species levels off. This probably means that, as long as there are at least 150 or so person-hours in a count, the Hamilton CBC counters will be finding all or almost all of the species in the Hamilton area on count day.
+As Ian Richards in @hsa_birds notes, as the number of hours of person-hours increases, so does the number of species counted. But only true up to a point, after which the number of species levels off. This probably means that, as long as there are at least 200 or so person-hours in a count, the Hamilton CBC counters will be finding all or almost all of the species in the Hamilton area on count day.
 
 Here is a plot of the cumulative number of species seen during the count. I think the main conclusion of this plot is that it is getting harder to see new species every year, which makes sense.
 
@@ -371,7 +378,7 @@ plot_species <- function(cbc_df, start_year, species_to_plot) {
 
 Everyone is interested in introduced species. The four I will be plotting are the European Starling, the House Sparrow, the Rock Pigeon, and the Ring-Necked Pheasant.
 
-According to @hsa_birds, Rock Pigeons only started being counted in 1973 and House Sparrows in 1931 (possibly due to them being introduced).
+According to @hsa_birds, Rock Pigeons only started being counted in 1973 and House Sparrows in 1931 (I think due to them being introduced species).
 
 Look at the number of European Starlings! It's so interesting that the numbers peaked in the 1980's and have since seen a sharp decrease. House Sparrows have been pretty consistent. Pigeon numbers have slowly increased, and there was one year, in 2005, with over double the expected number. And the Ring-necked Pheasants have declined to be almost non-existant. @hsa_birds, referencing a 1973 *Waterdown Review* article, says that a change in urbanization pattern, with areas now going directly from intensive farming to sub-divisions, with no scrubby brush period in between (which is where the pheasants liked to live), is the main reason for the decline.
 
@@ -379,14 +386,14 @@ Look at the number of European Starlings! It's so interesting that the numbers p
 
 introduced <- c("European Starling",
                 "House Sparrow",
-                "Rock Pigeon (Feral Pigeon)",
+                "Rock Pigeon",
                 "Ring-necked Pheasant")
 
 hamilton_cbc %>%
-  mutate(how_many_counted = ifelse(species == "Rock Pigeon (Feral Pigeon)" &
+  mutate(how_many_counted = ifelse(species == "Rock Pigeon" &
                                      year < 1973,
                                    NA,
-                                   how_many_counted)) %>% # Making Rock pigeon values pre-1973 to be NA as they were not counted
+                                   how_many_counted)) %>% # Making Rock Pigeon values pre-1973 to be NA as they were not counted
   plot_species(start_year = 1955,
                species_to_plot = introduced)
 ```
