@@ -26,7 +26,7 @@ image:
 
 <div id="note" class="section level1">
 <h1>Note</h1>
-<p>This is the first part of three for this dataset. Part 1 contains data downloading and cleaning, Part 2 contains visualisations and Part 3 contains my Shiny app!</p>
+<p>This is the first part of three for this dataset. Part 1 contains data downloading and cleaning, <a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_2/hamilton-christmas-bird-count-part-2/">Part 1</a> contains visualisations and Part 3 contains my Shiny app!</p>
 </div>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
@@ -1135,6 +1135,15 @@ for (i in 1:3) {
   hamilton_cbc &lt;- hamilton_cbc %&gt;%
     slice((j + 1) : n())
 }</code></pre>
+<pre><code>## Warning: funs() is soft deprecated as of dplyr 0.8.0
+## please use list() instead
+## 
+## # Before:
+## funs(name = f(.)
+## 
+## # After: 
+## list(name = ~f(.))
+## This warning is displayed once per session.</code></pre>
 <p>Whew! So now we have a list <code>meta_data_table</code> that contains the three meta-data tables.</p>
 <p>In the below code chunk, I converted the three tables in the <code>meta_data_table</code> list into one <code>overall_meta_data</code> table using the <code>reduce</code> function from the <a href="https://purrr.tidyverse.org/"><code>purrr</code></a> package.</p>
 <p>Then, using the <code>replace_with_na_all</code> function from the <a href="https://cran.r-project.org/web/packages/naniar/vignettes/replace-with-na.html"><code>naniar</code></a> package, anywhere the data was recorded as “Unknown”, I converted it to a proper <code>NA</code>.</p>

@@ -23,7 +23,7 @@ image:
 
 # Note
 
-This is the first part of three for this dataset. Part 1 contains data downloading and cleaning, Part 2 contains visualisations and Part 3 contains my Shiny app!
+This is the first part of three for this dataset. Part 1 contains data downloading and cleaning, [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_2/hamilton-christmas-bird-count-part-2/)  contains visualisations and Part 3 contains my Shiny app!
 
 # Introduction
 
