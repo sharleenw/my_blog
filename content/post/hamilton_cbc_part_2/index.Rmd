@@ -1,10 +1,10 @@
 ---
 title: 'Hamilton Christmas Bird Count: Part 2'
-subtitle: 'Visualising the Hamilton CBC data'
+subtitle: 'Visualising the Hamilton Christmas Bird Count data'
 author: Sharleen
-date: '2019-02-10'
+date: '2019-02-23'
 slug: hamilton-christmas-bird-count-part-2
-summary: Visualising the Hamilton CBC data.
+summary: Visualising the Hamilton Christmas Bird Count data.
 categories: []
 tags:
   - data analysis
@@ -33,25 +33,15 @@ This is the second part of three for this dataset. [Part 1](https://sharleenw.rb
 
 Now that we have the data cleaned into a form that we like, we can start visualising it! 
 
-A wonderful reference I've been using is the book **Birds of Hamilton and Surrounding Areas** by Robert Curry and the Hamilton Naturalists' Club, particularly the chapter called *Hamilton Christmas Bird Count* by Ian Richards. This book contains a encyclopaedic overview of the history and current state of birds in the Hamilton Study Area. It is 676 pages long and is an absolutely marvelous source of information!
+A wonderful reference I've been using is the book **Birds of Hamilton and Surrounding Areas** by Robert Curry and the Hamilton Naturalists' Club, particularly the chapter called *Hamilton Christmas Bird Count* by Ian Richards. This book contains a encyclopaedic overview of the history and current state of birds in the Hamilton Study Area.
 
 Let's walk through what I am hoping to learn from this dataset.
 
-1. Compare the first count year to the latest year
+1. Compare the first count year's data to the latest year
 
 2. How many species are seen each year
 
 3. Highlight certain species to see if there are any changes over time
-
-This data is only an annual snapshot of the number of birds, and that number depends on several factors, mentioned in @hsa_birds:
-
-  - the number of volunteers
-  - the weather of count day
-  - the date of the count, which has mostly been on Dec 26 since 1974, but has varied anywhere between Dec 16 and Dec 31
-
-This dataset also doesn't show the populations of species that migrate out of Hamilton in the winter.
-
-# Visualising
 
 To start, we'll load all of the packages we'll be using and set the plot theme:
 
@@ -83,6 +73,153 @@ hamilton_cbc <- read_rds(here("content",
                               "hamilton_cbc_output.rds"))
 
 ```
+
+# Final cleaning touches
+
+While working through this blog post, I realized there were a few more cleaning steps I wanted to do before visualising: 
+1. remove counts of `hybrid` birds
+2. consolidate the names of some species that have changed back and forth since 1921.
+
+``` {r hybrid_removal}
+
+hamilton_cbc %>%
+  filter(str_detect(species, "hybrid")) %>%
+  distinct(species) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+hamilton_cbc <- hamilton_cbc %>%
+  filter(!str_detect(species, "hybrid"))
+
+```
+
+
+So now, onto cleaning the trickier stuff. Sometimes, species have sub-species names or groups, for example:
+
+``` {r junco}
+
+hamilton_cbc %>%
+  filter(str_detect(species, "Junco")) %>%
+  distinct(species, species_latin) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+I just want there to be one Dark-eyed Junco species in this dataset, so I am going to consolidate these four "species" into one species. Even though I know people get way more excited about seeing the Oregon sub-species in Hamilton than the Slate-colored :smile:.
+
+The first step is to only keep the first two words of the `species_latin` variable:
+
+``` {r species_latin_keep_two_words}
+
+hamilton_cbc <- hamilton_cbc %>%
+  mutate(species_latin = word(species_latin, start = 1, end = 2))
+
+hamilton_cbc %>%
+  filter(str_detect(species, "Junco")) %>%
+  distinct(species, species_latin) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+A bit better! Now let's see who else is in this list:
+
+``` {r multiple_species}
+
+hamilton_cbc %>%
+  group_by(species_latin) %>%
+  filter(n_distinct(species) > 1) %>%
+  ungroup() %>% 
+  distinct(species, species_latin) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+The second step is to sum up the counts for each year across all of these subspecies, and then only keep the first `species` in each `species_latin` group (which, alphabetically, is the shortest species name):
+
+``` {r subspecies}
+
+hamilton_cbc <- hamilton_cbc %>%
+  group_by(year, species_latin) %>%
+  mutate(how_many_counted = sum(how_many_counted)) %>%
+  arrange(year, species) %>%
+  filter(row_number() == 1) %>%
+  ungroup()
+
+hamilton_cbc %>%
+  filter(str_detect(species, "Junco")) %>%
+  distinct(species, species_latin) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+The last group of species to deal with is where either `species` has a `(` or a `/` or `species_latin` has a `/`:
+
+``` {r name_cleaning}
+
+hamilton_cbc %>%
+  group_by(species, species_latin) %>%
+  summarise(total_counted = sum(how_many_counted)) %>%
+  filter(str_detect(species, "\\(|/") | # The "|" is an "or" within the regex
+           str_detect(species_latin, "/")) %>%
+  ungroup() %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+I am going to make some executive decisions about what to do with these `species`:
+
+1. Delete species guess: Greater/Lesser Scaup
+2. Assume super-rare species were in fact the more common species (please let me know if my bird knowledge is incorrect however!):
+    - Bullock's/Baltimore Oriole were Baltimore Orioles
+    - Western/Eastern Meadowlark were Eastern Meadowlarks
+    - Wilson's/Common Snipe were Common Snipes
+    - Spotted/Eastern Towhee (Rufous-sided Towhee) were Eastern Towhees
+    - Pacific/Winter Wren were Winter Wrens
+3. Remove parentheses on the remaining species for neatness
+
+``` {r removing_parentheses}
+
+hamilton_cbc <- hamilton_cbc %>%
+  filter(!(species == "Greater/Lesser Scaup")) %>%
+  mutate(species = case_when(species == "Bullock's/Baltimore Oriole" ~ "Baltimore Oriole",
+                             species == "Western/Eastern Meadowlark" ~ "Eastern Meadowlark",
+                             species == "Wilson's/Common Snipe" ~ "Common Snipe",
+                             species == "Spotted/Eastern Towhee (Rufous-sided Towhee)" ~ "Eastern Towhee",
+                             species == "Pacific/Winter Wren" ~ "Winter Wren",
+                             TRUE ~ species),
+         species_latin = case_when(species_latin == "Icterus bullockii/galbula" ~ "Icterus galbula",
+                             species_latin == "Sturnella neglecta/magna" ~ "Sturnella magna",
+                             species_latin == "Gallinago delicata/gallinago" ~ "Gallinago gallinago",
+                             species_latin == "Pipilo maculatus/erythrophthalmus" ~ "Pipilo erythrophthalmus",
+                             species_latin == "Troglodytes pacificus/hiemalis" ~ "Troglodytes hiemalis",
+                             TRUE ~ species_latin),
+         species = case_when(species == "Barn Owl (American)" ~ "Barn Owl",
+                             species == "Great Blue Heron (Blue form)" ~ "Great Blue Heron",
+                             species == "Palm Warbler (Western)" ~ "Palm Warbler",
+                             species == "Rock Pigeon (Feral Pigeon)" ~ "Rock Pigeon",
+                             species == "Yellow-rumped Warbler (Myrtle)" ~ "Yellow-rumped Warbler",
+                             TRUE ~ species))
+
+# Consolidate the counts between the species whose names were just updated
+hamilton_cbc <- hamilton_cbc %>%
+  group_by(year, species_latin) %>%
+  mutate(how_many_counted = sum(how_many_counted)) %>%
+  arrange(year, species) %>%
+  filter(row_number() == 1) %>%
+  ungroup()
+
+# Recalculate the "per person-hour" variable that depends on how_many_counted
+hamilton_cbc <- hamilton_cbc %>%
+  mutate(how_many_counted_by_hour = as.double(how_many_counted) / total_hours)
+
+```
+
+# Visualising
 
 ## Comparing the count's first and latest year
 
@@ -379,6 +516,14 @@ plot_species(hamilton_cbc, 1921, "Ruffed Grouse")
 plot_species(hamilton_cbc, 1921, "Northern Cardinal")
 
 ```
+
+This data is only an annual snapshot of the number of birds, and that number depends on several factors, mentioned in @hsa_birds:
+
+  - the number of volunteers
+  - the weather of count day
+  - the date of the count, which has mostly been on Dec 26 since 1974, but has varied anywhere between Dec 16 and Dec 31
+
+This dataset also doesn't show the populations of species that migrate out of Hamilton in the winter.
 
 In the next blog post, I will be making a Shiny app so that anyone can dig into the data!
 
