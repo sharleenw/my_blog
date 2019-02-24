@@ -493,7 +493,7 @@ Cygnus columbianus
 </tr>
 </tbody>
 </table>
-<p>The second step is to sum up the counts for each year across all of the subspecies so the counts are the same, and then filter to only keep the first instance of each <code>species</code> (which, when arranged alphabetically, is the shortest species name):</p>
+<p>The second step is to sum up the counts for each year across all of the sub-species so the counts are the same, and then filter to only keep the first instance of each <code>species</code> (which, when arranged alphabetically, is the shortest species name):</p>
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   group_by(year, species_latin) %&gt;%
   mutate(how_many_counted = sum(how_many_counted)) %&gt;%
@@ -536,7 +536,7 @@ Junco hyemalis
 </tr>
 </tbody>
 </table>
-<p>Perfect! No more subspecies. The last group of species to deal with is <code>species</code> where the name has either a <code>(</code> or a <code>/</code>:</p>
+<p>Perfect! No more sub-species. The last group of species to deal with is <code>species</code> where the name has either a <code>(</code> or a <code>/</code>:</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
   group_by(species, species_latin) %&gt;%
   summarise(total_counted = sum(how_many_counted)) %&gt;%
@@ -1349,7 +1349,7 @@ hamilton_cbc %&gt;%
                species_to_plot = &quot;Canada Goose&quot;)</code></pre>
 <p><img src="/post/hamilton_cbc_part_2/index_files/figure-html/canada_goose-1.png" width="672" /></p>
 <p><span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> talks about the Canada Goose’s history. The Canada Goose was originally considered a “symbol of wild, untamed Canada” and in the late 1800’s, Canada Geese actually avoided the Hamilton area due to “their haunts [being] invaded by trolley cars, electric lights, telegraph wires and other innovations” (Thomas McIlwraith, 1886). :trolleybus::smile:</p>
-<p>However, in the 1960’s, people decided to introduce the largest, heaviest sub-species of the Canada Goose into southern Ontario, because it would supposedly make Ontario “richer”. However, with few natural predators, the Giant Canada Goose has now increased in numbers and degrades habitat and competes with other, migratory subspecies.:expressionless:</p>
+<p>However, in the 1960’s, people decided to introduce the largest, heaviest sub-species of the Canada Goose into southern Ontario, because it would supposedly make Ontario “richer”. However, with few natural predators, the Giant Canada Goose has now increased in numbers and degrades habitat and competes with other, migratory sub-species.:expressionless:</p>
 </div>
 <div id="effects-of-ddt" class="section level3">
 <h3>Effects of DDT</h3>

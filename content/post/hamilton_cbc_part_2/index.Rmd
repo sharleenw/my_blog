@@ -130,7 +130,7 @@ hamilton_cbc %>%
 
 ```
 
-The second step is to sum up the counts for each year across all of the subspecies so the counts are the same, and then filter to only keep the first instance of each `species` (which, when arranged alphabetically, is the shortest species name):
+The second step is to sum up the counts for each year across all of the sub-species so the counts are the same, and then filter to only keep the first instance of each `species` (which, when arranged alphabetically, is the shortest species name):
 
 ``` {r subspecies}
 
@@ -151,7 +151,7 @@ hamilton_cbc %>%
 
 ```
 
-Perfect! No more subspecies. The last group of species to deal with is `species` where the name has either a `(` or a `/`:
+Perfect! No more sub-species. The last group of species to deal with is `species` where the name has either a `(` or a `/`:
 
 ``` {r name_cleaning}
 
@@ -449,7 +449,7 @@ hamilton_cbc %>%
 
 @hsa_birds talks about the Canada Goose's history. The Canada Goose was originally considered a "symbol of wild, untamed Canada" and in the late 1800's, Canada Geese actually avoided the Hamilton area due to "their haunts [being] invaded by trolley cars, electric lights, telegraph wires and other innovations" (Thomas McIlwraith, 1886). :trolleybus::smile:
 
-However, in the 1960's, people decided to introduce the largest, heaviest sub-species of the Canada Goose into southern Ontario, because it would supposedly make Ontario "richer". However, with few natural predators, the Giant Canada Goose has now increased in numbers and degrades habitat and competes with other, migratory subspecies.:expressionless:
+However, in the 1960's, people decided to introduce the largest, heaviest sub-species of the Canada Goose into southern Ontario, because it would supposedly make Ontario "richer". However, with few natural predators, the Giant Canada Goose has now increased in numbers and degrades habitat and competes with other, migratory sub-species.:expressionless:
 
 ### Effects of DDT
 
