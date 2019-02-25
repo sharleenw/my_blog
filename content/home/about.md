@@ -32,6 +32,6 @@ weight = 4
 
 I am a Statistician in Toronto, Ontario.
 
-This blog is for publishing the data analysis projects done in my spare time.
+This blog is for publishing some of my fun data analysis projects.
 
-Other than data: I enjoy birding, dinghy-racing, doing triathlons and aerial silks!
+Also, I enjoy birding, dinghy-racing, doing triathlons and aerial silks!
