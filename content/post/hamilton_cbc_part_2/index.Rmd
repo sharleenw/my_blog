@@ -300,14 +300,17 @@ hamilton_cbc %>%
   filter(how_many_counted != 0) %>%
   summarise(number_of_species_that_year = n()) %>%
   ggplot() +
-  geom_line(aes(x = year, y = number_of_species_that_year),
-            col = "blue",
+  geom_line(aes(x = year, y = number_of_species_that_year, color = "Number of species"),
             size = 1) +
-    geom_line(aes(x = year, y = total_hours),
-              col = "orange",
-              size = 1) +
+  geom_line(aes(x = year, y = total_hours, color = "Number of person-hours"),
+            size = 1) +
   labs(x = "Year",
-       y = "Number of species and person-hours")
+       y = "Number of species and person-hours") +
+  scale_color_manual(values = c("Number of person-hours" = "orange", 
+                                "Number of species" = "blue")) +
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.direction = "vertical")
 
 ```
 
@@ -360,9 +363,8 @@ plot_species <- function(cbc_df, start_year, species_to_plot) {
                scales = "free",
                dir = "v") +
     scale_y_continuous(label = scales::comma) + # Add commas for thousands where necessary
-    theme(legend.position = "bottom",
-          legend.direction = "vertical")
-  
+    theme(legend.position = "none")
+
 }
 
 ```
@@ -456,8 +458,6 @@ However, in the 1960's, people decided to introduce the largest, heaviest sub-sp
 Two species I had often heard of having been affected by the pesticide DDT were the Double-crested Cormorant and the Bald Eagle. DDT was first used in 1947 and was finally banned in Canada in 1973. According to @hsa_birds, by 1980, Bald Eagles were experiencing complete reproductive failure in southern Ontario (due to the thin eggshells).
 
 So, do the numbers match up with DDT use?
-
-(Also, if anyone knows a way to put a label in the same spot on both facets of a graph, please let me know!)
 
 ``` {r ddt}
 

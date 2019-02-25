@@ -1238,14 +1238,17 @@ hamilton_cbc %&gt;%
   filter(how_many_counted != 0) %&gt;%
   summarise(number_of_species_that_year = n()) %&gt;%
   ggplot() +
-  geom_line(aes(x = year, y = number_of_species_that_year),
-            col = &quot;blue&quot;,
+  geom_line(aes(x = year, y = number_of_species_that_year, color = &quot;Number of species&quot;),
             size = 1) +
-    geom_line(aes(x = year, y = total_hours),
-              col = &quot;orange&quot;,
-              size = 1) +
+  geom_line(aes(x = year, y = total_hours, color = &quot;Number of person-hours&quot;),
+            size = 1) +
   labs(x = &quot;Year&quot;,
-       y = &quot;Number of species and person-hours&quot;)</code></pre>
+       y = &quot;Number of species and person-hours&quot;) +
+  scale_color_manual(values = c(&quot;Number of person-hours&quot; = &quot;orange&quot;, 
+                                &quot;Number of species&quot; = &quot;blue&quot;)) +
+  theme(legend.title = element_blank(),
+        legend.position = &quot;bottom&quot;,
+        legend.direction = &quot;vertical&quot;)</code></pre>
 <p><img src="/post/hamilton_cbc_part_2/index_files/figure-html/species_and_person_hours-1.png" width="672" /></p>
 <p>As the number of hours of person-hours increases, so does the number of species counted. But only up to a point, after which the number of species levels off. This probably means that, as long as there are at least 200 or so person-hours in a count, the Hamilton Christmas Bird Count counters will be finding all or almost all of the species in the Hamilton area on count day.</p>
 <p>Here is a plot of the cumulative number of species seen during each count. I think the main take-away of this plot is that it is getting harder to see new species every year, which makes sense.</p>
@@ -1286,9 +1289,8 @@ hamilton_cbc %&gt;%
                scales = &quot;free&quot;,
                dir = &quot;v&quot;) +
     scale_y_continuous(label = scales::comma) + # Add commas for thousands where necessary
-    theme(legend.position = &quot;bottom&quot;,
-          legend.direction = &quot;vertical&quot;)
-  
+    theme(legend.position = &quot;none&quot;)
+
 }</code></pre>
 <div id="introduced-species" class="section level3">
 <h3>Introduced species</h3>
@@ -1355,7 +1357,6 @@ hamilton_cbc %&gt;%
 <h3>Effects of DDT</h3>
 <p>Two species I had often heard of having been affected by the pesticide DDT were the Double-crested Cormorant and the Bald Eagle. DDT was first used in 1947 and was finally banned in Canada in 1973. According to <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, by 1980, Bald Eagles were experiencing complete reproductive failure in southern Ontario (due to the thin eggshells).</p>
 <p>So, do the numbers match up with DDT use?</p>
-<p>(Also, if anyone knows a way to put a label in the same spot on both facets of a graph, please let me know!)</p>
 <pre class="r"><code>hamilton_cbc %&gt;%
   plot_species(start_year = 1955,
                species_to_plot = c(&quot;Double-crested Cormorant&quot;,
