@@ -363,7 +363,8 @@ plot_species <- function(cbc_df, start_year, species_to_plot) {
                scales = "free",
                dir = "v") +
     scale_y_continuous(label = scales::comma) + # Add commas for thousands where necessary
-    theme(legend.position = "none")
+    theme(legend.position = "none",
+          plot.margin = margin(2, 20, 2, 2))
 
 }
 

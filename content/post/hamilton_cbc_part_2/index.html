@@ -1289,7 +1289,8 @@ hamilton_cbc %&gt;%
                scales = &quot;free&quot;,
                dir = &quot;v&quot;) +
     scale_y_continuous(label = scales::comma) + # Add commas for thousands where necessary
-    theme(legend.position = &quot;none&quot;)
+    theme(legend.position = &quot;none&quot;,
+          plot.margin = margin(2, 20, 2, 2))
 
 }</code></pre>
 <div id="introduced-species" class="section level3">
