@@ -1,10 +1,10 @@
 ---
 title: 'Hamilton Christmas Bird Count: Part 3'
-subtitle: 'Creating a Shiny app for the Hamilton CBC data'
+subtitle: 'Creating a Shiny app for the Hamilton Christmas Bird Count data'
 author: Sharleen
-date: '2019-01-26'
+date: '2019-03-24'
 slug: hamilton-christmas-bird-count-part-3
-summary: Creating a Shiny app for the Hamilton CBC data.
+summary: Creating a Shiny app for the Hamilton Christmas Bird Count data.
 categories: []
 tags:
   - data analysis
@@ -16,7 +16,7 @@ tags:
   - ggplot2
   - tidyverse
   - shiny
-draft: true
+draft: false
 image:
   caption: 'Trumpeter Swan image credit: **Sharleen**'
   preview_only: false
@@ -25,17 +25,17 @@ image:
 
 # Note
 
-This is the third part of three for this dataset. Part 1 contains data downloading and cleaning, Part 2 contains visualisations and Part 3 contains my Shiny app!
+This is the third part of three for this dataset. [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/) contains data downloading and cleaning, [Part 2](https://sharleenw.rbind.io/post/hamilton_cbc_part_2/hamilton-christmas-bird-count-part-2/) contains visualisations and Part 3 contains my Shiny app!
 
 # Introduction
 
-In Part 1 of this data analysis project gave us a cleaned dataset that we then visualised in Part 2. This part of the data analysis project is to demonstrate the Shiny app I made so that people could look through the data themselves!
+This post is to demonstrate a Shiny app I made so that people could look through the data themselves!
 
 I was able to make this whole app very easily thanks to the wonderful tutorial found [here](https://shiny.rstudio.com/tutorial/written-tutorial/lesson1/)!
 
 # Data visualising using a Shiny app
 
-Here is the link to my Shiny app: https://sharleenw.shinyapps.io/shiny_app/
+Here is the link to my Shiny app: https://sharleenw.shinyapps.io/hamilton_cbc_shiny/
 
 And here is the code I used to make the app:
 
@@ -50,4 +50,4 @@ library(here)
 ```
 
 
-And thank you to the CBC! The CBC Data was provided by [National Audubon Society](www.christmasbirdcount.org) and through the generous efforts of [Bird Studies Canada](www.bsc-eoc.org) and countless volunteers across the western hemisphere.
+And thank you to the Christmas Bird Count! The Christmas Bird Count Data was provided by [National Audubon Society](www.christmasbirdcount.org) and through the generous efforts of [Bird Studies Canada](www.bsc-eoc.org) and countless volunteers across the western hemisphere.

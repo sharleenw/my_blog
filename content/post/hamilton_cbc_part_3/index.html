@@ -1,10 +1,10 @@
 ---
 title: 'Hamilton Christmas Bird Count: Part 3'
-subtitle: 'Creating a Shiny app for the Hamilton CBC data'
+subtitle: 'Creating a Shiny app for the Hamilton Christmas Bird Count data'
 author: Sharleen
-date: '2019-01-26'
+date: '2019-03-24'
 slug: hamilton-christmas-bird-count-part-3
-summary: Creating a Shiny app for the Hamilton CBC data.
+summary: Creating a Shiny app for the Hamilton Christmas Bird Count data.
 categories: []
 tags:
   - data analysis
@@ -16,7 +16,7 @@ tags:
   - ggplot2
   - tidyverse
   - shiny
-draft: true
+draft: false
 image:
   caption: 'Trumpeter Swan image credit: **Sharleen**'
   preview_only: false
@@ -27,27 +27,25 @@ image:
 
 <div id="note" class="section level1">
 <h1>Note</h1>
-<p>This is the third part of three for this dataset. Part 1 contains data downloading and cleaning, Part 2 contains visualisations and Part 3 contains my Shiny app!</p>
+<p>This is the third part of three for this dataset. <a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/">Part 1</a> contains data downloading and cleaning, <a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_2/hamilton-christmas-bird-count-part-2/">Part 2</a> contains visualisations and Part 3 contains my Shiny app!</p>
 </div>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>In Part 1 of this data analysis project gave us a cleaned dataset that we then visualised in Part 2. This part of the data analysis project is to demonstrate the Shiny app I made so that people could look through the data themselves!</p>
+<p>This post is to demonstrate a Shiny app I made so that people could look through the data themselves!</p>
 <p>I was able to make this whole app very easily thanks to the wonderful tutorial found <a href="https://shiny.rstudio.com/tutorial/written-tutorial/lesson1/">here</a>!</p>
 </div>
 <div id="data-visualising-using-a-shiny-app" class="section level1">
 <h1>Data visualising using a Shiny app</h1>
-<p>Here is the link to my Shiny app: <a href="https://sharleenw.shinyapps.io/shiny_app/" class="uri">https://sharleenw.shinyapps.io/shiny_app/</a></p>
+<p>Here is the link to my Shiny app: <a href="https://sharleenw.shinyapps.io/hamilton_cbc_shiny/" class="uri">https://sharleenw.shinyapps.io/hamilton_cbc_shiny/</a></p>
 <p>And here is the code I used to make the app:</p>
 <pre class="r"><code># runApp(here(&quot;content&quot;, &quot;post&quot;, &quot;hamilton_cbc_part_3&quot;, &quot;hamilton_cbc_shiny&quot;))
 
 library(shiny)
 library(dplyr)
-library(naniar)
 library(ggplot2)
 library(readr)
 library(janitor)
 library(scales)
-library(plotly)
 
 # Change font sizes
 # Offer to divide by count hours
@@ -58,7 +56,7 @@ min_max &lt;- function(vector){
 }
 
 
-hamilton_cbc &lt;- read_rds(&quot;hamilton_cbc_output.rds&quot;) # I can&#39;t use here because shinyapps.io can&#39;t find the file
+hamilton_cbc &lt;- read_rds(&quot;hamilton_cbc_output_part_2.rds&quot;) # I can&#39;t use the here package because then shinyapps.io can&#39;t find the file
 
 
 species_list &lt;- hamilton_cbc %&gt;%
@@ -75,11 +73,14 @@ year_min_max &lt;- min_max(years_list)
 
 
 
-ui &lt;- navbarPage(&quot;Hamilton CBC App&quot;,
+
+
+ui &lt;- navbarPage(tags$h3(&quot;Hamilton Christmas Bird Count app&quot;),
+                
                  tabPanel(
                    
                    # App title ----
-                   titlePanel(&quot;Birds counted over several years&quot;),
+                   titlePanel(tags$h4(&quot;Birds counted over multiple years&quot;)),
                    
                    # Sidebar layout with input and output definitions ----
                    sidebarLayout(
@@ -87,16 +88,13 @@ ui &lt;- navbarPage(&quot;Hamilton CBC App&quot;,
                      # Sidebar panel for inputs ----
                      sidebarPanel(
                        
-                       helpText(&quot;Note: This data does not include birds counted only during count week&quot;),
-                  
-                       
                        # Input: which species ----
                        selectizeInput(&quot;species_picked&quot;,
-                                   multiple = TRUE,
-                                   selected = c(&quot;American Robin&quot;, &quot;Mourning Dove&quot;, &quot;Northern Cardinal&quot;),
-                                   label = &quot;Choose which species you would like to compare (up to five):&quot;,
-                                   choices = species_list,
-                                   options = list(maxItems = 5)),
+                                      multiple = TRUE,
+                                      selected = c(&quot;American Robin&quot;, &quot;Mourning Dove&quot;, &quot;Northern Cardinal&quot;),
+                                      label = &quot;Choose which species you would like to compare (up to six):&quot;,
+                                      choices = species_list,
+                                      options = list(maxItems = 6)),
                        
                        
                        # Input: Slider for the number of years ----
@@ -106,15 +104,15 @@ ui &lt;- navbarPage(&quot;Hamilton CBC App&quot;,
                                    min = year_min_max[1],
                                    max = year_min_max[2],
                                    value = c(1955, year_min_max[2])),
-                       helpText(&quot;Note: In 1955 the boundaries of the Hamilton CBC changed and previous to that there is more missing data so I would recommend only looking at data from 1955 at the earliest. However, the previous years&#39; data have been included for completeness.&quot;),
                        
-                       checkboxInput(&quot;log_picked&quot;,
-                                     &quot;Would you like the y-axis displayed on a log scale?&quot;,
-                                     value = FALSE),
-                       
-                       checkboxInput(&quot;count_per_hour_picked&quot;,
-                                     &quot;Would you like the number of birds counted in a year to be divided by the number of hours of that year&#39;s count? (There are some years where this was not recorded, so there will be more missing data.)&quot;,
-                                     value = FALSE)
+                       helpText(tags$ol(
+                         tags$li(&quot;This data does not include birds counted only during count week&quot;),
+                         
+                         tags$li(&quot;This data does not include hybrids or birds that were only identified to the \&quot;sp.\&quot; level&quot;),
+                         
+                         tags$li(&quot;In 1955, the boundaries of the Hamilton Christmas Bird Count changed. I recommend only looking at data from 1955 onwards. However, the previous years&#39; data have been included for completeness.&quot;)
+                       )
+                       )
                        
                      ),
                      
@@ -126,12 +124,12 @@ ui &lt;- navbarPage(&quot;Hamilton CBC App&quot;,
                        
                      )
                    )
-                 ),
+                   ),
                  
                  
                  tabPanel(
                    
-                   titlePanel(&quot;Birds seen in a particular year&quot;),
+                   titlePanel(tags$h4(&quot;Birds counted in a particular year&quot;)),
                    
                    # Sidebar layout with input and output definitions ----
                    sidebarLayout(
@@ -141,7 +139,7 @@ ui &lt;- navbarPage(&quot;Hamilton CBC App&quot;,
                        
                        # Input: which species ----
                        selectInput(&quot;individual_year_picked&quot;,
-                                   label = &quot;What year would you like to look at the CBC for:&quot;,
+                                   label = &quot;What year would you like to look at the Hamilton Christmas Bird Count data for:&quot;,
                                    choices = years_list)
                        
                      ),
@@ -154,8 +152,7 @@ ui &lt;- navbarPage(&quot;Hamilton CBC App&quot;,
                        tableOutput(outputId = &quot;count_table&quot;)
                        
                      )
-                   )                         
-                   
+                   )
                    
                    
                    
@@ -164,22 +161,22 @@ ui &lt;- navbarPage(&quot;Hamilton CBC App&quot;,
 
 # Define server logic required to draw a plot and table ----
 server &lt;- function(input, output) {
-
+  
   # First navbar output ----
   data_input &lt;- reactive({
-    hamilton_cbc %&gt;% 
-      filter(year &gt;= input$years_picked[1],
-             year &lt;= input$years_picked[2],
-             species == input$species_picked) 
     
+    hamilton_cbc %&gt;% 
+      filter(year &gt;= req(input$years_picked[1]),
+             year &lt;= req(input$years_picked[2]),
+             species %in% req(input$species_picked))
     
   })
-
+  
   output$time_series_plot &lt;- renderPlot({
     
     
     plotting_function &lt;- function(input_for_plot){
-
+      
       input_for_plot %&gt;%
         ggplot(aes(x = year, y = how_many_counted, color = species)) +
         geom_line(size = 1) +
@@ -187,25 +184,20 @@ server &lt;- function(input, output) {
         ylab(&quot;Number counted&quot;) +
         labs(color = &quot;Species&quot;) +
         theme_minimal() +
-        theme(axis.text.x = element_text((size = 14))) +
-        geom_miss_point()
+        theme(text = element_text(size = 18)) +
+        facet_wrap(vars(species),
+                   scales = &quot;free&quot;,
+                   dir = &quot;v&quot;) +
+        theme(legend.position = &quot;none&quot;,
+              plot.margin = margin(2, 20, 2, 2)) +
+        scale_y_continuous(labels = comma)
       
     }
     
-    if(input$log_picked){
-      
-      plotting_function(data_input()) +
-        scale_y_log10()
-      
-    }
+    plotting_function(data_input())
     
-    else {
-      
-      plotting_function(data_input())
-      
-    }
     
-
+    
     
   })
   
@@ -219,11 +211,12 @@ server &lt;- function(input, output) {
       count(species, how_many_counted) %&gt;%
       select(-n) %&gt;%
       arrange(-how_many_counted) %&gt;%
-      filter(!is.na(how_many_counted)) %&gt;%
+      filter(how_many_counted &gt; 0) %&gt;%
       mutate(how_many_counted = how_many_counted %&gt;%
                scales::number(big.mark = &quot;,&quot;)) %&gt;%
       rename(Species = species, `How many were counted` = how_many_counted)
-
+    
+    
     
   },
   
@@ -231,5 +224,5 @@ server &lt;- function(input, output) {
 }
 
 shinyApp(ui = ui, server = server)</code></pre>
-<p>And thank you to the CBC! The CBC Data was provided by <a href="www.christmasbirdcount.org">National Audubon Society</a> and through the generous efforts of <a href="www.bsc-eoc.org">Bird Studies Canada</a> and countless volunteers across the western hemisphere.</p>
+<p>And thank you to the Christmas Bird Count! The Christmas Bird Count Data was provided by <a href="www.christmasbirdcount.org">National Audubon Society</a> and through the generous efforts of <a href="www.bsc-eoc.org">Bird Studies Canada</a> and countless volunteers across the western hemisphere.</p>
 </div>
