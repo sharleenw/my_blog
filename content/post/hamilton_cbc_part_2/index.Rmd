@@ -27,7 +27,7 @@ link-citations: true
 
 # Note
 
-This is the second part of three for this dataset. [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/) contains data downloading and cleaning, Part 2 contains visualisations and Part 3 contains my Shiny app!
+This is the second part of three for this dataset. [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/) contains data downloading and cleaning, Part 2 contains visualisations and [Part 3](https://sharleenw.rbind.io/post/hamilton_cbc_part_3/hamilton-christmas-bird-count-part-3/) contains my Shiny app!
 
 # Introduction
 
