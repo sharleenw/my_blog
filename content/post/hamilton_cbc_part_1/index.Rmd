@@ -1,10 +1,10 @@
 ---
 title: 'Hamilton Christmas Bird Count: Part 1'
-subtitle: 'Importing and cleaning of the Hamilton CBC data'
+subtitle: 'Importing and cleaning the Hamilton Christmas Bird Count data'
 author: Sharleen
 date: '2019-01-07'
 slug: hamilton-christmas-bird-count-part-1
-summary: Importing and cleaning of the Hamilton CBC data.
+summary: Importing and cleaning the Hamilton Christmas Bird Count data.
 categories: []
 tags:
   - data analysis
@@ -23,7 +23,7 @@ image:
 
 # Note
 
-This is the first part of three for this dataset. Part 1 contains data downloading and cleaning, [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_2/hamilton-christmas-bird-count-part-2/)  contains visualisations and Part 3 contains my Shiny app!
+This is the first part of three for this dataset. Part 1 contains data downloading and cleaning, [Part 2](https://sharleenw.rbind.io/post/hamilton_cbc_part_2/hamilton-christmas-bird-count-part-2/) contains visualisations and [Part 3](https://sharleenw.rbind.io/post/hamilton_cbc_part_3/hamilton-christmas-bird-count-part-3/) contains my Shiny app!
 
 # Introduction
 
