@@ -42,14 +42,12 @@ image:
 library(dplyr)
 library(ggplot2)
 library(readr)
-library(janitor)
 library(scales)
 
 min_max &lt;- function(vector){
   min_max &lt;- c(min(vector), max(vector))
   return(min_max)
 }
-
 
 hamilton_cbc &lt;- read_rds(&quot;hamilton_cbc_output_part_2.rds&quot;)
 
@@ -185,10 +183,7 @@ server &lt;- function(input, output) {
     }
     
     plotting_function(data_input())
-    
-    
-    
-    
+
   })
   
   
@@ -206,7 +201,6 @@ server &lt;- function(input, output) {
                scales::number(big.mark = &quot;,&quot;)) %&gt;%
       rename(Species = species, `How many were counted` = how_many_counted)
     
-
   },
   
   align = &quot;lr&quot;)
