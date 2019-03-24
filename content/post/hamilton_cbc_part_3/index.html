@@ -38,17 +38,12 @@ image:
 <h1>Data visualising using a Shiny app</h1>
 <p>Here is the link to my Shiny app: <a href="https://sharleenw.shinyapps.io/hamilton_cbc_shiny/" class="uri">https://sharleenw.shinyapps.io/hamilton_cbc_shiny/</a></p>
 <p>And here is the code I used to make the app:</p>
-<pre class="r"><code># runApp(here(&quot;content&quot;, &quot;post&quot;, &quot;hamilton_cbc_part_3&quot;, &quot;hamilton_cbc_shiny&quot;))
-
-library(shiny)
+<pre class="r"><code>library(shiny)
 library(dplyr)
 library(ggplot2)
 library(readr)
 library(janitor)
 library(scales)
-
-# Change font sizes
-# Offer to divide by count hours
 
 min_max &lt;- function(vector){
   min_max &lt;- c(min(vector), max(vector))
@@ -56,8 +51,7 @@ min_max &lt;- function(vector){
 }
 
 
-hamilton_cbc &lt;- read_rds(&quot;hamilton_cbc_output_part_2.rds&quot;) # I can&#39;t use the here package because then shinyapps.io can&#39;t find the file
-
+hamilton_cbc &lt;- read_rds(&quot;hamilton_cbc_output_part_2.rds&quot;)
 
 species_list &lt;- hamilton_cbc %&gt;%
   distinct(species) %&gt;%
@@ -70,9 +64,6 @@ years_list &lt;- hamilton_cbc %&gt;%
   arrange(-Year)
 
 year_min_max &lt;- min_max(years_list)
-
-
-
 
 
 ui &lt;- navbarPage(tags$h3(&quot;Hamilton Christmas Bird Count app&quot;),
@@ -137,7 +128,7 @@ ui &lt;- navbarPage(tags$h3(&quot;Hamilton Christmas Bird Count app&quot;),
                      # Sidebar panel for inputs ----
                      sidebarPanel(
                        
-                       # Input: which species ----
+                       # Input: which year ----
                        selectInput(&quot;individual_year_picked&quot;,
                                    label = &quot;What year would you like to look at the Hamilton Christmas Bird Count data for:&quot;,
                                    choices = years_list)
@@ -182,14 +173,13 @@ server &lt;- function(input, output) {
         geom_line(size = 1) +
         xlab(&quot;Year&quot;) +
         ylab(&quot;Number counted&quot;) +
-        labs(color = &quot;Species&quot;) +
         theme_minimal() +
-        theme(text = element_text(size = 18)) +
+        theme(text = element_text(size = 18),
+              legend.position = &quot;none&quot;,
+              plot.margin = margin(2, 20, 2, 2)) +
         facet_wrap(vars(species),
                    scales = &quot;free&quot;,
                    dir = &quot;v&quot;) +
-        theme(legend.position = &quot;none&quot;,
-              plot.margin = margin(2, 20, 2, 2)) +
         scale_y_continuous(labels = comma)
       
     }
@@ -202,7 +192,7 @@ server &lt;- function(input, output) {
   })
   
   
-  # Second navpage output ----
+  # Second navbar output ----
   
   output$count_table &lt;- renderTable({
     
@@ -216,8 +206,7 @@ server &lt;- function(input, output) {
                scales::number(big.mark = &quot;,&quot;)) %&gt;%
       rename(Species = species, `How many were counted` = how_many_counted)
     
-    
-    
+
   },
   
   align = &quot;lr&quot;)
