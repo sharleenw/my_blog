@@ -1,17 +1,10 @@
 
-# runApp(here("content", "post", "hamilton_cbc_part_3", "hamilton_cbc_shiny"))
-
 library(shiny)
 library(dplyr)
-library(naniar)
 library(ggplot2)
 library(readr)
 library(janitor)
 library(scales)
-library(plotly)
-
-# Change font sizes
-# Offer to divide by count hours
 
 min_max <- function(vector){
   min_max <- c(min(vector), max(vector))
@@ -19,8 +12,7 @@ min_max <- function(vector){
 }
 
 
-hamilton_cbc <- read_rds("hamilton_cbc_output.rds") # I can't use here because shinyapps.io can't find the file
-
+hamilton_cbc <- read_rds("hamilton_cbc_output_part_2.rds")
 
 species_list <- hamilton_cbc %>%
   distinct(species) %>%
@@ -35,12 +27,12 @@ years_list <- hamilton_cbc %>%
 year_min_max <- min_max(years_list)
 
 
-
-ui <- navbarPage("Hamilton CBC App",
+ui <- navbarPage(tags$h3("Hamilton Christmas Bird Count app"),
+                
                  tabPanel(
                    
                    # App title ----
-                   titlePanel("Birds counted over several years"),
+                   titlePanel(tags$h4("Birds counted over multiple years")),
                    
                    # Sidebar layout with input and output definitions ----
                    sidebarLayout(
@@ -48,16 +40,13 @@ ui <- navbarPage("Hamilton CBC App",
                      # Sidebar panel for inputs ----
                      sidebarPanel(
                        
-                       helpText("Note: This data does not include birds counted only during count week"),
-                  
-                       
                        # Input: which species ----
                        selectizeInput("species_picked",
-                                   multiple = TRUE,
-                                   selected = c("American Robin", "Mourning Dove", "Northern Cardinal"),
-                                   label = "Choose which species you would like to compare (up to five):",
-                                   choices = species_list,
-                                   options = list(maxItems = 5)),
+                                      multiple = TRUE,
+                                      selected = c("American Robin", "Mourning Dove", "Northern Cardinal"),
+                                      label = "Choose which species you would like to compare (up to six):",
+                                      choices = species_list,
+                                      options = list(maxItems = 6)),
                        
                        
                        # Input: Slider for the number of years ----
@@ -67,15 +56,15 @@ ui <- navbarPage("Hamilton CBC App",
                                    min = year_min_max[1],
                                    max = year_min_max[2],
                                    value = c(1955, year_min_max[2])),
-                       helpText("Note: In 1955 the boundaries of the Hamilton CBC changed and previous to that there is more missing data so I would recommend only looking at data from 1955 at the earliest. However, the previous years' data have been included for completeness."),
                        
-                       checkboxInput("log_picked",
-                                     "Would you like the y-axis displayed on a log scale?",
-                                     value = FALSE),
-                       
-                       checkboxInput("count_per_hour_picked",
-                                     "Would you like the number of birds counted in a year to be divided by the number of hours of that year's count? (There are some years where this was not recorded, so there will be more missing data.)",
-                                     value = FALSE)
+                       helpText(tags$ol(
+                         tags$li("This data does not include birds counted only during count week"),
+                         
+                         tags$li("This data does not include hybrids or birds that were only identified to the \"sp.\" level"),
+                         
+                         tags$li("In 1955, the boundaries of the Hamilton Christmas Bird Count changed. I recommend only looking at data from 1955 onwards. However, the previous years' data have been included for completeness.")
+                       )
+                       )
                        
                      ),
                      
@@ -87,12 +76,12 @@ ui <- navbarPage("Hamilton CBC App",
                        
                      )
                    )
-                 ),
+                   ),
                  
                  
                  tabPanel(
                    
-                   titlePanel("Birds seen in a particular year"),
+                   titlePanel(tags$h4("Birds counted in a particular year")),
                    
                    # Sidebar layout with input and output definitions ----
                    sidebarLayout(
@@ -100,9 +89,9 @@ ui <- navbarPage("Hamilton CBC App",
                      # Sidebar panel for inputs ----
                      sidebarPanel(
                        
-                       # Input: which species ----
+                       # Input: which year ----
                        selectInput("individual_year_picked",
-                                   label = "What year would you like to look at the CBC for:",
+                                   label = "What year would you like to look at the Hamilton Christmas Bird Count data for:",
                                    choices = years_list)
                        
                      ),
@@ -115,8 +104,7 @@ ui <- navbarPage("Hamilton CBC App",
                        tableOutput(outputId = "count_table")
                        
                      )
-                   )                         
-                   
+                   )
                    
                    
                    
@@ -125,53 +113,47 @@ ui <- navbarPage("Hamilton CBC App",
 
 # Define server logic required to draw a plot and table ----
 server <- function(input, output) {
-
+  
   # First navbar output ----
   data_input <- reactive({
-    hamilton_cbc %>% 
-      filter(year >= input$years_picked[1],
-             year <= input$years_picked[2],
-             species == input$species_picked) 
     
+    hamilton_cbc %>% 
+      filter(year >= req(input$years_picked[1]),
+             year <= req(input$years_picked[2]),
+             species %in% req(input$species_picked))
     
   })
-
+  
   output$time_series_plot <- renderPlot({
     
     
     plotting_function <- function(input_for_plot){
-
+      
       input_for_plot %>%
         ggplot(aes(x = year, y = how_many_counted, color = species)) +
         geom_line(size = 1) +
         xlab("Year") +
         ylab("Number counted") +
-        labs(color = "Species") +
         theme_minimal() +
-        theme(axis.text.x = element_text((size = 14))) +
-        geom_miss_point()
+        theme(text = element_text(size = 18),
+              legend.position = "none",
+              plot.margin = margin(2, 20, 2, 2)) +
+        facet_wrap(vars(species),
+                   scales = "free",
+                   dir = "v") +
+        scale_y_continuous(labels = comma)
       
     }
     
-    if(input$log_picked){
-      
-      plotting_function(data_input()) +
-        scale_y_log10()
-      
-    }
+    plotting_function(data_input())
     
-    else {
-      
-      plotting_function(data_input())
-      
-    }
     
-
+    
     
   })
   
   
-  # Second navpage output ----
+  # Second navbar output ----
   
   output$count_table <- renderTable({
     
@@ -180,13 +162,12 @@ server <- function(input, output) {
       count(species, how_many_counted) %>%
       select(-n) %>%
       arrange(-how_many_counted) %>%
-      filter(!is.na(how_many_counted)) %>%
+      filter(how_many_counted > 0) %>%
       mutate(how_many_counted = how_many_counted %>%
                scales::number(big.mark = ",")) %>%
       rename(Species = species, `How many were counted` = how_many_counted)
-
-
     
+
   },
   
   align = "lr")
