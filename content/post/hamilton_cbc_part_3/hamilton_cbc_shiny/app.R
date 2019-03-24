@@ -1,16 +1,13 @@
-
 library(shiny)
 library(dplyr)
 library(ggplot2)
 library(readr)
-library(janitor)
 library(scales)
 
 min_max <- function(vector){
   min_max <- c(min(vector), max(vector))
   return(min_max)
 }
-
 
 hamilton_cbc <- read_rds("hamilton_cbc_output_part_2.rds")
 
@@ -146,10 +143,7 @@ server <- function(input, output) {
     }
     
     plotting_function(data_input())
-    
-    
-    
-    
+
   })
   
   
@@ -167,7 +161,6 @@ server <- function(input, output) {
                scales::number(big.mark = ",")) %>%
       rename(Species = species, `How many were counted` = how_many_counted)
     
-
   },
   
   align = "lr")
