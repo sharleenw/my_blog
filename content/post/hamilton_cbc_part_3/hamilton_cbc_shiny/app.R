@@ -40,7 +40,7 @@ ui <- navbarPage("Hamilton Christmas Bird Count app",
                        # Input: which species ----
                        selectizeInput("species_picked",
                                       multiple = TRUE,
-                                      selected = c("American Robin", "Mourning Dove", "Northern Cardinal"),
+                                      selected = c("American Crow", "Black-capped Chickadee", "American Goldfinch", "Canada Goose", "American Robin", "Northern Cardinal"),
                                       label = "Choose which species you would like to compare (up to six):",
                                       choices = species_list,
                                       options = list(maxItems = 6)),
