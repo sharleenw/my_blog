@@ -24,7 +24,7 @@ years_list <- hamilton_cbc %>%
 year_min_max <- min_max(years_list)
 
 
-ui <- navbarPage(tags$h3("Hamilton Christmas Bird Count app"),
+ui <- navbarPage("Hamilton Christmas Bird Count app",
                 
                  tabPanel(
                    
@@ -69,7 +69,7 @@ ui <- navbarPage(tags$h3("Hamilton Christmas Bird Count app"),
                      mainPanel(
                        
                        # Output: Line graph ----
-                       plotOutput(outputId = "time_series_plot")
+                       plotOutput(outputId = "time_series_plot", height = "800px")
                        
                      )
                    )
