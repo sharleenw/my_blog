@@ -46,9 +46,5 @@ library(here)
 ```
 
 
-```{r shiny, code = readLines(here("content", "post", "hamilton_cbc_part_3", "hamilton_cbc_shiny", "app.R")), message = FALSE, warning = FALSE, eval = FALSE}
-
-```
-
 
 And thank you to the Christmas Bird Count! The Christmas Bird Count Data was provided by [National Audubon Society](www.christmasbirdcount.org) and through the generous efforts of [Bird Studies Canada](www.bsc-eoc.org) and countless volunteers across the western hemisphere.
