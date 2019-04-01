@@ -64,7 +64,7 @@ years_list &lt;- hamilton_cbc %&gt;%
 year_min_max &lt;- min_max(years_list)
 
 
-ui &lt;- navbarPage(tags$h3(&quot;Hamilton Christmas Bird Count app&quot;),
+ui &lt;- navbarPage(&quot;Hamilton Christmas Bird Count app&quot;,
                 
                  tabPanel(
                    
@@ -80,7 +80,7 @@ ui &lt;- navbarPage(tags$h3(&quot;Hamilton Christmas Bird Count app&quot;),
                        # Input: which species ----
                        selectizeInput(&quot;species_picked&quot;,
                                       multiple = TRUE,
-                                      selected = c(&quot;American Robin&quot;, &quot;Mourning Dove&quot;, &quot;Northern Cardinal&quot;),
+                                      selected = c(&quot;American Crow&quot;, &quot;Black-capped Chickadee&quot;, &quot;American Goldfinch&quot;, &quot;Canada Goose&quot;, &quot;American Robin&quot;, &quot;Northern Cardinal&quot;),
                                       label = &quot;Choose which species you would like to compare (up to six):&quot;,
                                       choices = species_list,
                                       options = list(maxItems = 6)),
@@ -109,7 +109,7 @@ ui &lt;- navbarPage(tags$h3(&quot;Hamilton Christmas Bird Count app&quot;),
                      mainPanel(
                        
                        # Output: Line graph ----
-                       plotOutput(outputId = &quot;time_series_plot&quot;)
+                       plotOutput(outputId = &quot;time_series_plot&quot;, height = &quot;800px&quot;)
                        
                      )
                    )
