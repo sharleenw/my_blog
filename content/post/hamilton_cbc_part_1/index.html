@@ -26,7 +26,13 @@ image:
 
 <div id="note" class="section level1">
 <h1>Note</h1>
-<p>This is the first part of three for this dataset. Part 1 contains data downloading and cleaning, <a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_2/hamilton-christmas-bird-count-part-2/">Part 2</a> contains visualisations and <a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_3/hamilton-christmas-bird-count-part-3/">Part 3</a> contains my Shiny app!</p>
+<p>This is the first part of five for this dataset.</p>
+<ul>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_2a/hamilton-christmas-bird-count-part-2a/">Part 2a</a> contains data downloading and cleaning</p></li>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_2b/hamilton-christmas-bird-count-part-2b/">Part 2b</a> contains visualizations</p></li>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_3/hamilton-christmas-bird-count-part-3/">Part 3</a> contains my Shiny app!</p></li>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_4/hamilton-christmas-bird-count-part-4/">Part 4</a> contains a gganimated plot</p></li>
+</ul>
 </div>
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
@@ -1569,7 +1575,7 @@ distinct(species)</code></pre>
 <pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
   mutate(how_many_counted = replace_na(how_many_counted, 0),
          how_many_counted_by_hour = as.double(how_many_counted) / total_hours)</code></pre>
-<p>And that’s it! :smile: :tada: We have cleaned the dataset and are ready to do some visualising :eyes: in Part 2!</p>
+<p>And that’s it! :smile: :tada: We have cleaned the dataset and are ready to do some visualizing :eyes: in Part 2!</p>
 </div>
 <div id="final-dataset" class="section level1">
 <h1>Final dataset</h1>
