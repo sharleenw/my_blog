@@ -25,7 +25,13 @@ image:
 
 # Note
 
-This is the third part of three for this dataset. [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/) contains data downloading and cleaning, [Part 2](https://sharleenw.rbind.io/post/hamilton_cbc_part_2/hamilton-christmas-bird-count-part-2/) contains visualisations and Part 3 contains my Shiny app!
+This is the fourth part of five for this dataset.
+
+- [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/) and [Part 2a](https://sharleenw.rbind.io/post/hamilton_cbc_part_2a/hamilton-christmas-bird-count-part-2a/) contains data downloading and cleaning
+
+- [Part 2b](https://sharleenw.rbind.io/post/hamilton_cbc_part_2b/hamilton-christmas-bird-count-part-2b/) contains visualizations
+
+- [Part 4](https://sharleenw.rbind.io/post/hamilton_cbc_part_4/hamilton-christmas-bird-count-part-4/) contains a gganimated plot
 
 # Introduction
 
@@ -33,7 +39,7 @@ This post is to demonstrate a Shiny app I made so that people could look through
 
 I was able to make this whole app very easily thanks to the wonderful tutorial found [here](https://shiny.rstudio.com/tutorial/written-tutorial/lesson1/)!
 
-# Data visualising using a Shiny app
+# Data visualizing using a Shiny app
 
 Here is the link to my Shiny app: https://sharleenw.shinyapps.io/hamilton_cbc_shiny/
 
