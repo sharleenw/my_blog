@@ -1,0 +1,60 @@
+---
+title: 'Hamilton Christmas Bird Count: Part 4'
+subtitle: 'Creating a gganimate plot for the Hamilton Christmas Bird Count data'
+author: Sharleen
+date: '2019-05-26'
+slug: hamilton-christmas-bird-count-part-4
+summary: Creating a gganimate plot for the Hamilton Christmas Bird Count data.
+categories: []
+tags:
+  - data analysis
+  - R
+  - natural history
+  - ornithology
+  - ecology
+  - birding
+  - ggplot2
+  - tidyverse
+  - gganimate
+draft: false
+image:
+  caption: 'Snow Bunting image credit: [**Public Domain Files**](http://www.publicdomainfiles.com/show_file.php?id=13965704414279)'
+  preview_only: false
+
+---
+
+# Note
+
+This is the fifth part of five for this dataset.
+
+- [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/) and [Part 2a](https://sharleenw.rbind.io/post/hamilton_cbc_part_2a/hamilton-christmas-bird-count-part-2a/) contains data downloading and cleaning
+
+- [Part 2b](https://sharleenw.rbind.io/post/hamilton_cbc_part_2b/hamilton-christmas-bird-count-part-2b/) contains visualizations
+
+- [Part 3](https://sharleenw.rbind.io/post/hamilton_cbc_part_3/hamilton-christmas-bird-count-part-3/) contains my Shiny app!
+
+# Introduction
+
+A member of the Hamilton Naturalist Club mentioned the idea of creating a `gganimate` plot, so I thought I'd try it! I mostly modified the code from [this](https://stackoverflow.com/questions/53162821/animated-sorted-bar-chart-with-bars-overtaking-each-other) StackOverflow page.
+
+There's some jumping around, and I think a way to prevent that might be to interpolate values between each year so that, say, Lesser Scaup doesn't go from not-on-the-chart in one year to 2002 individuals seen in the next year.
+
+# Data visualizing using a gganimate plot
+
+Here is the final plot:
+
+![](/img/gifimage.gif)
+
+And here is the code I used to create it!
+
+```{r setup, message = FALSE, include = FALSE}
+
+library(here)
+
+```
+
+```{r shiny, code = readLines(here("content", "post", "hamilton_cbc_part_4", "gganimate.R")), message = FALSE, warning = FALSE, eval = FALSE}
+
+```
+
+And thank you to the Christmas Bird Count! The Christmas Bird Count Data was provided by [National Audubon Society](www.christmasbirdcount.org) and through the generous efforts of [Bird Studies Canada](www.bsc-eoc.org) and countless volunteers across the western hemisphere.

@@ -1,0 +1,113 @@
+---
+title: 'Hamilton Christmas Bird Count: Part 4'
+subtitle: 'Creating a gganimate plot for the Hamilton Christmas Bird Count data'
+author: Sharleen
+date: '2019-05-26'
+slug: hamilton-christmas-bird-count-part-4
+summary: Creating a gganimate plot for the Hamilton Christmas Bird Count data.
+categories: []
+tags:
+  - data analysis
+  - R
+  - natural history
+  - ornithology
+  - ecology
+  - birding
+  - ggplot2
+  - tidyverse
+  - gganimate
+draft: false
+image:
+  caption: 'Snow Bunting image credit: [**Public Domain Files**](http://www.publicdomainfiles.com/show_file.php?id=13965704414279)'
+  preview_only: false
+
+---
+
+
+
+<div id="note" class="section level1">
+<h1>Note</h1>
+<p>This is the fifth part of five for this dataset.</p>
+<ul>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/">Part 1</a> and <a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_2a/hamilton-christmas-bird-count-part-2a/">Part 2a</a> contains data downloading and cleaning</p></li>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_2b/hamilton-christmas-bird-count-part-2b/">Part 2b</a> contains visualizations</p></li>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_3/hamilton-christmas-bird-count-part-3/">Part 3</a> contains my Shiny app!</p></li>
+</ul>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>A member of the Hamilton Naturalist Club mentioned the idea of creating a <code>gganimate</code> plot, so I thought I’d try it! I mostly modified the code from <a href="https://stackoverflow.com/questions/53162821/animated-sorted-bar-chart-with-bars-overtaking-each-other">this</a> StackOverflow page.</p>
+<p>There’s some jumping around, and I think a way to prevent that might be to interpolate values between each year so that, say, Lesser Scaup doesn’t go from not-on-the-chart in one year to 2002 individuals seen in the next year.</p>
+</div>
+<div id="data-visualizing-using-a-gganimate-plot" class="section level1">
+<h1>Data visualizing using a gganimate plot</h1>
+<p>Here is the final plot:</p>
+<div class="figure">
+<img src="/img/gifimage.gif" />
+
+</div>
+<p>And here is the code I used to create it!</p>
+<pre class="r"><code>library(dplyr)
+library(here)
+library(readr)
+library(gganimate)
+library(ggplot2)
+
+hamilton_cbc &lt;- read_rds(here(&quot;content&quot;,
+                              &quot;post&quot;,
+                              &quot;hamilton_cbc_part_3&quot;,
+                              &quot;hamilton_cbc_shiny&quot;,
+                              &quot;hamilton_cbc_output_part_2.rds&quot;))
+
+
+theme_set(theme_minimal())
+
+# Every year had at least 9 species
+hamilton_cbc %&gt;% 
+  group_by(year) %&gt;% 
+  filter(how_many_counted &gt; 0) %&gt;%
+  summarise(n_counted = n()) %&gt;%
+  arrange(n_counted)
+
+hamilton_cbc_ranked &lt;- hamilton_cbc %&gt;%
+  group_by(year) %&gt;%
+  # The * 1 makes it possible to have non-integer ranks while sliding (because it makes rank a double, not integer variable)
+  arrange(year, -(how_many_counted), species) %&gt;%
+  mutate(rank = row_number() * 1) %&gt;%
+  ungroup() %&gt;%
+  filter(rank &lt; 8,
+         year &gt;= 1955)
+
+p &lt;- hamilton_cbc_ranked %&gt;% 
+  ggplot(aes(rank, group = species, 
+                     fill = as.factor(species), color = as.factor(species))) +
+  geom_tile(aes(y = how_many_counted / 2,
+                height = how_many_counted,
+                width = 0.9), alpha = 0.8, color = NA) +
+  
+  # text in x-axis (requires clip = &quot;off&quot; in coord_*)
+  # paste(country, &quot; &quot;)  is a hack to make pretty spacing, since hjust &gt; 1 
+  #   leads to weird artifacts in text spacing.
+  geom_text(aes(y = 0, label = paste(species, &quot; &quot;)), vjust = 0.2, hjust = 1) +
+  geom_text(aes(y = how_many_counted, label = paste0(&quot; &quot;, how_many_counted), hjust = 0)) + # value label thanks to Nitish
+  
+  coord_flip(clip = &quot;off&quot;, expand = FALSE) +
+  scale_y_continuous(labels = scales::comma) +
+  scale_x_reverse() +
+  guides(color = FALSE, fill = FALSE) +
+  
+  labs(title=&#39;{closest_state}&#39;, x = &quot;&quot;, y = &quot;Number of birds counted&quot;) +
+  theme(plot.title = element_text(hjust = 0, size = 22),
+        axis.ticks.y = element_blank(),  # These relate to the axes post-flip
+        axis.text.y  = element_blank(),  # These relate to the axes post-flip
+        plot.margin = margin(1,1,1,4, &quot;cm&quot;)) +
+  
+  transition_states(year, transition_length = 4, state_length = 1) +
+  ease_aes(&#39;cubic-in-out&#39;)
+
+# Have to install the gifski package in order for the renderer to work
+# Make fps 25 to make it smoother
+# Duration is how many centiseconds between years
+animate(p, fps = 25, duration = 80, width = 800, height = 600, renderer = gifski_renderer())</code></pre>
+<p>And thank you to the Christmas Bird Count! The Christmas Bird Count Data was provided by <a href="www.christmasbirdcount.org">National Audubon Society</a> and through the generous efforts of <a href="www.bsc-eoc.org">Bird Studies Canada</a> and countless volunteers across the western hemisphere.</p>
+</div>
