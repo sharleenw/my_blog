@@ -1,0 +1,394 @@
+---
+title: 'Hamilton Christmas Bird Count: Part 2b'
+subtitle: 'Visualizing the Hamilton Christmas Bird Count data'
+author: Sharleen
+date: '2019-02-24'
+slug: hamilton-christmas-bird-count-part-2b
+summary: Visualizing the Hamilton Christmas Bird Count data.
+categories: []
+tags:
+  - data analysis
+  - R
+  - natural history
+  - ornithology
+  - ecology
+  - birding
+  - ggplot2
+  - tidyverse
+draft: false
+image:
+  caption: 'Dark-eyed Junco image credit: [**Public Domain Files**](http://www.publicdomainfiles.com/show_file.php?id=13978843819386)'
+  preview_only: false
+  
+bibliography: part_2.bib
+link-citations: true
+
+---
+
+# Note
+
+This is the third part of five for this dataset.
+
+- [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/) and [Part 2a](https://sharleenw.rbind.io/post/hamilton_cbc_part_2a/hamilton-christmas-bird-count-part-2a/) contains data downloading and cleaning
+
+- [Part 3](https://sharleenw.rbind.io/post/hamilton_cbc_part_3/hamilton-christmas-bird-count-part-3/) contains my Shiny app!
+
+- [Part 4](https://sharleenw.rbind.io/post/hamilton_cbc_part_4/hamilton-christmas-bird-count-part-4/) contains a gganimated plot
+
+# Introduction
+
+What am I hoping to learn from this dataset?
+
+1. Compare the first count year's data to the latest year
+
+2. See how many species are seen each year
+
+3. Highlight certain species to look at any changes over time
+
+To start, we'll load all of the packages we'll be using and set the plot theme:
+
+```{r setup, echo = TRUE, message = FALSE, warning = FALSE}
+
+library(dplyr)
+library(readr)
+library(ggplot2)
+library(here)
+library(knitr)
+library(kableExtra)
+
+theme_set(theme_minimal())
+
+```
+
+```{r read_the_data, message = FALSE, warning = FALSE}
+
+hamilton_cbc <- read_rds(here("content",
+                              "post",
+                              "hamilton_cbc_part_3",
+                              "hamilton_cbc_shiny",
+                              "hamilton_cbc_output_part_2.rds"))
+
+```
+
+A wonderful reference I've been using for this post is the book **Birds of Hamilton and Surrounding Areas** by Robert Curry and the Hamilton Naturalists' Club, particularly the chapter called *Hamilton Christmas Bird Count* by Ian Richards.
+
+# Visualizing
+
+## Comparing the count's first and latest year
+
+Let's start by looking at the first year anyone went out to do the count, in 1921. In @hsa_birds, Ian Richards mentions that 2 observers went out that year for 8 hours, and they saw 9 species.
+
+```{r first_year}
+
+hamilton_cbc %>%
+  filter(year == min(year),
+         how_many_counted != 0) %>%
+  select(species, how_many_counted) %>%
+  arrange(-how_many_counted, species) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+Oh wow, they saw a Gray Jay! How many times have Gray Jays been seen on Hamilton Christmas Bird Counts?
+
+```{r gray_jay}
+
+hamilton_cbc %>%
+  filter(species == "Gray Jay",
+         how_many_counted != 0) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+That was the only time! At first I thought it might have been a mistake, but @hsa_birds mentions, in the Gray Jay historical records section, that at least two Gray Jays were seen that winter. (This book is so thorough!)
+
+How does the first year's count compare to the most recent year's count?
+
+```{r count_2017}
+
+hamilton_cbc %>%
+  filter(year == max(year),
+         how_many_counted != 0) %>%
+  arrange(-how_many_counted, species) %>%
+  head(15) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+Those species look more familiar! And almost 200 person-hours were put in, amazing!
+
+In 2017, how many species were seen in total?
+
+```{r species_count_2017}
+
+hamilton_cbc %>%
+  filter(year == max(year),
+         how_many_counted != 0) %>%
+  count() %>%
+  pull()
+
+```
+
+100 species, nice! It's not easy to get 100 species during a Christmas Bird Count. Only four other Ontario Christmas Bird Counts have done it, at least by 2004 (the latest year of Christmas Bird Count data in @hsa_birds).
+
+## Number of species counted each year
+
+Below is a re-creation of a plot found in @hsa_birds. It's a plot of the number of species seen and the number of person-hours put in each year. Person-hours are the total number of hours the counters put in during that count. For example, if 3 people went out for four hours, there were 12 person-hours (4 * 3).
+
+
+```{r species_and_person_hours}
+
+hamilton_cbc %>%
+  group_by(year, total_hours) %>% # Bringing total_hours along for the grouping. Adding it won't affect the grouping because its value is constant within the grouping of each year, and this way we can use it for plotting after we use summarise
+  filter(how_many_counted != 0) %>%
+  summarise(number_of_species_that_year = n()) %>%
+  ggplot() +
+  geom_line(aes(x = year, y = number_of_species_that_year, color = "Number of species heard or seen"),
+            size = 1) +
+  geom_line(aes(x = year, y = total_hours, color = "Number of person-hours"),
+            size = 1) +
+  labs(x = "Year",
+       y = "Number of species and person-hours") +
+  scale_color_manual(values = c("Number of person-hours" = "orange", 
+                                "Number of species heard or seen" = "blue")) +
+  theme(legend.title = element_blank(),
+        legend.position = "bottom",
+        legend.direction = "vertical")
+
+```
+
+As the number of hours of person-hours increases, so does the number of species counted. But only up to a point, after which the number of species levels off. This probably means that, as long as there are at least 200 or so person-hours in a count, the Hamilton Christmas Bird Count counters will be finding all or almost all of the species in the Hamilton area on count day.
+
+Here is a plot of the cumulative number of species seen during each count. I think the main take-away of this plot is that it is getting harder to see new species every year, which makes sense.
+
+```{r cumulative_total_number_of_birds}
+
+hamilton_cbc %>%
+  filter(how_many_counted != 0) %>%
+  group_by(species) %>%
+  filter(year == min(year)) %>% # What's the first year any species was counted?
+  ungroup() %>%
+  group_by(year) %>%
+  summarise(number_of_new_species_that_year = n()) %>%
+  mutate(cumulative_new_species = cumsum(number_of_new_species_that_year)) %>%
+  ggplot() +
+  geom_point(aes(x = year, y = cumulative_new_species), col = "orange", size = 2) +
+  labs(x = "Year",
+       y = "Cumulative number of species counted")
+
+```
+
+## Highlighting specific species
+
+I now want to look at some of the species and how their counts have changed over the course of the count's history. There is a lot to look at!
+
+@hsa_birds mentions that the Hamilton Christmas Bird Count count circle was a different size before 1955, so, for most of the plots, I will only show information starting after 1955. But sometimes I think it's interesting to look at all years of the data, so I might do that too! :smile:
+
+Since the code of these plots will be very similar, I am going to make a function for the plotting, where only the species plotted and the start year will vary:
+
+```{r visualizing}
+
+plot_species <- function(cbc_df, start_year, species_to_plot) {
+  
+  cbc_df %>%
+    filter(species %in% species_to_plot,
+           year >= start_year) %>%
+    ggplot() +
+    geom_line(aes(
+      x = year, 
+      y = how_many_counted,
+      color = species),
+      size = 1) + # Put the size of the line outside of the aes because we're not varying it
+    labs(x = "Year",
+         y = "Number counted",
+         color = "Species") +
+    facet_wrap(vars(species),
+               scales = "free",
+               dir = "v") +
+    scale_y_continuous(label = scales::comma) + # Add commas for thousands where necessary
+    theme(legend.position = "none",
+          plot.margin = margin(2, 20, 2, 2))
+
+}
+
+```
+
+### Introduced species
+
+Everyone is interested in introduced species. The four I will be plotting are the European Starling, the House Sparrow, the Rock Pigeon, and the Ring-Necked Pheasant.
+
+According to @hsa_birds, Rock Pigeons only started being counted in 1973 and House Sparrows in 1931 (I think due to them being introduced species).
+
+```{r introduced_species, warning = FALSE}
+
+introduced <- c("European Starling",
+                "House Sparrow",
+                "Rock Pigeon",
+                "Ring-necked Pheasant")
+
+hamilton_cbc %>%
+  mutate(how_many_counted = ifelse(species == "Rock Pigeon" &
+                                     year < 1973,
+                                   NA,
+                                   how_many_counted)) %>% # Make Rock Pigeon values pre-1973 to be NA as they were not counted
+  plot_species(start_year = 1955,
+               species_to_plot = introduced)
+```
+
+Look at the number of European Starlings! It's so interesting that the numbers peaked in the 60,000's in the 1980's and have since seen a sharp decrease. House Sparrow counts have been pretty consistent. Pigeon numbers have slowly increased, and there was one year, in 2005, with over double the expected number. And the Ring-necked Pheasants have declined to be almost non-existent. @hsa_birds, referencing a 1973 *Waterdown Review* article, says that a change in urbanization pattern, with areas now going directly from intensive farming to sub-divisions, with no scrubby brush period in between (which is where the pheasants like to live), is the main reason for the decline.
+
+### Eastern Bluebird
+
+The next species I want to look at is the Eastern Bluebird. I volunteer with a local group that maintains bluebird nest boxes and wanted to see if the Hamilton Christmas Bird Count numbers showed any changes in Eastern Bluebird numbers since the Ontario Eastern Bluebird Society started in 1988.
+
+```{r bluebird}
+
+hamilton_cbc %>%
+  plot_species(start_year = 1955,
+               species_to_plot = "Eastern Bluebird")
+
+```
+
+Perhaps the nest boxes are helping! Bluebird numbers have certainly increased since the 1980's. Although I'm not sure what would cause such interesting cyclical increases and decreases since the late 1990's!
+
+However, in @hsa_birds, there is a chapter by Bill Read called *History of the Eastern Bluebird in the Hamilton Study Area*, where he writes that the reason more bluebirds are overwintering now is mainly due to warming winter weather patterns. So maybe it's not the nest boxes! :woman_shrugging:
+
+### Ducks
+
+```{r duck}
+
+hamilton_cbc %>%
+  plot_species(start_year = 1955,
+               species_to_plot = c("Ruddy Duck", 
+                                   "Long-tailed Duck", 
+                                   "Greater Scaup", 
+                                   "Lesser Scaup", 
+                                   "Mallard")) 
+
+hamilton_cbc %>%
+  plot_species(start_year = 1955,
+               species_to_plot = c("Common Goldeneye",
+                                   "Northern Shoveler",
+                                   "Ring-necked Duck",
+                                   "Surf Scoter",
+                                   "Bufflehead"))
+
+```
+
+I picked a sampling of ducks that show a trend of increasing since about the mid-1990's. Ian Richards in @hsa_birds believes that these increases are due to warmer winters (with an increase in open water), and, for ducks like the Greater and Lesser Scaup, due to the introduced Zebra Mussel in Lake Ontario, which they feed on.
+
+Some of these increases are absolutely incredible! The Long-tailed Duck went from practically non-existent up to 25,000 in the mid-2000's!
+
+This is also a good reminder for me that the winter birds I think are "normal" in Hamilton (like Mallards and Long-tailed Ducks) may actually be quite recent phenomena.
+
+### Canada Goose
+
+In fact, another bird that is very common now is the Canada Goose, which I learned, as I looked through the data, was not always so common!
+
+``` {r canada_goose}
+
+hamilton_cbc %>%
+  plot_species(start_year = 1955,
+               species_to_plot = "Canada Goose")
+
+```
+
+@hsa_birds talks about the Canada Goose's history. The Canada Goose was originally considered a "symbol of wild, untamed Canada" and in the late 1800's, Canada Geese actually avoided the Hamilton area due to "their haunts [being] invaded by trolley cars, electric lights, telegraph wires and other innovations" (Thomas McIlwraith, 1886). :trolleybus::smile:
+
+However, in the 1960's, people decided to introduce the largest, heaviest sub-species of the Canada Goose into southern Ontario, because it would supposedly make Ontario "richer". However, with few natural predators, the Giant Canada Goose has now increased in numbers and degrades habitat and competes with other, migratory sub-species.:expressionless:
+
+### Effects of DDT
+
+Two species I had often heard of having been affected by the pesticide DDT were the Double-crested Cormorant and the Bald Eagle. DDT was first used in 1947 and was finally banned in Canada in 1973. According to @hsa_birds, by 1980, Bald Eagles were experiencing complete reproductive failure in southern Ontario (due to the thin eggshells).
+
+So, do the numbers match up with DDT use?
+
+``` {r ddt}
+
+hamilton_cbc %>%
+  plot_species(start_year = 1955,
+               species_to_plot = c("Double-crested Cormorant",
+                                   "Bald Eagle")) +
+  geom_vline(xintercept = 1973, size = 1) +
+  geom_text(x = 1980,
+            y = 90,
+            label = "1973: DDT was \nbanned in Canada")
+
+```
+
+Cool! The numbers of Double-crested Cormorants and Bald Eagles did increase after DDT was banned in Canada. Yay for fewer dangerous :skull:pesticides:skull:!
+
+### West Nile virus
+
+``` {r corvids}
+
+hamilton_cbc %>%
+  plot_species(start_year = 1955,
+               species_to_plot = c("American Crow",
+                                   "Common Raven",
+                                   "Blue Jay")) +
+  geom_vline(xintercept = 2003, size = 1) +
+  geom_text(x = 2010,
+            y = 4000,
+            label = "2003: Height of \nWest Nile virus")
+
+```
+
+I decided to plot some corvids to see how their numbers have been doing, especially given that the West Nile virus happened in the early 2000's.
+
+When I was younger, I remember having thousands of crows in my neighbourhood. Our neighbourhood even paid a guy to come with a trained hawk to scare them away. Nothing got them to leave... And then West Nile happened. For years afterwards, there were no crows, and now there are still only a few. My experience certainly matches with the count numbers.
+
+The Blue Jays were also affected by West Nile, but they seem to have bounced back with no problem (according to the count numbers and my personal experience). They feed at bird feeders though, so that might be helping them.
+
+While Ravens would have also been affected by West Nile, it doesn't seem to show in the numbers. Perhaps there were too few birds for the virus to have had much of an impact on them. @hsa_birds says that, before the early 1800's, Ravens were common in the Hamilton area, but retreated north due to deforestation, shooting by farmers, and eating poisoned bait set out for wolves :angry:. Their recent increase in numbers maybe shows they are returning to their former area!
+
+### Snow Bunting
+
+``` {r snow_bunting}
+
+hamilton_cbc %>%
+  plot_species(start_year = 1921,
+               species_to_plot = "Snow Bunting")
+
+```
+
+I personally have not seen a Snow Bunting yet, but I just think their count numbers are so cool! They are an Arctic bird, so what in the world was happening in the Arctic in the 1970's to cause such huge spikes!? Ahh, such a great mystery!
+
+Also, in the 1800's, Snow Buntings used to be called Snowflakes and there is this fantastic quote by Thomas McIlwraith in 1886 in @hsa_birds, saying, "all our Canadian boys and girls are familiar with the Snowflake, which is frequently the only one they see when out for the first sleigh ride of the season." :smile:
+
+### Ruffed Grouse
+
+``` {r ruffed_grouse}
+
+hamilton_cbc %>%
+  plot_species(start_year = 1921, 
+               species_to_plot = "Ruffed Grouse")
+
+```
+
+I plotted the Ruffed Grouse (aka the partridge) since 1921, and it's clear that this bird has been pretty much gone from the Hamilton area since the late 1980's. @hsa_birds says the Ruffed Grouse is a bird of mixed forests, and, due to intensive agriculture, woodlot harvesting and urban sprawl, the Hamilton area no longer has the right habitat for the Ruffed Grouse. :disappointed:
+
+### Northern Cardinal
+
+``` {r cardinal}
+
+hamilton_cbc %>%
+  plot_species(start_year = 1921, 
+               species_to_plot = "Northern Cardinal")
+
+```
+
+I also plotted the Northern Cardinal numbers since 1921. Cardinals used to only be in Canada occasionally at Point Pelee (Canada's most southern point), where the first recorded breeding happened in 1901. According to @pp_birds, the Point Pelee locals used to call these unusually-coloured birds "war birds"! :bird:
+
+Now they are quite common in the Hamilton area through the winter, with @hsa_birds giving the reasons of climate warming (causing less snow depth), increasing edge habitats where they like to live (due to deforestation), and more bird-feeders. :sunflower::chestnut::sunflower:
+
+This is another bird I thought had always been common to the Hamilton area!
+
+That is it for now, but in the next blog post, I will be making a :sparkles:Shiny app:sparkles: so that anyone can dig into the data!
+
+And thank you to the Christmas Bird Count! The Christmas Bird Count Data was provided by [National Audubon Society](www.christmasbirdcount.org) and through the generous efforts of [Bird Studies Canada](www.bsc-eoc.org) and countless volunteers across the western hemisphere.
+
+References:

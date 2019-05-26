@@ -1,0 +1,754 @@
+---
+title: 'Hamilton Christmas Bird Count: Part 2b'
+subtitle: 'Visualizing the Hamilton Christmas Bird Count data'
+author: Sharleen
+date: '2019-02-24'
+slug: hamilton-christmas-bird-count-part-2b
+summary: Visualizing the Hamilton Christmas Bird Count data.
+categories: []
+tags:
+  - data analysis
+  - R
+  - natural history
+  - ornithology
+  - ecology
+  - birding
+  - ggplot2
+  - tidyverse
+draft: false
+image:
+  caption: 'Dark-eyed Junco image credit: [**Public Domain Files**](http://www.publicdomainfiles.com/show_file.php?id=13978843819386)'
+  preview_only: false
+  
+bibliography: part_2.bib
+link-citations: true
+
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+
+<div id="note" class="section level1">
+<h1>Note</h1>
+<p>This is the third part of five for this dataset.</p>
+<ul>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/">Part 1</a> and <a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_2a/hamilton-christmas-bird-count-part-2a/">Part 2a</a> contains data downloading and cleaning</p></li>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_3/hamilton-christmas-bird-count-part-3/">Part 3</a> contains my Shiny app!</p></li>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_4/hamilton-christmas-bird-count-part-4/">Part 4</a> contains a gganimated plot</p></li>
+</ul>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>What am I hoping to learn from this dataset?</p>
+<ol style="list-style-type: decimal">
+<li><p>Compare the first count year’s data to the latest year</p></li>
+<li><p>See how many species are seen each year</p></li>
+<li><p>Highlight certain species to look at any changes over time</p></li>
+</ol>
+<p>To start, we’ll load all of the packages we’ll be using and set the plot theme:</p>
+<pre class="r"><code>library(dplyr)
+library(readr)
+library(ggplot2)
+library(here)
+library(knitr)
+library(kableExtra)
+
+theme_set(theme_minimal())</code></pre>
+<pre class="r"><code>hamilton_cbc &lt;- read_rds(here(&quot;content&quot;,
+                              &quot;post&quot;,
+                              &quot;hamilton_cbc_part_3&quot;,
+                              &quot;hamilton_cbc_shiny&quot;,
+                              &quot;hamilton_cbc_output_part_2.rds&quot;))</code></pre>
+<p>A wonderful reference I’ve been using for this post is the book <strong>Birds of Hamilton and Surrounding Areas</strong> by Robert Curry and the Hamilton Naturalists’ Club, particularly the chapter called <em>Hamilton Christmas Bird Count</em> by Ian Richards.</p>
+</div>
+<div id="visualizing" class="section level1">
+<h1>Visualizing</h1>
+<div id="comparing-the-counts-first-and-latest-year" class="section level2">
+<h2>Comparing the count’s first and latest year</h2>
+<p>Let’s start by looking at the first year anyone went out to do the count, in 1921. In <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, Ian Richards mentions that 2 observers went out that year for 8 hours, and they saw 9 species.</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  filter(year == min(year),
+         how_many_counted != 0) %&gt;%
+  select(species, how_many_counted) %&gt;%
+  arrange(-how_many_counted, species) %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+species
+</th>
+<th style="text-align:right;">
+how_many_counted
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+American Tree Sparrow
+</td>
+<td style="text-align:right;">
+12
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Black-capped Chickadee
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Blue Jay
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Downy Woodpecker
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+White-breasted Nuthatch
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Robin
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brown Creeper
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gray Jay
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ruffed Grouse
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+</tbody>
+</table>
+<p>Oh wow, they saw a Gray Jay! How many times have Gray Jays been seen on Hamilton Christmas Bird Counts?</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  filter(species == &quot;Gray Jay&quot;,
+         how_many_counted != 0) %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:right;">
+year
+</th>
+<th style="text-align:left;">
+species
+</th>
+<th style="text-align:left;">
+species_latin
+</th>
+<th style="text-align:right;">
+how_many_counted
+</th>
+<th style="text-align:right;">
+total_hours
+</th>
+<th style="text-align:right;">
+how_many_counted_by_hour
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1921
+</td>
+<td style="text-align:left;">
+Gray Jay
+</td>
+<td style="text-align:left;">
+Perisoreus canadensis
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+0.125
+</td>
+</tr>
+</tbody>
+</table>
+<p>That was the only time! At first I thought it might have been a mistake, but <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> mentions, in the Gray Jay historical records section, that at least two Gray Jays were seen that winter. (This book is so thorough!)</p>
+<p>How does the first year’s count compare to the most recent year’s count?</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  filter(year == max(year),
+         how_many_counted != 0) %&gt;%
+  arrange(-how_many_counted, species) %&gt;%
+  head(15) %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:right;">
+year
+</th>
+<th style="text-align:left;">
+species
+</th>
+<th style="text-align:left;">
+species_latin
+</th>
+<th style="text-align:right;">
+how_many_counted
+</th>
+<th style="text-align:right;">
+total_hours
+</th>
+<th style="text-align:right;">
+how_many_counted_by_hour
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+Canada Goose
+</td>
+<td style="text-align:left;">
+Branta canadensis
+</td>
+<td style="text-align:right;">
+6665
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+33.534591
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+Mallard
+</td>
+<td style="text-align:left;">
+Anas platyrhynchos
+</td>
+<td style="text-align:right;">
+5034
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+25.328302
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+Long-tailed Duck
+</td>
+<td style="text-align:left;">
+Clangula hyemalis
+</td>
+<td style="text-align:right;">
+3465
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+17.433962
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+European Starling
+</td>
+<td style="text-align:left;">
+Sturnus vulgaris
+</td>
+<td style="text-align:right;">
+2844
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+14.309434
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+House Sparrow
+</td>
+<td style="text-align:left;">
+Passer domesticus
+</td>
+<td style="text-align:right;">
+2731
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+13.740880
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+Common Goldeneye
+</td>
+<td style="text-align:left;">
+Bucephala clangula
+</td>
+<td style="text-align:right;">
+2180
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+10.968554
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+Greater Scaup
+</td>
+<td style="text-align:left;">
+Aythya marila
+</td>
+<td style="text-align:right;">
+1378
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+6.933333
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+Dark-eyed Junco
+</td>
+<td style="text-align:left;">
+Junco hyemalis
+</td>
+<td style="text-align:right;">
+1068
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+5.373585
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+Black-capped Chickadee
+</td>
+<td style="text-align:left;">
+Poecile atricapillus
+</td>
+<td style="text-align:right;">
+935
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+4.704402
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+Rock Pigeon
+</td>
+<td style="text-align:left;">
+Columba livia
+</td>
+<td style="text-align:right;">
+875
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+4.402516
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+White-winged Scoter
+</td>
+<td style="text-align:left;">
+Melanitta fusca
+</td>
+<td style="text-align:right;">
+725
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+3.647799
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+Mourning Dove
+</td>
+<td style="text-align:left;">
+Zenaida macroura
+</td>
+<td style="text-align:right;">
+699
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+3.516981
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+Ring-billed Gull
+</td>
+<td style="text-align:left;">
+Larus delawarensis
+</td>
+<td style="text-align:right;">
+629
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+3.164780
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+Northern Cardinal
+</td>
+<td style="text-align:left;">
+Cardinalis cardinalis
+</td>
+<td style="text-align:right;">
+550
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+2.767296
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:left;">
+American Goldfinch
+</td>
+<td style="text-align:left;">
+Spinus tristis
+</td>
+<td style="text-align:right;">
+473
+</td>
+<td style="text-align:right;">
+198.75
+</td>
+<td style="text-align:right;">
+2.379874
+</td>
+</tr>
+</tbody>
+</table>
+<p>Those species look more familiar! And almost 200 person-hours were put in, amazing!</p>
+<p>In 2017, how many species were seen in total?</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  filter(year == max(year),
+         how_many_counted != 0) %&gt;%
+  count() %&gt;%
+  pull()</code></pre>
+<pre><code>## [1] 100</code></pre>
+<p>100 species, nice! It’s not easy to get 100 species during a Christmas Bird Count. Only four other Ontario Christmas Bird Counts have done it, at least by 2004 (the latest year of Christmas Bird Count data in <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>).</p>
+</div>
+<div id="number-of-species-counted-each-year" class="section level2">
+<h2>Number of species counted each year</h2>
+<p>Below is a re-creation of a plot found in <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>. It’s a plot of the number of species seen and the number of person-hours put in each year. Person-hours are the total number of hours the counters put in during that count. For example, if 3 people went out for four hours, there were 12 person-hours (4 * 3).</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  group_by(year, total_hours) %&gt;% # Bringing total_hours along for the grouping. Adding it won&#39;t affect the grouping because its value is constant within the grouping of each year, and this way we can use it for plotting after we use summarise
+  filter(how_many_counted != 0) %&gt;%
+  summarise(number_of_species_that_year = n()) %&gt;%
+  ggplot() +
+  geom_line(aes(x = year, y = number_of_species_that_year, color = &quot;Number of species heard or seen&quot;),
+            size = 1) +
+  geom_line(aes(x = year, y = total_hours, color = &quot;Number of person-hours&quot;),
+            size = 1) +
+  labs(x = &quot;Year&quot;,
+       y = &quot;Number of species and person-hours&quot;) +
+  scale_color_manual(values = c(&quot;Number of person-hours&quot; = &quot;orange&quot;, 
+                                &quot;Number of species heard or seen&quot; = &quot;blue&quot;)) +
+  theme(legend.title = element_blank(),
+        legend.position = &quot;bottom&quot;,
+        legend.direction = &quot;vertical&quot;)</code></pre>
+<p><img src="/post/hamilton_cbc_part_2b/index_files/figure-html/species_and_person_hours-1.png" width="672" /></p>
+<p>As the number of hours of person-hours increases, so does the number of species counted. But only up to a point, after which the number of species levels off. This probably means that, as long as there are at least 200 or so person-hours in a count, the Hamilton Christmas Bird Count counters will be finding all or almost all of the species in the Hamilton area on count day.</p>
+<p>Here is a plot of the cumulative number of species seen during each count. I think the main take-away of this plot is that it is getting harder to see new species every year, which makes sense.</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  filter(how_many_counted != 0) %&gt;%
+  group_by(species) %&gt;%
+  filter(year == min(year)) %&gt;% # What&#39;s the first year any species was counted?
+  ungroup() %&gt;%
+  group_by(year) %&gt;%
+  summarise(number_of_new_species_that_year = n()) %&gt;%
+  mutate(cumulative_new_species = cumsum(number_of_new_species_that_year)) %&gt;%
+  ggplot() +
+  geom_point(aes(x = year, y = cumulative_new_species), col = &quot;orange&quot;, size = 2) +
+  labs(x = &quot;Year&quot;,
+       y = &quot;Cumulative number of species counted&quot;)</code></pre>
+<p><img src="/post/hamilton_cbc_part_2b/index_files/figure-html/cumulative_total_number_of_birds-1.png" width="672" /></p>
+</div>
+<div id="highlighting-specific-species" class="section level2">
+<h2>Highlighting specific species</h2>
+<p>I now want to look at some of the species and how their counts have changed over the course of the count’s history. There is a lot to look at!</p>
+<p><span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> mentions that the Hamilton Christmas Bird Count count circle was a different size before 1955, so, for most of the plots, I will only show information starting after 1955. But sometimes I think it’s interesting to look at all years of the data, so I might do that too! :smile:</p>
+<p>Since the code of these plots will be very similar, I am going to make a function for the plotting, where only the species plotted and the start year will vary:</p>
+<pre class="r"><code>plot_species &lt;- function(cbc_df, start_year, species_to_plot) {
+  
+  cbc_df %&gt;%
+    filter(species %in% species_to_plot,
+           year &gt;= start_year) %&gt;%
+    ggplot() +
+    geom_line(aes(
+      x = year, 
+      y = how_many_counted,
+      color = species),
+      size = 1) + # Put the size of the line outside of the aes because we&#39;re not varying it
+    labs(x = &quot;Year&quot;,
+         y = &quot;Number counted&quot;,
+         color = &quot;Species&quot;) +
+    facet_wrap(vars(species),
+               scales = &quot;free&quot;,
+               dir = &quot;v&quot;) +
+    scale_y_continuous(label = scales::comma) + # Add commas for thousands where necessary
+    theme(legend.position = &quot;none&quot;,
+          plot.margin = margin(2, 20, 2, 2))
+
+}</code></pre>
+<div id="introduced-species" class="section level3">
+<h3>Introduced species</h3>
+<p>Everyone is interested in introduced species. The four I will be plotting are the European Starling, the House Sparrow, the Rock Pigeon, and the Ring-Necked Pheasant.</p>
+<p>According to <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, Rock Pigeons only started being counted in 1973 and House Sparrows in 1931 (I think due to them being introduced species).</p>
+<pre class="r"><code>introduced &lt;- c(&quot;European Starling&quot;,
+                &quot;House Sparrow&quot;,
+                &quot;Rock Pigeon&quot;,
+                &quot;Ring-necked Pheasant&quot;)
+
+hamilton_cbc %&gt;%
+  mutate(how_many_counted = ifelse(species == &quot;Rock Pigeon&quot; &amp;
+                                     year &lt; 1973,
+                                   NA,
+                                   how_many_counted)) %&gt;% # Make Rock Pigeon values pre-1973 to be NA as they were not counted
+  plot_species(start_year = 1955,
+               species_to_plot = introduced)</code></pre>
+<p><img src="/post/hamilton_cbc_part_2b/index_files/figure-html/introduced_species-1.png" width="672" /></p>
+<p>Look at the number of European Starlings! It’s so interesting that the numbers peaked in the 60,000’s in the 1980’s and have since seen a sharp decrease. House Sparrow counts have been pretty consistent. Pigeon numbers have slowly increased, and there was one year, in 2005, with over double the expected number. And the Ring-necked Pheasants have declined to be almost non-existent. <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, referencing a 1973 <em>Waterdown Review</em> article, says that a change in urbanization pattern, with areas now going directly from intensive farming to sub-divisions, with no scrubby brush period in between (which is where the pheasants like to live), is the main reason for the decline.</p>
+</div>
+<div id="eastern-bluebird" class="section level3">
+<h3>Eastern Bluebird</h3>
+<p>The next species I want to look at is the Eastern Bluebird. I volunteer with a local group that maintains bluebird nest boxes and wanted to see if the Hamilton Christmas Bird Count numbers showed any changes in Eastern Bluebird numbers since the Ontario Eastern Bluebird Society started in 1988.</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  plot_species(start_year = 1955,
+               species_to_plot = &quot;Eastern Bluebird&quot;)</code></pre>
+<p><img src="/post/hamilton_cbc_part_2b/index_files/figure-html/bluebird-1.png" width="672" /></p>
+<p>Perhaps the nest boxes are helping! Bluebird numbers have certainly increased since the 1980’s. Although I’m not sure what would cause such interesting cyclical increases and decreases since the late 1990’s!</p>
+<p>However, in <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, there is a chapter by Bill Read called <em>History of the Eastern Bluebird in the Hamilton Study Area</em>, where he writes that the reason more bluebirds are overwintering now is mainly due to warming winter weather patterns. So maybe it’s not the nest boxes! :woman_shrugging:</p>
+</div>
+<div id="ducks" class="section level3">
+<h3>Ducks</h3>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  plot_species(start_year = 1955,
+               species_to_plot = c(&quot;Ruddy Duck&quot;, 
+                                   &quot;Long-tailed Duck&quot;, 
+                                   &quot;Greater Scaup&quot;, 
+                                   &quot;Lesser Scaup&quot;, 
+                                   &quot;Mallard&quot;)) </code></pre>
+<p><img src="/post/hamilton_cbc_part_2b/index_files/figure-html/duck-1.png" width="672" /></p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  plot_species(start_year = 1955,
+               species_to_plot = c(&quot;Common Goldeneye&quot;,
+                                   &quot;Northern Shoveler&quot;,
+                                   &quot;Ring-necked Duck&quot;,
+                                   &quot;Surf Scoter&quot;,
+                                   &quot;Bufflehead&quot;))</code></pre>
+<p><img src="/post/hamilton_cbc_part_2b/index_files/figure-html/duck-2.png" width="672" /></p>
+<p>I picked a sampling of ducks that show a trend of increasing since about the mid-1990’s. Ian Richards in <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> believes that these increases are due to warmer winters (with an increase in open water), and, for ducks like the Greater and Lesser Scaup, due to the introduced Zebra Mussel in Lake Ontario, which they feed on.</p>
+<p>Some of these increases are absolutely incredible! The Long-tailed Duck went from practically non-existent up to 25,000 in the mid-2000’s!</p>
+<p>This is also a good reminder for me that the winter birds I think are “normal” in Hamilton (like Mallards and Long-tailed Ducks) may actually be quite recent phenomena.</p>
+</div>
+<div id="canada-goose" class="section level3">
+<h3>Canada Goose</h3>
+<p>In fact, another bird that is very common now is the Canada Goose, which I learned, as I looked through the data, was not always so common!</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  plot_species(start_year = 1955,
+               species_to_plot = &quot;Canada Goose&quot;)</code></pre>
+<p><img src="/post/hamilton_cbc_part_2b/index_files/figure-html/canada_goose-1.png" width="672" /></p>
+<p><span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> talks about the Canada Goose’s history. The Canada Goose was originally considered a “symbol of wild, untamed Canada” and in the late 1800’s, Canada Geese actually avoided the Hamilton area due to “their haunts [being] invaded by trolley cars, electric lights, telegraph wires and other innovations” (Thomas McIlwraith, 1886). :trolleybus::smile:</p>
+<p>However, in the 1960’s, people decided to introduce the largest, heaviest sub-species of the Canada Goose into southern Ontario, because it would supposedly make Ontario “richer”. However, with few natural predators, the Giant Canada Goose has now increased in numbers and degrades habitat and competes with other, migratory sub-species.:expressionless:</p>
+</div>
+<div id="effects-of-ddt" class="section level3">
+<h3>Effects of DDT</h3>
+<p>Two species I had often heard of having been affected by the pesticide DDT were the Double-crested Cormorant and the Bald Eagle. DDT was first used in 1947 and was finally banned in Canada in 1973. According to <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, by 1980, Bald Eagles were experiencing complete reproductive failure in southern Ontario (due to the thin eggshells).</p>
+<p>So, do the numbers match up with DDT use?</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  plot_species(start_year = 1955,
+               species_to_plot = c(&quot;Double-crested Cormorant&quot;,
+                                   &quot;Bald Eagle&quot;)) +
+  geom_vline(xintercept = 1973, size = 1) +
+  geom_text(x = 1980,
+            y = 90,
+            label = &quot;1973: DDT was \nbanned in Canada&quot;)</code></pre>
+<p><img src="/post/hamilton_cbc_part_2b/index_files/figure-html/ddt-1.png" width="672" /></p>
+<p>Cool! The numbers of Double-crested Cormorants and Bald Eagles did increase after DDT was banned in Canada. Yay for fewer dangerous :skull:pesticides:skull:!</p>
+</div>
+<div id="west-nile-virus" class="section level3">
+<h3>West Nile virus</h3>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  plot_species(start_year = 1955,
+               species_to_plot = c(&quot;American Crow&quot;,
+                                   &quot;Common Raven&quot;,
+                                   &quot;Blue Jay&quot;)) +
+  geom_vline(xintercept = 2003, size = 1) +
+  geom_text(x = 2010,
+            y = 4000,
+            label = &quot;2003: Height of \nWest Nile virus&quot;)</code></pre>
+<p><img src="/post/hamilton_cbc_part_2b/index_files/figure-html/corvids-1.png" width="672" /></p>
+<p>I decided to plot some corvids to see how their numbers have been doing, especially given that the West Nile virus happened in the early 2000’s.</p>
+<p>When I was younger, I remember having thousands of crows in my neighbourhood. Our neighbourhood even paid a guy to come with a trained hawk to scare them away. Nothing got them to leave… And then West Nile happened. For years afterwards, there were no crows, and now there are still only a few. My experience certainly matches with the count numbers.</p>
+<p>The Blue Jays were also affected by West Nile, but they seem to have bounced back with no problem (according to the count numbers and my personal experience). They feed at bird feeders though, so that might be helping them.</p>
+<p>While Ravens would have also been affected by West Nile, it doesn’t seem to show in the numbers. Perhaps there were too few birds for the virus to have had much of an impact on them. <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> says that, before the early 1800’s, Ravens were common in the Hamilton area, but retreated north due to deforestation, shooting by farmers, and eating poisoned bait set out for wolves :angry:. Their recent increase in numbers maybe shows they are returning to their former area!</p>
+</div>
+<div id="snow-bunting" class="section level3">
+<h3>Snow Bunting</h3>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  plot_species(start_year = 1921,
+               species_to_plot = &quot;Snow Bunting&quot;)</code></pre>
+<p><img src="/post/hamilton_cbc_part_2b/index_files/figure-html/snow_bunting-1.png" width="672" /></p>
+<p>I personally have not seen a Snow Bunting yet, but I just think their count numbers are so cool! They are an Arctic bird, so what in the world was happening in the Arctic in the 1970’s to cause such huge spikes!? Ahh, such a great mystery!</p>
+<p>Also, in the 1800’s, Snow Buntings used to be called Snowflakes and there is this fantastic quote by Thomas McIlwraith in 1886 in <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span>, saying, “all our Canadian boys and girls are familiar with the Snowflake, which is frequently the only one they see when out for the first sleigh ride of the season.” :smile:</p>
+</div>
+<div id="ruffed-grouse" class="section level3">
+<h3>Ruffed Grouse</h3>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  plot_species(start_year = 1921, 
+               species_to_plot = &quot;Ruffed Grouse&quot;)</code></pre>
+<p><img src="/post/hamilton_cbc_part_2b/index_files/figure-html/ruffed_grouse-1.png" width="672" /></p>
+<p>I plotted the Ruffed Grouse (aka the partridge) since 1921, and it’s clear that this bird has been pretty much gone from the Hamilton area since the late 1980’s. <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> says the Ruffed Grouse is a bird of mixed forests, and, due to intensive agriculture, woodlot harvesting and urban sprawl, the Hamilton area no longer has the right habitat for the Ruffed Grouse. :disappointed:</p>
+</div>
+<div id="northern-cardinal" class="section level3">
+<h3>Northern Cardinal</h3>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  plot_species(start_year = 1921, 
+               species_to_plot = &quot;Northern Cardinal&quot;)</code></pre>
+<p><img src="/post/hamilton_cbc_part_2b/index_files/figure-html/cardinal-1.png" width="672" /></p>
+<p>I also plotted the Northern Cardinal numbers since 1921. Cardinals used to only be in Canada occasionally at Point Pelee (Canada’s most southern point), where the first recorded breeding happened in 1901. According to <span class="citation">O’Neill (<a href="#ref-pp_birds">2006</a>)</span>, the Point Pelee locals used to call these unusually-coloured birds “war birds”! :bird:</p>
+<p>Now they are quite common in the Hamilton area through the winter, with <span class="citation">Curry (<a href="#ref-hsa_birds">2006</a>)</span> giving the reasons of climate warming (causing less snow depth), increasing edge habitats where they like to live (due to deforestation), and more bird-feeders. :sunflower::chestnut::sunflower:</p>
+<p>This is another bird I thought had always been common to the Hamilton area!</p>
+<p>That is it for now, but in the next blog post, I will be making a :sparkles:Shiny app:sparkles: so that anyone can dig into the data!</p>
+<p>And thank you to the Christmas Bird Count! The Christmas Bird Count Data was provided by <a href="www.christmasbirdcount.org">National Audubon Society</a> and through the generous efforts of <a href="www.bsc-eoc.org">Bird Studies Canada</a> and countless volunteers across the western hemisphere.</p>
+<p>References:</p>
+<div id="refs" class="references">
+<div id="ref-hsa_birds">
+<p>Curry, Robert. 2006. <em>Birds of Hamilton and Surrounding Areas</em>. Heidy Lawrance Associates. <a href="http://hamiltonnature.org/publications/birds-of-hamilton/" class="uri">http://hamiltonnature.org/publications/birds-of-hamilton/</a>.</p>
+</div>
+<div id="ref-pp_birds">
+<p>O’Neill, Henrietta. 2006. <em>Birding at Point Pelee : A Birder’s History of One of Canada’s Most Famous Birding Spots</em>. James Lorimer &amp; Company Ltd.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
