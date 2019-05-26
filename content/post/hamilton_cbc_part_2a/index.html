@@ -1,0 +1,733 @@
+---
+title: 'Hamilton Christmas Bird Count: Part 2a'
+subtitle: 'Further cleaning of the Hamilton Christmas Bird Count data'
+author: Sharleen
+date: '2019-02-23'
+slug: hamilton-christmas-bird-count-part-2a
+summary: Further cleaning of the Hamilton Christmas Bird Count data.
+categories: []
+tags:
+  - data analysis
+  - R
+  - natural history
+  - ornithology
+  - ecology
+  - birding
+  - ggplot2
+  - tidyverse
+draft: false
+image:
+  caption: 'Northern Cardinal image credit: [**Public Domain Files**](http://www.publicdomainfiles.com/show_file.php?id=13962429013391)'
+  preview_only: false
+
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+
+<div id="note" class="section level1">
+<h1>Note</h1>
+<p>This is the second part of five for this dataset.</p>
+<ul>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/">Part 1</a> contains data downloading and cleaning</p></li>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_2b/hamilton-christmas-bird-count-part-2b/">Part 2b</a> contains visualizations</p></li>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_3/hamilton-christmas-bird-count-part-3/">Part 3</a> contains my Shiny app!</p></li>
+<li><p><a href="https://sharleenw.rbind.io/post/hamilton_cbc_part_4/hamilton-christmas-bird-count-part-4/">Part 4</a> contains a gganimated plot.</p></li>
+</ul>
+</div>
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>While I was visualizing the data, I realized I still needed to do a bit more cleaning. So this is a short post outlining my steps to do so.</p>
+<p>To start, we’ll load all of the packages we’ll be using and set the plot theme:</p>
+<pre class="r"><code>library(dplyr)
+library(readr)
+library(stringr)
+library(here)
+library(knitr)
+library(kableExtra)</code></pre>
+<pre class="r"><code>hamilton_cbc &lt;- read_rds(here(&quot;content&quot;,
+                              &quot;post&quot;,
+                              &quot;hamilton_cbc_part_3&quot;,
+                              &quot;hamilton_cbc_shiny&quot;,
+                              &quot;hamilton_cbc_output.rds&quot;))</code></pre>
+</div>
+<div id="final-cleaning-touches" class="section level1">
+<h1>Final cleaning touches</h1>
+<p>Particularly, I want to:</p>
+<ol style="list-style-type: decimal">
+<li><p>Remove <code>hybrid</code> birds</p></li>
+<li><p>Consolidate the names of some species that had variations in them</p></li>
+</ol>
+<p>Let’s see how many hybrid species we have and remove them:</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  filter(str_detect(species, &quot;hybrid&quot;)) %&gt;%
+  distinct(species) %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+species
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Snow x Canada Goose (hybrid)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Black Duck x Mallard (hybrid)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mallard x Northern Pintail (hybrid)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Herring x Glaucous Gull (hybrid)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Herring x Great Black-backed Gull (hybrid)
+</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
+  filter(!str_detect(species, &quot;hybrid&quot;))</code></pre>
+<p>Now, onto cleaning the trickier stuff. Sometimes, species have sub-species names or groups that have different total counts. For example, the Juncos (where <code>total_counted</code> is the sum of the counts over all years for that species):</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  filter(str_detect(species, &quot;Junco&quot;)) %&gt;%
+  group_by(species, species_latin) %&gt;%
+  summarise(total_counted = sum(how_many_counted)) %&gt;%
+  ungroup() %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+species
+</th>
+<th style="text-align:left;">
+species_latin
+</th>
+<th style="text-align:right;">
+total_counted
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Dark-eyed Junco
+</td>
+<td style="text-align:left;">
+Junco hyemalis
+</td>
+<td style="text-align:right;">
+14426
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dark-eyed Junco (Oregon)
+</td>
+<td style="text-align:left;">
+Junco hyemalis [oreganus Group
+</td>
+<td style="text-align:right;">
+39
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dark-eyed Junco (Slate-colored)
+</td>
+<td style="text-align:left;">
+Junco hyemalis hyemalis/carolinensis
+</td>
+<td style="text-align:right;">
+46764
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dark-eyed Junco (White-winged)
+</td>
+<td style="text-align:left;">
+Junco hyemalis aikeni
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+</tbody>
+</table>
+<p>I just want there to be one Dark-eyed Junco species in this dataset, so I am going to consolidate these four sub-species into one species. (Even though people get way more excited about seeing the Oregon sub-species in Hamilton than the Slate-colored :smile:.)</p>
+<p>The first step is to only keep the first two words of the <code>species_latin</code> variable:</p>
+<pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
+  mutate(species_latin = word(species_latin, start = 1, end = 2))</code></pre>
+<p>We can also see who else is in this list:</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  group_by(species_latin) %&gt;%
+  filter(n_distinct(species) &gt; 1) %&gt;%
+  group_by(species, species_latin) %&gt;%
+  summarise(total_counted = sum(how_many_counted)) %&gt;%
+  ungroup() %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+species
+</th>
+<th style="text-align:left;">
+species_latin
+</th>
+<th style="text-align:right;">
+total_counted
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+American Kestrel
+</td>
+<td style="text-align:left;">
+Falco sparverius
+</td>
+<td style="text-align:right;">
+1520
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Kestrel (Northern)
+</td>
+<td style="text-align:left;">
+Falco sparverius
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brant
+</td>
+<td style="text-align:left;">
+Branta bernicla
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Brant (Atlantic)
+</td>
+<td style="text-align:left;">
+Branta bernicla
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Common Grackle
+</td>
+<td style="text-align:left;">
+Quiscalus quiscula
+</td>
+<td style="text-align:right;">
+173
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Common Grackle (Purple)
+</td>
+<td style="text-align:left;">
+Quiscalus quiscula
+</td>
+<td style="text-align:right;">
+17
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dark-eyed Junco
+</td>
+<td style="text-align:left;">
+Junco hyemalis
+</td>
+<td style="text-align:right;">
+14426
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dark-eyed Junco (Oregon)
+</td>
+<td style="text-align:left;">
+Junco hyemalis
+</td>
+<td style="text-align:right;">
+39
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dark-eyed Junco (Slate-colored)
+</td>
+<td style="text-align:left;">
+Junco hyemalis
+</td>
+<td style="text-align:right;">
+46764
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dark-eyed Junco (White-winged)
+</td>
+<td style="text-align:left;">
+Junco hyemalis
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Green-winged Teal
+</td>
+<td style="text-align:left;">
+Anas crecca
+</td>
+<td style="text-align:right;">
+671
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Green-winged Teal (American)
+</td>
+<td style="text-align:left;">
+Anas crecca
+</td>
+<td style="text-align:right;">
+469
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Horned Lark
+</td>
+<td style="text-align:left;">
+Eremophila alpestris
+</td>
+<td style="text-align:right;">
+1712
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Horned Lark (Eastern dark Group)
+</td>
+<td style="text-align:left;">
+Eremophila alpestris
+</td>
+<td style="text-align:right;">
+24
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Iceland Gull
+</td>
+<td style="text-align:left;">
+Larus glaucoides
+</td>
+<td style="text-align:right;">
+153
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Iceland Gull (kumlieni)
+</td>
+<td style="text-align:left;">
+Larus glaucoides
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Northern Flicker
+</td>
+<td style="text-align:left;">
+Colaptes auratus
+</td>
+<td style="text-align:right;">
+99
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Northern Flicker (Yellow-shafted)
+</td>
+<td style="text-align:left;">
+Colaptes auratus
+</td>
+<td style="text-align:right;">
+727
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Northern Goshawk
+</td>
+<td style="text-align:left;">
+Accipiter gentilis
+</td>
+<td style="text-align:right;">
+51
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Northern Goshawk (American)
+</td>
+<td style="text-align:left;">
+Accipiter gentilis
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Purple Finch
+</td>
+<td style="text-align:left;">
+Haemorhous purpureus
+</td>
+<td style="text-align:right;">
+1355
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Purple Finch (Eastern)
+</td>
+<td style="text-align:left;">
+Haemorhous purpureus
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Song Sparrow
+</td>
+<td style="text-align:left;">
+Melospiza melodia
+</td>
+<td style="text-align:right;">
+4352
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Song Sparrow (melodia/atlantica)
+</td>
+<td style="text-align:left;">
+Melospiza melodia
+</td>
+<td style="text-align:right;">
+41
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tundra Swan
+</td>
+<td style="text-align:left;">
+Cygnus columbianus
+</td>
+<td style="text-align:right;">
+1032
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tundra Swan (Whistling)
+</td>
+<td style="text-align:left;">
+Cygnus columbianus
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+</tbody>
+</table>
+<p>The second step is to sum up the counts for each year across all of the sub-species so the counts are the same, and then filter to only keep the first instance of each <code>species</code> (which, when arranged alphabetically, is the shortest species name):</p>
+<pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
+  group_by(year, species_latin) %&gt;%
+  mutate(how_many_counted = sum(how_many_counted)) %&gt;%
+  arrange(year, species) %&gt;%
+  filter(row_number() == 1) %&gt;%
+  ungroup()
+
+hamilton_cbc %&gt;%
+  filter(str_detect(species, &quot;Junco&quot;)) %&gt;%
+  group_by(species, species_latin) %&gt;%
+  summarise(total_counted = sum(how_many_counted)) %&gt;%
+  ungroup() %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+species
+</th>
+<th style="text-align:left;">
+species_latin
+</th>
+<th style="text-align:right;">
+total_counted
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Dark-eyed Junco
+</td>
+<td style="text-align:left;">
+Junco hyemalis
+</td>
+<td style="text-align:right;">
+61230
+</td>
+</tr>
+</tbody>
+</table>
+<p>Perfect! No more sub-species. The last group of species to deal with is <code>species</code> where the name has either a <code>(</code> or a <code>/</code>:</p>
+<pre class="r"><code>hamilton_cbc %&gt;%
+  group_by(species, species_latin) %&gt;%
+  summarise(total_counted = sum(how_many_counted)) %&gt;%
+  ungroup() %&gt;%
+  filter(str_detect(species, &quot;\\(|/&quot;)) %&gt;% # The &quot;|&quot; is an &quot;or&quot; within the regex
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+species
+</th>
+<th style="text-align:left;">
+species_latin
+</th>
+<th style="text-align:right;">
+total_counted
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Barn Owl (American)
+</td>
+<td style="text-align:left;">
+Tyto alba
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bullock’s/Baltimore Oriole
+</td>
+<td style="text-align:left;">
+Icterus bullockii/galbula
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Great Blue Heron (Blue form)
+</td>
+<td style="text-align:left;">
+Ardea herodias
+</td>
+<td style="text-align:right;">
+362
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Greater/Lesser Scaup
+</td>
+<td style="text-align:left;">
+Aythya marila/affinis
+</td>
+<td style="text-align:right;">
+26558
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pacific/Winter Wren
+</td>
+<td style="text-align:left;">
+Troglodytes pacificus/hiemalis
+</td>
+<td style="text-align:right;">
+498
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Palm Warbler (Western)
+</td>
+<td style="text-align:left;">
+Setophaga palmarum
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rock Pigeon (Feral Pigeon)
+</td>
+<td style="text-align:left;">
+Columba livia
+</td>
+<td style="text-align:right;">
+60114
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Spotted/Eastern Towhee (Rufous-sided Towhee)
+</td>
+<td style="text-align:left;">
+Pipilo maculatus/erythrophthalmus
+</td>
+<td style="text-align:right;">
+28
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Western/Eastern Meadowlark
+</td>
+<td style="text-align:left;">
+Sturnella neglecta/magna
+</td>
+<td style="text-align:right;">
+49
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wilson’s/Common Snipe
+</td>
+<td style="text-align:left;">
+Gallinago delicata/gallinago
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Yellow-rumped Warbler (Myrtle)
+</td>
+<td style="text-align:left;">
+Setophaga coronata
+</td>
+<td style="text-align:right;">
+65
+</td>
+</tr>
+</tbody>
+</table>
+<p>I am going to make some executive decisions about what to do with these <code>species</code>:</p>
+<ol style="list-style-type: decimal">
+<li>Delete species guess: Greater/Lesser Scaup</li>
+<li>Assume super-rare species were in fact the more common species:
+<ul>
+<li>Bullock’s/Baltimore Oriole were Baltimore Orioles</li>
+<li>Western/Eastern Meadowlark were Eastern Meadowlarks</li>
+<li>Wilson’s/Common Snipe were Common Snipes</li>
+<li>Spotted/Eastern Towhee (Rufous-sided Towhee) were Eastern Towhees</li>
+<li>Pacific/Winter Wren were Winter Wrens</li>
+</ul></li>
+<li>Remove parentheses on the remaining species for neatness</li>
+</ol>
+<pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
+  filter(!(species == &quot;Greater/Lesser Scaup&quot;)) %&gt;%
+  mutate(species = case_when(species == &quot;Bullock&#39;s/Baltimore Oriole&quot; ~ &quot;Baltimore Oriole&quot;,
+                             species == &quot;Western/Eastern Meadowlark&quot; ~ &quot;Eastern Meadowlark&quot;,
+                             species == &quot;Wilson&#39;s/Common Snipe&quot; ~ &quot;Common Snipe&quot;,
+                             species == &quot;Spotted/Eastern Towhee (Rufous-sided Towhee)&quot; ~ &quot;Eastern Towhee&quot;,
+                             species == &quot;Pacific/Winter Wren&quot; ~ &quot;Winter Wren&quot;,
+                             TRUE ~ species),
+         species_latin = case_when(species_latin == &quot;Icterus bullockii/galbula&quot; ~ &quot;Icterus galbula&quot;,
+                             species_latin == &quot;Sturnella neglecta/magna&quot; ~ &quot;Sturnella magna&quot;,
+                             species_latin == &quot;Gallinago delicata/gallinago&quot; ~ &quot;Gallinago gallinago&quot;,
+                             species_latin == &quot;Pipilo maculatus/erythrophthalmus&quot; ~ &quot;Pipilo erythrophthalmus&quot;,
+                             species_latin == &quot;Troglodytes pacificus/hiemalis&quot; ~ &quot;Troglodytes hiemalis&quot;,
+                             TRUE ~ species_latin),
+         species = case_when(species == &quot;Barn Owl (American)&quot; ~ &quot;Barn Owl&quot;,
+                             species == &quot;Great Blue Heron (Blue form)&quot; ~ &quot;Great Blue Heron&quot;,
+                             species == &quot;Palm Warbler (Western)&quot; ~ &quot;Palm Warbler&quot;,
+                             species == &quot;Rock Pigeon (Feral Pigeon)&quot; ~ &quot;Rock Pigeon&quot;,
+                             species == &quot;Yellow-rumped Warbler (Myrtle)&quot; ~ &quot;Yellow-rumped Warbler&quot;,
+                             TRUE ~ species))
+
+# Consolidate the counts between the species whose names were just updated (same step as was done in the earlier sub-species section)
+hamilton_cbc &lt;- hamilton_cbc %&gt;%
+  group_by(year, species) %&gt;%
+  mutate(how_many_counted = sum(how_many_counted)) %&gt;%
+  arrange(year, species) %&gt;%
+  filter(row_number() == 1) %&gt;%
+  ungroup()</code></pre>
+<p>Finally, I am going to recalculate the <code>how_many_counted_by_hour</code> variable that depends on <code>how_many_counted</code>:</p>
+<pre class="r"><code>hamilton_cbc &lt;- hamilton_cbc %&gt;%
+  mutate(how_many_counted_by_hour = as.double(how_many_counted) / total_hours)</code></pre>
+<div id="number-of-species-counted-each-year" class="section level2">
+<h2>Number of species counted each year</h2>
+<p>In the course of creating a plot, I believe there was a error in the total hours recorded for 1982, where the total number of hours was only 64, but there was no drop in the number of species counted that year. I think it should have actually been 164 hours, because, in 1981, there were 167 hours, and in 1983, there were 168 hours. So, in the below chunk, I’ve <code>mutate</code>d 1982 to have 164 total hours.</p>
+<pre class="r"><code># Mutating total_hours and how_many_counted_by_hour that depends on it
+
+hamilton_cbc &lt;- hamilton_cbc %&gt;%
+  mutate(total_hours = ifelse(year == 1982, 164, total_hours),
+         how_many_counted_by_hour = as.double(how_many_counted) / total_hours)</code></pre>
+<p>And thank you to the Christmas Bird Count! The Christmas Bird Count Data was provided by <a href="www.christmasbirdcount.org">National Audubon Society</a> and through the generous efforts of <a href="www.bsc-eoc.org">Bird Studies Canada</a> and countless volunteers across the western hemisphere.</p>
+</div>
+</div>

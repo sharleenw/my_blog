@@ -1,0 +1,242 @@
+---
+title: 'Hamilton Christmas Bird Count: Part 2a'
+subtitle: 'Further cleaning of the Hamilton Christmas Bird Count data'
+author: Sharleen
+date: '2019-02-23'
+slug: hamilton-christmas-bird-count-part-2a
+summary: Further cleaning of the Hamilton Christmas Bird Count data.
+categories: []
+tags:
+  - data analysis
+  - R
+  - natural history
+  - ornithology
+  - ecology
+  - birding
+  - ggplot2
+  - tidyverse
+draft: false
+image:
+  caption: 'Northern Cardinal image credit: [**Public Domain Files**](http://www.publicdomainfiles.com/show_file.php?id=13962429013391)'
+  preview_only: false
+
+---
+
+# Note
+
+This is the second part of five for this dataset.
+
+- [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/) contains data downloading and cleaning
+
+- [Part 2b](https://sharleenw.rbind.io/post/hamilton_cbc_part_2b/hamilton-christmas-bird-count-part-2b/) contains visualizations
+
+- [Part 3](https://sharleenw.rbind.io/post/hamilton_cbc_part_3/hamilton-christmas-bird-count-part-3/) contains my Shiny app!
+
+- [Part 4](https://sharleenw.rbind.io/post/hamilton_cbc_part_4/hamilton-christmas-bird-count-part-4/) contains a gganimated plot.
+
+# Introduction
+
+While I was visualizing the data, I realized I still needed to do a bit more cleaning. So this is a short post outlining my steps to do so.
+
+To start, we'll load all of the packages we'll be using and set the plot theme:
+
+```{r setup, echo = TRUE, message = FALSE, warning = FALSE}
+
+library(dplyr)
+library(readr)
+library(stringr)
+library(here)
+library(knitr)
+library(kableExtra)
+
+```
+
+```{r read_the_data, message = FALSE, warning = FALSE}
+
+hamilton_cbc <- read_rds(here("content",
+                              "post",
+                              "hamilton_cbc_part_3",
+                              "hamilton_cbc_shiny",
+                              "hamilton_cbc_output.rds"))
+
+```
+
+
+# Final cleaning touches
+
+Particularly, I want to: 
+
+1. Remove `hybrid` birds
+
+2. Consolidate the names of some species that had variations in them
+
+Let's see how many hybrid species we have and remove them:
+
+``` {r hybrid_removal}
+
+hamilton_cbc %>%
+  filter(str_detect(species, "hybrid")) %>%
+  distinct(species) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+hamilton_cbc <- hamilton_cbc %>%
+  filter(!str_detect(species, "hybrid"))
+
+```
+
+Now, onto cleaning the trickier stuff. Sometimes, species have sub-species names or groups that have different total counts. For example, the Juncos (where `total_counted` is the sum of the counts over all years for that species):
+
+``` {r junco}
+
+hamilton_cbc %>%
+  filter(str_detect(species, "Junco")) %>%
+  group_by(species, species_latin) %>%
+  summarise(total_counted = sum(how_many_counted)) %>%
+  ungroup() %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+I just want there to be one Dark-eyed Junco species in this dataset, so I am going to consolidate these four sub-species into one species. (Even though people get way more excited about seeing the Oregon sub-species in Hamilton than the Slate-colored :smile:.)
+
+The first step is to only keep the first two words of the `species_latin` variable:
+
+``` {r species_latin_keep_two_words}
+
+hamilton_cbc <- hamilton_cbc %>%
+  mutate(species_latin = word(species_latin, start = 1, end = 2))
+
+```
+
+We can also see who else is in this list:
+
+``` {r multiple_species}
+
+hamilton_cbc %>%
+  group_by(species_latin) %>%
+  filter(n_distinct(species) > 1) %>%
+  group_by(species, species_latin) %>%
+  summarise(total_counted = sum(how_many_counted)) %>%
+  ungroup() %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+The second step is to sum up the counts for each year across all of the sub-species so the counts are the same, and then filter to only keep the first instance of each `species` (which, when arranged alphabetically, is the shortest species name):
+
+``` {r subspecies}
+
+hamilton_cbc <- hamilton_cbc %>%
+  group_by(year, species_latin) %>%
+  mutate(how_many_counted = sum(how_many_counted)) %>%
+  arrange(year, species) %>%
+  filter(row_number() == 1) %>%
+  ungroup()
+
+hamilton_cbc %>%
+  filter(str_detect(species, "Junco")) %>%
+  group_by(species, species_latin) %>%
+  summarise(total_counted = sum(how_many_counted)) %>%
+  ungroup() %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+Perfect! No more sub-species. The last group of species to deal with is `species` where the name has either a `(` or a `/`:
+
+``` {r name_cleaning}
+
+hamilton_cbc %>%
+  group_by(species, species_latin) %>%
+  summarise(total_counted = sum(how_many_counted)) %>%
+  ungroup() %>%
+  filter(str_detect(species, "\\(|/")) %>% # The "|" is an "or" within the regex
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+I am going to make some executive decisions about what to do with these `species`:
+
+1. Delete species guess: Greater/Lesser Scaup
+2. Assume super-rare species were in fact the more common species:
+    - Bullock's/Baltimore Oriole were Baltimore Orioles
+    - Western/Eastern Meadowlark were Eastern Meadowlarks
+    - Wilson's/Common Snipe were Common Snipes
+    - Spotted/Eastern Towhee (Rufous-sided Towhee) were Eastern Towhees
+    - Pacific/Winter Wren were Winter Wrens
+3. Remove parentheses on the remaining species for neatness
+
+``` {r removing_parentheses}
+
+hamilton_cbc <- hamilton_cbc %>%
+  filter(!(species == "Greater/Lesser Scaup")) %>%
+  mutate(species = case_when(species == "Bullock's/Baltimore Oriole" ~ "Baltimore Oriole",
+                             species == "Western/Eastern Meadowlark" ~ "Eastern Meadowlark",
+                             species == "Wilson's/Common Snipe" ~ "Common Snipe",
+                             species == "Spotted/Eastern Towhee (Rufous-sided Towhee)" ~ "Eastern Towhee",
+                             species == "Pacific/Winter Wren" ~ "Winter Wren",
+                             TRUE ~ species),
+         species_latin = case_when(species_latin == "Icterus bullockii/galbula" ~ "Icterus galbula",
+                             species_latin == "Sturnella neglecta/magna" ~ "Sturnella magna",
+                             species_latin == "Gallinago delicata/gallinago" ~ "Gallinago gallinago",
+                             species_latin == "Pipilo maculatus/erythrophthalmus" ~ "Pipilo erythrophthalmus",
+                             species_latin == "Troglodytes pacificus/hiemalis" ~ "Troglodytes hiemalis",
+                             TRUE ~ species_latin),
+         species = case_when(species == "Barn Owl (American)" ~ "Barn Owl",
+                             species == "Great Blue Heron (Blue form)" ~ "Great Blue Heron",
+                             species == "Palm Warbler (Western)" ~ "Palm Warbler",
+                             species == "Rock Pigeon (Feral Pigeon)" ~ "Rock Pigeon",
+                             species == "Yellow-rumped Warbler (Myrtle)" ~ "Yellow-rumped Warbler",
+                             TRUE ~ species))
+
+# Consolidate the counts between the species whose names were just updated (same step as was done in the earlier sub-species section)
+hamilton_cbc <- hamilton_cbc %>%
+  group_by(year, species) %>%
+  mutate(how_many_counted = sum(how_many_counted)) %>%
+  arrange(year, species) %>%
+  filter(row_number() == 1) %>%
+  ungroup()
+
+```
+
+Finally, I am going to recalculate the `how_many_counted_by_hour` variable that depends on `how_many_counted`:
+
+``` {r recalc_person_hours}
+
+hamilton_cbc <- hamilton_cbc %>%
+  mutate(how_many_counted_by_hour = as.double(how_many_counted) / total_hours)
+
+```
+
+
+## Number of species counted each year
+
+In the course of creating a plot, I believe there was a error in the total hours recorded for 1982, where the total number of hours was only 64, but there was no drop in the number of species counted that year. I think it should have actually been 164 hours, because, in 1981, there were 167 hours, and in 1983, there were 168 hours. So, in the below chunk, I've `mutate`d 1982 to have 164 total hours.
+
+```{r species_and_person_hours}
+
+# Mutating total_hours and how_many_counted_by_hour that depends on it
+
+hamilton_cbc <- hamilton_cbc %>%
+  mutate(total_hours = ifelse(year == 1982, 164, total_hours),
+         how_many_counted_by_hour = as.double(how_many_counted) / total_hours)
+
+```
+
+And thank you to the Christmas Bird Count! The Christmas Bird Count Data was provided by [National Audubon Society](www.christmasbirdcount.org) and through the generous efforts of [Bird Studies Canada](www.bsc-eoc.org) and countless volunteers across the western hemisphere.
+
+```{r write_the_data, include = FALSE}
+
+hamilton_cbc %>%
+  write_rds(here("content",
+                 "post",
+                 "hamilton_cbc_part_3",
+                 "hamilton_cbc_shiny", 
+                 "hamilton_cbc_output_part_2.rds"))
+
+```
