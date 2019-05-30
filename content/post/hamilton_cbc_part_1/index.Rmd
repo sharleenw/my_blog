@@ -23,7 +23,7 @@ image:
 
 # Note
 
-This is the first part of five for this dataset.
+This is the first part of four for this dataset.
 
 - [Part 2a](https://sharleenw.rbind.io/post/hamilton_cbc_part_2a/hamilton-christmas-bird-count-part-2a/) contains data downloading and cleaning
 
