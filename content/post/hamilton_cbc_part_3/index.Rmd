@@ -25,13 +25,13 @@ image:
 
 # Note
 
-This is the fourth part of five for this dataset.
+This is the third part of four for this dataset.
 
 - [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/) and [Part 2a](https://sharleenw.rbind.io/post/hamilton_cbc_part_2a/hamilton-christmas-bird-count-part-2a/) contains data downloading and cleaning
 
 - [Part 2b](https://sharleenw.rbind.io/post/hamilton_cbc_part_2b/hamilton-christmas-bird-count-part-2b/) contains visualizations
 
-- [Part 4](https://sharleenw.rbind.io/post/hamilton_cbc_part_4/hamilton-christmas-bird-count-part-4/) contains a gganimated plot
+- [Part 4](https://sharleenw.rbind.io/post/hamilton_cbc_part_4/hamilton-christmas-bird-count-part-4/) contains a `gganimate`d plot
 
 # Introduction
 

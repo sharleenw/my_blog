@@ -24,7 +24,7 @@ image:
 
 # Note
 
-This is the second part of five for this dataset.
+This is the second part of four for this dataset.
 
 - [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/) contains data downloading and cleaning
 
@@ -32,7 +32,7 @@ This is the second part of five for this dataset.
 
 - [Part 3](https://sharleenw.rbind.io/post/hamilton_cbc_part_3/hamilton-christmas-bird-count-part-3/) contains my Shiny app!
 
-- [Part 4](https://sharleenw.rbind.io/post/hamilton_cbc_part_4/hamilton-christmas-bird-count-part-4/) contains a gganimated plot.
+- [Part 4](https://sharleenw.rbind.io/post/hamilton_cbc_part_4/hamilton-christmas-bird-count-part-4/) contains a `gganimate`d plot.
 
 # Introduction
 
