@@ -27,7 +27,7 @@ link-citations: true
 
 # Note
 
-This is the third part of five for this dataset.
+This is the second (and a half) part of four for this dataset.
 
 - [Part 1](https://sharleenw.rbind.io/post/hamilton_cbc_part_1/hamilton-christmas-bird-count-part-1/) and [Part 2a](https://sharleenw.rbind.io/post/hamilton_cbc_part_2a/hamilton-christmas-bird-count-part-2a/) contains data downloading and cleaning
 
