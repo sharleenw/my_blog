@@ -180,7 +180,7 @@ The secret is...
 
 The document :sparkles:[Create Awesome LaTeX Table with knitr::kable and kableExtra](https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf):sparkles:, written by Hao Zhu! It's got everything you need in order to make fantastic tables in PDF using RMarkdown.
 
-To see the final PDF output of the below `.Rmd` file, download it [here](https://github.com/sharleenw/my_blog/blob/master/content/post/tables_in_pdf/largest_canadian_cities.pdf)!
+To see the final PDF of the below `.Rmd` file, click [here](https://nbviewer.jupyter.org/github/sharleenw/my_blog/blob/master/content/post/tables_in_pdf/largest_canadian_cities.pdf)!
 
 And if you'd like to see the actual `.Rmd` file on my Github page, click [here](https://github.com/sharleenw/my_blog/blob/master/content/post/tables_in_pdf/largest_canadian_cities.Rmd)!
 
