@@ -1,0 +1,777 @@
+---
+title: 'Making tables in PDF using R'
+subtitle: 'A guide on making tables in PDF using RMarkdown and LaTeX.'
+author: Sharleen
+date: '2019-09-01'
+slug: making-pdf-tables-in-r
+summary: A guide on making tables in PDF using RMarkdown and LaTeX.
+categories: []
+tags:
+  - data analysis
+  - R
+  - geography
+  - RMarkdown
+  - kable
+  - kableExtra
+  - LaTeX
+  - tidyverse
+draft: false
+image:
+  caption: 'Toronto image credit: [**Unsplash**](https://unsplash.com/photos/qlKaN7eqay8)'
+  preview_only: false
+
+---
+
+<script src="/rmarkdown-libs/kePrint/kePrint.js"></script>
+
+
+<div id="introduction" class="section level1">
+<h1>Introduction</h1>
+<p>As part of my job, there is a report I create every year.</p>
+<p>Last year, I wrote the report <em>without</em> using R. My workflow went like this:</p>
+<ul>
+<li>Import the CSV file into SPSS</li>
+<li>Manually clean the data and create the tables</li>
+<li>Paste the tables into Excel for formatting</li>
+<li>Paste the tables into Word for more formatting</li>
+<li>Send it to another team to professionally graphic-design the report</li>
+<li>Send the PDF to be published on the website</li>
+</ul>
+<p>Here is what last year’s report looked like: <a href="http://ccrnr.ca/assets/2018-nclex-rn-2017-canadian-and-international-results-ccrnr-en.pdf" class="uri">http://ccrnr.ca/assets/2018-nclex-rn-2017-canadian-and-international-results-ccrnr-en.pdf</a></p>
+<p>I mean, it’s pretty good! But it’s not reproducible…</p>
+<p>Since then, at my work, we’ve been converting all of our processes to be reproducibly written in R! This is much more efficient, and more fun! :smile:</p>
+<p>So this year, while writing the report using R, my workflow went like this:</p>
+<ul>
+<li>Import the CSV file into R</li>
+<li>Run my <code>.R</code> script to clean the data</li>
+<li>Run my <code>.Rmd</code> script to create the PDF</li>
+<li>Commit any changes, because the report is now version-controlled thanks to Jenny Bryan’s <a href="https://happygitwithr.com/">Happy Git and GitHub for the useR</a>! :heart_eyes:</li>
+<li>Send the PDF to be published on the website</li>
+</ul>
+<p>This is totally reproducible and will make the creation of next year’s report so much faster! Here is what this year’s report looked like: <a href="http://ccrnr.ca/assets/2018-ccrnr-nclex-canadian-and-international-results-report-en.pdf" class="uri">http://ccrnr.ca/assets/2018-ccrnr-nclex-canadian-and-international-results-report-en.pdf</a></p>
+</div>
+<div id="how-did-i-create-the-tables-in-pdf" class="section level1">
+<h1>How did I create the tables in PDF?</h1>
+<p>After posting on Twitter about this updated process, some people asked how I created the tables in PDF using R.</p>
+<p>Well, the first few set-up steps in order to create tables in PDF are as follows:</p>
+<ul>
+<li>First, I downloaded the <a href="https://yihui.name/tinytex/"><code>tinytex</code></a> package in R</li>
+<li>I also installed the <code>bookdown</code> package in R, in order to be able to cross-reference tables (then the YAML output document type is <code>bookdown::pdf_document2</code>)</li>
+<li>I also installed the <code>knitr</code> and <code>kableExtra</code> packages, in order to be able to create the tables themselves using the <code>kable()</code> function</li>
+</ul>
+</div>
+<div id="maple_leaf-a-canadian-example-maple_leaf" class="section level1">
+<h1>:maple_leaf: A Canadian example! :maple_leaf:</h1>
+<p>Now I’ll go through an example that uses all of the techniques I used while I was writing the report!</p>
+<p>The Wikipedia page <a href="https://en.wikipedia.org/wiki/List_of_the_100_largest_population_centres_in_Canada">List of the 100 largest population centres in Canada</a> has a table containing the largest 100 population centres (“cities”) in Canada, along with their populations in 2011 and 2016.</p>
+<p>My goal is to make a table that shows:</p>
+<ul>
+<li>the number of cities in each province that are in the top 100</li>
+<li>the population of each province in 2011 and 2016 (including the populations of the top 100 cities only)</li>
+<li>a “Total” row for Canada that shows the total number of cities (this number should equal 100)</li>
+<li>the population of Canada in 2011 and 2016 (including the populations of the top 100 cities only)</li>
+</ul>
+<p>I used the website <a href="https://wikitable2csv.ggor.de/">Convert Wiki Tables to CSV</a> to turn the table on the Wikipedia page into a CSV file.</p>
+<div id="data-import" class="section level2">
+<h2>Data import</h2>
+<p>Here is the R code where I import the CSV file I created (<code>&quot;wiki_data.csv&quot;</code>). Underneath the code, I’ve displayed what the raw data file looks like.</p>
+<pre class="r"><code>library(dplyr)
+library(janitor)
+library(stringr)
+library(knitr)
+library(kableExtra)
+library(readr)
+
+wiki_data_raw &lt;- read_csv(here::here(&quot;content&quot;,
+                                     &quot;post&quot;,
+                                     &quot;tables_in_pdf&quot;,
+                                     &quot;wiki_data.csv&quot;)) %&gt;%
+  clean_names()
+
+wiki_data_raw %&gt;%
+  head() %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:right;">
+rank
+</th>
+<th style="text-align:left;">
+population_centre
+</th>
+<th style="text-align:left;">
+province
+</th>
+<th style="text-align:right;">
+population_in_2016
+</th>
+<th style="text-align:right;">
+population_in_2011
+</th>
+<th style="text-align:left;">
+percent_change
+</th>
+<th style="text-align:left;">
+class
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+Toronto
+</td>
+<td style="text-align:left;">
+Ontario
+</td>
+<td style="text-align:right;">
+5429524
+</td>
+<td style="text-align:right;">
+5144412
+</td>
+<td style="text-align:left;">
++5.5%
+</td>
+<td style="text-align:left;">
+Large urban
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+Montreal
+</td>
+<td style="text-align:left;">
+Quebec
+</td>
+<td style="text-align:right;">
+3519595
+</td>
+<td style="text-align:right;">
+3387653
+</td>
+<td style="text-align:left;">
++3.9%
+</td>
+<td style="text-align:left;">
+Large urban
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:left;">
+Vancouver
+</td>
+<td style="text-align:left;">
+British Columbia
+</td>
+<td style="text-align:right;">
+2264823
+</td>
+<td style="text-align:right;">
+2124443
+</td>
+<td style="text-align:left;">
++6.6%
+</td>
+<td style="text-align:left;">
+Large urban
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+Calgary
+</td>
+<td style="text-align:left;">
+Alberta
+</td>
+<td style="text-align:right;">
+1237656
+</td>
+<td style="text-align:right;">
+1094379
+</td>
+<td style="text-align:left;">
++13.1%
+</td>
+<td style="text-align:left;">
+Large urban
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:left;">
+Edmonton
+</td>
+<td style="text-align:left;">
+Alberta
+</td>
+<td style="text-align:right;">
+1062643
+</td>
+<td style="text-align:right;">
+935361
+</td>
+<td style="text-align:left;">
++13.6%
+</td>
+<td style="text-align:left;">
+Large urban
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:left;">
+Ottawa㤼㸶Gatineau
+</td>
+<td style="text-align:left;">
+Ontario/Quebec
+</td>
+<td style="text-align:right;">
+989657
+</td>
+<td style="text-align:right;">
+945592
+</td>
+<td style="text-align:left;">
++4.7%
+</td>
+<td style="text-align:left;">
+Large urban
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="data-cleaning" class="section level2">
+<h2>Data cleaning</h2>
+<p>I am only interested in the province of each city and what its population was in 2011 and 2016, so my first step in cleaning will be to select only those three columns. I will then use <code>group_by</code> and <code>summarize</code> to get the number of cities and populations on a per-province basis.</p>
+<pre class="r"><code>wiki_data_by_province &lt;- wiki_data_raw %&gt;%
+  select(province,
+         population_2016 = population_in_2016,
+         population_2011 = population_in_2011) %&gt;%
+  mutate(province = str_extract(province, &quot;^([^\\/]+)&quot;)) %&gt;%  # Since some provinces were actually two provinces put together (e.g., &quot;Alberta/Saskatchewan&quot;), I used regex code from this website (https://www.perlmonks.org/?node_id=908348) to get everything before the first forward slash in the string
+  group_by(province) %&gt;%
+  summarize(number_of_cities_in_top_100 = n(),
+            pop_of_largest_cities_2011 = sum(population_2011),
+            pop_of_largest_cities_2016 = sum(population_2016))
+
+wiki_data_by_province %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+province
+</th>
+<th style="text-align:right;">
+number_of_cities_in_top_100
+</th>
+<th style="text-align:right;">
+pop_of_largest_cities_2011
+</th>
+<th style="text-align:right;">
+pop_of_largest_cities_2016
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Alberta
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+2538547
+</td>
+<td style="text-align:right;">
+2891712
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+British Columbia
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:right;">
+3254203
+</td>
+<td style="text-align:right;">
+3471292
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Manitoba
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+715649
+</td>
+<td style="text-align:right;">
+760249
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+New Brunswick
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+244910
+</td>
+<td style="text-align:right;">
+250811
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Newfoundland and Labrador
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+172312
+</td>
+<td style="text-align:right;">
+178427
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nova Scotia
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+335154
+</td>
+<td style="text-align:right;">
+346605
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ontario
+</td>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:right;">
+10140286
+</td>
+<td style="text-align:right;">
+10659522
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Prince Edward Island
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:right;">
+41613
+</td>
+<td style="text-align:right;">
+44739
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Quebec
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:right;">
+5140554
+</td>
+<td style="text-align:right;">
+5337846
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saskatchewan
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+479228
+</td>
+<td style="text-align:right;">
+527638
+</td>
+</tr>
+</tbody>
+</table>
+<p>Since I also want a “Total” row for all of Canada, I will take the above <code>wiki_data_by_province</code> tibble and I will <code>summarize</code> the three columns in a new tibble to get the total sums for the number of cities and their populations in 2011 and 2016. Since using <code>summarize</code> means I lose the <code>province</code> variable, I will recreate it using <code>mutate</code> to have a value of “Canada”.</p>
+<pre class="r"><code>wiki_data_total_row &lt;- wiki_data_by_province %&gt;%
+  summarize(number_of_cities_in_top_100 = sum(number_of_cities_in_top_100),
+            pop_of_largest_cities_2011 = sum(pop_of_largest_cities_2011),
+            pop_of_largest_cities_2016 = sum(pop_of_largest_cities_2016)) %&gt;%
+  mutate(province = &quot;Canada&quot;)
+
+wiki_data_total_row %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:right;">
+number_of_cities_in_top_100
+</th>
+<th style="text-align:right;">
+pop_of_largest_cities_2011
+</th>
+<th style="text-align:right;">
+pop_of_largest_cities_2016
+</th>
+<th style="text-align:left;">
+province
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:right;">
+23062456
+</td>
+<td style="text-align:right;">
+24468841
+</td>
+<td style="text-align:left;">
+Canada
+</td>
+</tr>
+</tbody>
+</table>
+<p>Now I want to merge both the <code>wiki_data_by_province</code> tibble and the <code>wiki_data_total_row</code> tibble on top of one another (using <code>bind_rows</code>). This will be the table that I will save and then read into my <code>.Rmd</code> file in order to create the table in PDF.</p>
+<pre class="r"><code>wiki_data_final_table &lt;- wiki_data_by_province %&gt;%
+  bind_rows(wiki_data_total_row) %&gt;%
+  mutate_at(vars(contains(&quot;pop&quot;)),
+            list(. %&gt;%
+                   scales::comma()))  # This mutate_at (created using code from https://suzan.rbind.io/2018/02/dplyr-tutorial-2/#mutate-at-to-change-specific-columns) converts all variables containing the word &quot;pop&quot; to have commas separating the thousands.
+
+wiki_data_final_table %&gt;%
+  kable() %&gt;%
+  kable_styling(full_width = FALSE, position = &quot;left&quot;)</code></pre>
+<table class="table" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+province
+</th>
+<th style="text-align:right;">
+number_of_cities_in_top_100
+</th>
+<th style="text-align:left;">
+pop_of_largest_cities_2011
+</th>
+<th style="text-align:left;">
+pop_of_largest_cities_2016
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Alberta
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:left;">
+2,538,547
+</td>
+<td style="text-align:left;">
+2,891,712
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+British Columbia
+</td>
+<td style="text-align:right;">
+14
+</td>
+<td style="text-align:left;">
+3,254,203
+</td>
+<td style="text-align:left;">
+3,471,292
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Manitoba
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+715,649
+</td>
+<td style="text-align:left;">
+760,249
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+New Brunswick
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+244,910
+</td>
+<td style="text-align:left;">
+250,811
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Newfoundland and Labrador
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+172,312
+</td>
+<td style="text-align:left;">
+178,427
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nova Scotia
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:left;">
+335,154
+</td>
+<td style="text-align:left;">
+346,605
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ontario
+</td>
+<td style="text-align:right;">
+39
+</td>
+<td style="text-align:left;">
+10,140,286
+</td>
+<td style="text-align:left;">
+10,659,522
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Prince Edward Island
+</td>
+<td style="text-align:right;">
+1
+</td>
+<td style="text-align:left;">
+41,613
+</td>
+<td style="text-align:left;">
+44,739
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Quebec
+</td>
+<td style="text-align:right;">
+20
+</td>
+<td style="text-align:left;">
+5,140,554
+</td>
+<td style="text-align:left;">
+5,337,846
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Saskatchewan
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:left;">
+479,228
+</td>
+<td style="text-align:left;">
+527,638
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Canada
+</td>
+<td style="text-align:right;">
+100
+</td>
+<td style="text-align:left;">
+23,062,456
+</td>
+<td style="text-align:left;">
+24,468,841
+</td>
+</tr>
+</tbody>
+</table>
+<p>Now I will save the <code>wiki_data_final_table</code> tibble as an <code>.rds</code> file so that I can read it into my <code>.Rmd</code> file.</p>
+<pre class="r"><code>wiki_data_final_table %&gt;%
+  saveRDS(here::here(&quot;content&quot;,
+                     &quot;post&quot;,
+                     &quot;tables_in_pdf&quot;,
+                     &quot;cleaned_wiki_data_for_table.rds&quot;))</code></pre>
+</div>
+<div id="creating-the-tables-in-pdf" class="section level2">
+<h2>Creating the tables in PDF</h2>
+<p>Below is the <code>.Rmd</code> file that reads in the <code>wiki_data_final_table</code> tibble and uses the <code>kable</code> and <code>kableExtra</code> packages in order to get the table to look the way I want it to.</p>
+<p>Also, notice that in the YAML, my output format is <code>bookdown::pdf_document2</code>. This allows me to cross-reference my tables with the text of my document.</p>
+<p>So, what’s the real secret to creating tables in PDF from RMarkdown?</p>
+<p>The secret is…</p>
+<p>The document :sparkles::tada:<a href="https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf">Create Awesome LaTeX Table with knitr::kable andkableExtra</a>:tada::sparkles:, written by Hao Zhu! It’s got everything you need in order to make fantastic tables in PDF using RMarkdown.</p>
+<p>To see the final PDF output of the below <code>.Rmd</code> file, click here! (And if you’d like to see the actual <code>.Rmd</code> file on my Github page, click here!)</p>
+<pre><code>
+
+
+---
+output: 
+  bookdown::pdf_document2:
+    toc: no
+    number_sections: FALSE
+    keep_tex: TRUE
+always_allow_html: yes
+geometry: &quot;left=1.5cm,right=7cm,top=2cm,bottom=2cm&quot;
+
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      out.width= &quot;8.5in&quot;)
+
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+# Colours for the table
+blue_table_colour &lt;- &quot;#9BD4F5&quot;
+
+orange_table_colour &lt;- &quot;#FF9000&quot;
+
+light_striping_table_colour &lt;- &quot;#DDDDDD&quot;
+
+```
+
+```{r import-cleaned-data}
+
+wiki_data_final_table &lt;- readRDS(here::here(&quot;content&quot;,
+                                            &quot;post&quot;,
+                                            &quot;tables_in_pdf&quot;,
+                                            &quot;cleaned_wiki_data_for_table.rds&quot;))
+
+```
+
+# The top 100 cities in Canada
+
+Table \@ref(tab:table-population-by-province) shows the populations of each province and of Canada in total for the years 2011 and 2016 (this data includes only the top 100 largest cities in Canada).
+
+```{r table-population-by-province}
+
+wiki_data_final_table %&gt;%
+  knitr::kable(
+    &quot;latex&quot;,
+    booktabs = TRUE,
+    linesep = &quot;&quot;,
+    caption = &quot;Number of cities and population of each province (including only the largest 100 cities in Canada)&quot;,
+    col.names = c(&quot;Province&quot;, &quot;Number of largest 100 cities in this province&quot;, rep(c(&quot;2011&quot;, &quot;2016&quot;), 1)),
+    align = c(&quot;l&quot;, rep(&quot;r&quot;, 3))) %&gt;%
+  kable_styling(latex_options = &quot;HOLD_position&quot;) %&gt;%  # This line holds the table where you want it, so LaTeX won&#39;t move it around
+  add_header_above(
+    c(&quot; &quot; = 1,  # There has to be a space here, like this &quot; &quot;, and not like this &quot;&quot;
+      &quot; &quot; = 1,
+      &quot;Population&quot; = 2),
+    bold = TRUE,
+    line = FALSE,
+    background = blue_table_colour
+  ) %&gt;%
+  column_spec(1,
+              width = &quot;6cm&quot;) %&gt;%
+  column_spec(2:4,
+              width = &quot;3cm&quot;) %&gt;%
+  footnote(general = &quot;There are other cities in Canada not included in this table; the excluded cities are those smaller than the 100 largest cities in Canada.&quot;,
+           threeparttable = TRUE,
+           general_title = &quot;Footnote:&quot;) %&gt;%
+  row_spec(
+    row = 0,
+    background = blue_table_colour,
+    bold = TRUE,
+    align = &quot;c&quot;
+  ) %&gt;%
+  row_spec(
+    row = c(2,4,6,8,10),
+    background = light_striping_table_colour
+  ) %&gt;%
+  row_spec(
+    row = 11,
+    background = orange_table_colour,
+    bold = TRUE
+  ) %&gt;%
+  row_spec(
+    row = 10,
+    hline_after = TRUE)  # This hline unfortunately gets hidden by the orange colouring of the final row, so this line of code doesn&#39;t really do anything :(
+
+```
+</code></pre>
+</div>
+</div>
