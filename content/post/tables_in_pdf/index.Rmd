@@ -1,0 +1,193 @@
+---
+title: 'Making tables in PDF using R'
+subtitle: 'A guide on making tables in PDF using RMarkdown and LaTeX.'
+author: Sharleen
+date: '2019-09-01'
+slug: making-pdf-tables-in-r
+summary: A guide on making tables in PDF using RMarkdown and LaTeX.
+categories: []
+tags:
+  - data analysis
+  - R
+  - geography
+  - RMarkdown
+  - kable
+  - kableExtra
+  - LaTeX
+  - tidyverse
+draft: false
+image:
+  caption: 'Toronto image credit: [**Unsplash**](https://unsplash.com/photos/qlKaN7eqay8)'
+  preview_only: false
+
+---
+
+# Introduction
+
+As part of my job, there is a report I create every year.
+
+Last year, I wrote the report *without* using R. My workflow went like this:
+
+- Import the CSV file into SPSS
+- Manually clean the data and create the tables
+- Paste the tables into Excel for formatting
+- Paste the tables into Word for more formatting
+- Send it to another team to professionally graphic-design the report
+- Send the PDF to be published on the website
+
+Here is what last year's report looked like: http://ccrnr.ca/assets/2018-nclex-rn-2017-canadian-and-international-results-ccrnr-en.pdf
+
+I mean, it's pretty good! But it's not reproducible...
+
+Since then, at my work, we've been converting all of our processes to be reproducibly written in R! This is much more efficient, and more fun! :smile:
+
+So this year, while writing the report using R, my workflow went like this:
+
+- Import the CSV file into R
+- Run my `.R` script to clean the data
+- Run my `.Rmd` script to create the PDF
+- Commit any changes, because the report is now version-controlled thanks to Jenny Bryan's [Happy Git and GitHub for the useR](https://happygitwithr.com/)! :heart_eyes:
+- Send the PDF to be published on the website
+
+This is totally reproducible and will make the creation of next year's report so much faster! Here is what this year's report looked like: http://ccrnr.ca/assets/2018-ccrnr-nclex-canadian-and-international-results-report-en.pdf
+
+# How did I create the tables in PDF?
+
+After posting on Twitter about this updated process, some people asked how I created the tables in PDF using R.
+
+Well, the first few set-up steps in order to create tables in PDF are as follows:
+
+- First, I downloaded the [`tinytex`](https://yihui.name/tinytex/) package in R
+- I also installed the `bookdown` package in R, in order to be able to cross-reference tables (then the YAML output document type is `bookdown::pdf_document2`)
+- I also installed the `knitr` and `kableExtra` packages, in order to be able to create the tables themselves using the `kable()` function
+
+# :maple_leaf: A Canadian example! :maple_leaf:
+
+Now I'll go through an example that uses all of the techniques I used while I was writing the report!
+
+The Wikipedia page [List of the 100 largest population centres in Canada](https://en.wikipedia.org/wiki/List_of_the_100_largest_population_centres_in_Canada) has a table containing the largest 100 population centres ("cities") in Canada, along with their populations in 2011 and 2016.
+
+My goal is to make a table that shows:
+
+- the number of cities in each province that are in the top 100
+- the population of each province in 2011 and 2016 (including the populations of the top 100 cities only)
+- a "Total" row for Canada that shows the total number of cities (this number should equal 100)
+- the population of Canada in 2011 and 2016 (including the populations of the top 100 cities only)
+
+I used the website [Convert Wiki Tables to CSV](https://wikitable2csv.ggor.de/) to turn the table on the Wikipedia page into a CSV file.
+
+## Data import
+
+Here is the R code where I import the CSV file I created (`"wiki_data.csv"`). Underneath the code, I've displayed what the raw data file looks like.
+
+```{r data-import-and-cleaning, message = FALSE, warning = FALSE}
+
+library(dplyr)
+library(janitor)
+library(stringr)
+library(knitr)
+library(kableExtra)
+library(readr)
+
+wiki_data_raw <- read_csv(here::here("content",
+                                     "post",
+                                     "tables_in_pdf",
+                                     "wiki_data.csv")) %>%
+  clean_names()
+
+wiki_data_raw %>%
+  head() %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+## Data cleaning
+
+I am only interested in the province of each city and what its population was in 2011 and 2016, so my first step in cleaning will be to select only those three columns. I will then use `group_by` and `summarize` to get the number of cities and populations on a per-province basis.
+
+```{r group-data-by-province}
+
+wiki_data_by_province <- wiki_data_raw %>%
+  select(province,
+         population_2016 = population_in_2016,
+         population_2011 = population_in_2011) %>%
+  mutate(province = str_extract(province, "^([^\\/]+)")) %>%  # Since some provinces were actually two provinces put together (e.g., "Alberta/Saskatchewan"), I used regex code from this website (https://www.perlmonks.org/?node_id=908348) to get everything before the first forward slash in the string
+  group_by(province) %>%
+  summarize(number_of_cities_in_top_100 = n(),
+            pop_of_largest_cities_2011 = sum(population_2011),
+            pop_of_largest_cities_2016 = sum(population_2016))
+
+wiki_data_by_province %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+Since I also want a "Total" row for all of Canada, I will take the above `wiki_data_by_province` tibble and I will `summarize` the three columns in a new tibble to get the total sums for the number of cities and their populations in 2011 and 2016. Since using `summarize` means I lose the `province` variable, I will recreate it using `mutate` to have a value of "Canada".
+
+```{r create-the-total-row}
+
+wiki_data_total_row <- wiki_data_by_province %>%
+  summarize(number_of_cities_in_top_100 = sum(number_of_cities_in_top_100),
+            pop_of_largest_cities_2011 = sum(pop_of_largest_cities_2011),
+            pop_of_largest_cities_2016 = sum(pop_of_largest_cities_2016)) %>%
+  mutate(province = "Canada")
+
+wiki_data_total_row %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+Now I want to merge both the `wiki_data_by_province` tibble and the `wiki_data_total_row` tibble on top of one another (using `bind_rows`). This will be the table that I will save and then read into my `.Rmd` file in order to create the table in PDF.
+
+```{r merge-tables-together}
+
+wiki_data_final_table <- wiki_data_by_province %>%
+  bind_rows(wiki_data_total_row) %>%
+  mutate_at(vars(contains("pop")),
+            list(. %>%
+                   scales::comma()))  # This mutate_at (created using code from https://suzan.rbind.io/2018/02/dplyr-tutorial-2/#mutate-at-to-change-specific-columns) converts all variables containing the word "pop" to have commas separating the thousands.
+
+wiki_data_final_table %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, position = "left")
+
+```
+
+Now I will save the `wiki_data_final_table` tibble as an `.rds` file so that I can read it into my `.Rmd` file.
+
+```{r save-the-final-table}
+
+wiki_data_final_table %>%
+  saveRDS(here::here("content",
+                     "post",
+                     "tables_in_pdf",
+                     "cleaned_wiki_data_for_table.rds"))
+
+```
+
+## Creating the tables in PDF
+
+Below is the `.Rmd` file that reads in the `wiki_data_final_table` tibble and uses the `kable` and `kableExtra` packages in order to get the table to look the way I want it to.
+
+Also, notice that in the YAML, my output format is `bookdown::pdf_document2`. This allows me to cross-reference my tables with the text of my document.
+
+So, what's the real secret to creating tables in PDF from RMarkdown?
+
+The secret is...
+
+The document :sparkles:[Create Awesome LaTeX Table with knitr::kable andkableExtra](https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf):sparkles:, written by Hao Zhu! It's got everything you need in order to make fantastic tables in PDF using RMarkdown.
+
+To see the final PDF output of the below `.Rmd` file, download it [here](https://github.com/sharleenw/my_blog/blob/master/content/post/tables_in_pdf/largest_canadian_cities.pdf)!
+
+And if you'd like to see the actual `.Rmd` file on my Github page, click [here](https://github.com/sharleenw/my_blog/blob/master/content/post/tables_in_pdf/largest_canadian_cities.Rmd)!
+
+````
+
+`r # Code for how to embed this second Rmd document from the main Rmd document found here: https://stackoverflow.com/questions/35459166/embed-rmarkdown-with-rmarkdown-without-knitr-evaluation`
+
+`r paste(readLines(here::here("content", "post", "tables_in_pdf", "largest_canadian_cities.Rmd")), collapse = '\n')`
+
+````
