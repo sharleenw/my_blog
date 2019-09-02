@@ -1,0 +1,90 @@
+---
+output: 
+  bookdown::pdf_document2:
+    toc: no
+    number_sections: FALSE
+    keep_tex: TRUE
+always_allow_html: yes
+geometry: "left=1.5cm,right=7cm,top=2cm,bottom=2cm"
+
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      out.width= "8.5in")
+
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+# Colours for the table
+blue_table_colour <- "#9BD4F5"
+
+orange_table_colour <- "#FF9000"
+
+light_striping_table_colour <- "#DDDDDD"
+
+```
+
+```{r import-cleaned-data}
+
+wiki_data_final_table <- readRDS(here::here("content",
+                                            "post",
+                                            "tables_in_pdf",
+                                            "cleaned_wiki_data_for_table.rds"))
+
+```
+
+# The top 100 cities in Canada
+
+Table \@ref(tab:table-population-by-province) shows the populations of each province and of Canada in total for the years 2011 and 2016 (this data includes only the top 100 largest cities in Canada).
+
+```{r table-population-by-province}
+
+wiki_data_final_table %>%
+  knitr::kable(
+    "latex",
+    booktabs = TRUE,
+    linesep = "",
+    caption = "Number of cities and population of each province (including only the largest 100 cities in Canada)",
+    col.names = c("Province", "Number of largest 100 cities in this province", rep(c("2011", "2016"), 1)),
+    align = c("l", rep("r", 3))) %>%
+  kable_styling(latex_options = "HOLD_position") %>%  # This line holds the table where you want it, so LaTeX won't move it around
+  add_header_above(
+    c(" " = 1,  # There has to be a space here, like this " ", and not like this ""
+      " " = 1,
+      "Population" = 2),
+    bold = TRUE,
+    line = FALSE,
+    background = blue_table_colour
+  ) %>%
+  column_spec(1,
+              width = "6cm") %>%
+  column_spec(2:4,
+              width = "3cm") %>%
+  footnote(general = "There are other cities in Canada not included in this table; the excluded cities are those smaller than the 100 largest cities in Canada.",
+           threeparttable = TRUE,
+           general_title = "Footnote:") %>%
+  row_spec(
+    row = 0,
+    background = blue_table_colour,
+    bold = TRUE,
+    align = "c"
+  ) %>%
+  row_spec(
+    row = c(2,4,6,8,10),
+    background = light_striping_table_colour
+  ) %>%
+  row_spec(
+    row = 11,
+    background = orange_table_colour,
+    bold = TRUE
+  ) %>%
+  row_spec(
+    row = 10,
+    hline_after = TRUE)  # This hline unfortunately gets hidden by the orange colouring of the final row, so this line of code doesn't really do anything :(
+
+```
