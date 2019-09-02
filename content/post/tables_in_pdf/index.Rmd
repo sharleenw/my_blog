@@ -178,7 +178,7 @@ So, what's the real secret to creating tables in PDF from RMarkdown?
 
 The secret is...
 
-The document :sparkles:[Create Awesome LaTeX Table with knitr::kable andkableExtra](https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf):sparkles:, written by Hao Zhu! It's got everything you need in order to make fantastic tables in PDF using RMarkdown.
+The document :sparkles:[Create Awesome LaTeX Table with knitr::kable and kableExtra](https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf):sparkles:, written by Hao Zhu! It's got everything you need in order to make fantastic tables in PDF using RMarkdown.
 
 To see the final PDF output of the below `.Rmd` file, download it [here](https://github.com/sharleenw/my_blog/blob/master/content/post/tables_in_pdf/largest_canadian_cities.pdf)!
 
