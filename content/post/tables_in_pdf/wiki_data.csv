@@ -1,0 +1,101 @@
+Rank,Population centre,Province,Population in 2016,Population in 2011,% Change,Class
+1,Toronto,Ontario,"5,429,524","5,144,412",+5.5%,Large urban
+2,Montreal,Quebec,"3,519,595","3,387,653",+3.9%,Large urban
+3,Vancouver,British Columbia,"2,264,823","2,124,443",+6.6%,Large urban
+4,Calgary,Alberta,"1,237,656","1,094,379",+13.1%,Large urban
+5,Edmonton,Alberta,"1,062,643","935,361",+13.6%,Large urban
+6,Ottawa–Gatineau,Ontario/Quebec,"989,657","945,592",+4.7%,Large urban
+7,Winnipeg,Manitoba,"711,925","670,025",+6.3%,Large urban
+8,Quebec City,Quebec,"705,103","681,804",+3.4%,Large urban
+9,Hamilton,Ontario,"693,645","671,008",+3.4%,Large urban
+10,Kitchener,Ontario,"470,015","446,295",+5.3,Large urban
+11,London,Ontario,"383,437","365,715",+4.8%,Large urban
+12,Victoria,British Columbia,"335,696","314,596",+6.7%,Large urban
+13,Halifax,Nova Scotia,"316,701","304,979",+3.8%,Large urban
+14,Oshawa,Ontario,"308,875","290,704",+6.3%,Large urban
+15,Windsor,Ontario,"287,069","277,970",+3.3%,Large urban
+16,Saskatoon,Saskatchewan,"245,181","220,546",+11.2%,Large urban
+17,St. Catharines–Niagara Falls,Ontario,"229,246","220,616",+3.9%,Large urban
+18,Regina,Saskatchewan,"214,631","192,079",+11.7%,Large urban
+19,St. John's,Newfoundland and Labrador,"178,427","172,312",+3.5%,Large urban
+20,Kelowna,British Columbia,"151,957","140,131",+8.4%,Large urban
+21,Barrie,Ontario,"145,614","140,383",+3.7%,Large urban
+22,Sherbrooke,Quebec,"139,565","133,673",+4.4%,Large urban
+23,Guelph,Ontario,"132,397","122,457",+8.1%,Large urban
+24,Abbotsford,British Columbia,"121,279","115,011",+5.4%,Large urban
+25,Kingston,Ontario,"117,660","114,928",+2.4%,Large urban
+26,Kanata,Ontario,"117,304","104,559",+12.2%,Large urban
+27,Trois-Rivières,Quebec,"114,203","112,626",+1.4%,Large urban
+28,Moncton,New Brunswick,"108,620","103,926",+4.5%,Large urban
+29,Chicoutimi–Jonquière,Quebec,"104,222","104,589",-0.4%,Large urban
+30,Milton,Ontario,"101,715","75,880",+34.0%,Large urban
+31,Red Deer,Alberta,"99,718","89,715",+11.1%,Medium
+32,Brantford,Ontario,"98,179","94,269",+4.1%,Medium
+33,Thunder Bay,Ontario,"93,952","95,251",-1.4%,Medium
+34,White Rock,British Columbia,"93,729","85,062",+7.8%,Medium
+35,Nanaimo,British Columbia,"92,004","85,357",+10.2%,Medium
+36,Sudbury,Ontario,"88,054","87,950",+0.1%,Medium
+37,Lethbridge,Alberta,"87,572","79,364",+10.3%,Medium
+38,Saint-Jean-sur-Richelieu,Quebec,"84,685","81,802",+3.5%,Medium
+39,Peterborough,Ontario,"82,094","79,863",+2.8%,Medium
+40,Kamloops,British Columbia,"78,026","72,755",+7.2%,Medium
+41,Saint-Jérôme,Quebec,"77,146","69,598",+10.8%,Medium
+42,Chilliwack,British Columbia,"73,161","67,374",+8.6%,Medium
+43,Sarnia,Ontario,"72,125","73,044",-1.3%,Medium
+44,Châteauguay,Quebec,"71,164","66,445",+7.1%,Medium
+45,Drummondville,Quebec,"68,601","65,341",+5.0%,Medium
+46,Belleville,Ontario,"67,666","66,331",+2.0%,Medium
+47,Fort McMurray,Alberta,"66,573","60,555",+9.9%,Medium
+48,Sault Ste. Marie,Ontario,"66,313","68,143",-2.7%,Medium
+49,Prince George,British Columbia,"65,510","62,623",+4.6%,Medium
+50,Medicine Hat,Alberta,"62,935","59,624",+5.6%,Medium
+51,Welland–Pelham,Ontario,"62,388","60,540",+3.1%,Medium
+52,Grande Prairie,Alberta,"62,320","55,236",+12.8%,Medium
+53,Airdrie,Alberta,"61,082","42,844",+42.6%,Medium
+54,Granby,Quebec,"59,691","57,351",+4.1%,Medium
+55,Fredericton,New Brunswick,"59,405","56,663",+4.8%,Medium
+56,Saint John,New Brunswick,"58,341","60,459",-3.5%,Medium
+57,Beloeil,Quebec,"50,845","48,688",+4.4%,Medium
+58,North Bay,Ontario,"50,396","52,405",-3.8%,Medium
+59,Saint-Hyacinthe,Quebec,"50,032","47,289",+5.8%,Medium
+60,Brandon,Manitoba,"48,324","45,624",+5.9%,Medium
+61,Vernon,British Columbia,"48,073","46,125",+4.2%,Medium
+62,Cornwall,Ontario,"45,723","45,508",+0.5%,Medium
+63,Joliette,Quebec,"45,508","42,850",+6.2%,Medium
+64,Courtenay,British Columbia,"45,018","43,346",+3.9%,Medium
+65,Charlottetown,Prince Edward Island,"44,739","41,613",+7.5%,Medium
+66,Victoriaville,Quebec,"44,735","41,925",+6.7%,Medium
+67,Chatham,Ontario,"43,550","44,676",-2.5%,Medium
+68,Georgetown,Ontario,"42,123","40,185",+4.8%,Medium
+69,St. Thomas,Ontario,"41,813","40,973",+2.1%,Medium
+70,Woodstock,Ontario,"40,404","37,443",+7.9%,Medium
+71,Bowmanville,Ontario,"39,371","35,168",+12.0%,Medium
+72,Salaberry-de-Valleyfield,Quebec,"39,048","38,323",+1.9%,Medium
+73,Shawinigan,Quebec,"38,211","39,427",-3.1%,Medium
+74,Rimouski,Quebec,"36,942","35,437",+4.2%,Medium
+75,Spruce Grove,Alberta,"36,135","27,970",+29.2%,Medium
+76,Sorel,Quebec,"36,088","35,770",+0.9%,Medium
+77,Campbell River,British Columbia,"35,138","33,448",+5.1%,Medium
+78,Prince Albert,Saskatchewan,"35,102","34,057",+3.1%,Medium
+79,Penticton,British Columbia,"33,617","32,823",+2.4%,Medium
+80,Mission,British Columbia,"33,261","31,109",+6.9%,Medium
+81,Leamington,Ontario,"32,991","32,520",+1.4%,Medium
+82,Moose Jaw,Saskatchewan,"32,724","32,546",+0.5%,Medium
+83,"Stouffville, Ontario",Ontario,"32,634","24,654",+32.4%,Medium
+84,Lloydminster,Alberta/Saskatchewan,"31,400","27,769",+13.1%,Medium
+85,Orillia,Ontario,"31,128","30,546",+1.9%,Medium
+86,Stratford,Ontario,"31,053","30,516",+1.8%,Medium
+87,Orangeville,Ontario,"30,734","29,007",+6.0%,Medium
+88,Cape Breton–Sydney,Nova Scotia,"29,904","30,175",-0.9%,Small
+89,Bradford,Ontario,"29,862","23,024",+29.7%,Small
+90,Leduc,Alberta,"29,556","23,827",+24.0%,Small
+91,Timmins,Ontario,"29,331","30,485",-3.8%,Small
+92,Okotoks,Alberta,"28,833","24,470",+17.8%,Small
+93,Saint-Georges,Quebec,"26,921","24,940",+7.9%,Small
+94,Keswick–Elmhurst Beach,Ontario,"26,757","26,002",+2.9%,Small
+95,Bolton,Ontario,"26,378","27,108",-2.7%,Small
+96,Val-d'Or,Quebec,"25,541","25,023",+2.1%,Small
+97,Cochrane,Alberta,"25,289","17,433",+45.1%,Small
+98,Quispamsis–Rothesay,New Brunswick,"24,445","23,862",+2.4%,Small
+99,Midland,Ontario,"24,353","23,791",+2.4%,Small
+100,Innisfil,Ontario,"23,992","20,365",+17.8%,Small
