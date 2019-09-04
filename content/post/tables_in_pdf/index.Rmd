@@ -74,7 +74,7 @@ My goal is to make a table that shows:
 - a "Total" row for Canada that shows the total number of cities (this number should equal 100)
 - the population of Canada in 2011 and 2016 (including the populations of the top 100 cities only)
 
-I used the website [Convert Wiki Tables to CSV](https://wikitable2csv.ggor.de/) to turn the table on the Wikipedia page into a CSV file.
+I used the website [Convert Wiki Tables to CSV](https://wikitable2csv.ggor.de/) to turn the table on the Wikipedia page into a CSV file. Click [here](https://github.com/sharleenw/my_blog/blob/master/content/post/tables_in_pdf/wiki_data.csv) to see the full raw file on my Github page.
 
 ## Data import
 
