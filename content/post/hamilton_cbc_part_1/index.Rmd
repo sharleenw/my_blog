@@ -70,7 +70,7 @@ library(here)
 
 ```
 
-I read in the data using the [`readr`](https://readr.tidyverse.org/) and [`here`](https://malco.io/2018/11/05/why-should-i-use-the-here-package/) packages.
+I read in the data using the [`readr`](https://readr.tidyverse.org/) and [`here`](https://malco.io/2018/11/05/why-should-i-use-the-here-package/) packages. Click [here](https://github.com/sharleenw/my_blog/blob/master/content/post/hamilton_cbc_part_1/hamilton-cbc-all-years-csv.csv) to download the raw file on my Github page.
 
 ```{r reading_the_data, message = FALSE, warning = FALSE}
 
